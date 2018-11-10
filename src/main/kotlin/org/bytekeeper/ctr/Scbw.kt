@@ -10,7 +10,8 @@ class ScbwRunner(
     val botDir: String? = null,
     val gameDir: String? = null,
     val readOverwrite: Boolean? = true,
-    val gameSpeed: Int? = null
+    val gameSpeed: Int? = null,
+    val gameName: String? = null
 ) {
     private val log = LogManager.getLogger()
 
@@ -31,11 +32,13 @@ class ScbwRunner(
         addParameter("--game_dir", gameDir)
         addParameter("--opt", dockerOpts)
         addParameter("--game_speed", gameSpeed)
+        addParameter("--game_name", gameName)
         if (readOverwrite == true) cmd += "--read_overwrite"
         val process = Runtime.getRuntime().exec(cmd.toTypedArray())
         val exited = process.waitFor(15, TimeUnit.MINUTES)
         if (!exited) {
-            process.destroyForcibly()
+            log.error("Timeout - killing game ${bots[0]} vs ${bots[1]}")
+            process.destroy()
         }
     }
 }
