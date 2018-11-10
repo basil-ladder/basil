@@ -1,17 +1,21 @@
 package org.bytekeeper.ctr
 
+import org.apache.logging.log4j.LogManager
 import java.util.concurrent.TimeUnit
 
 class ScbwRunner(
     val bots: List<String>,
     val dockerOpts: String? = "--cpu-quota=1 --memory=1G",
-    val timeout: Int? = null,
+    val timeout: Int? = 600,
     val botDir: String? = null,
     val gameDir: String? = null,
-    val readOverwrite: Boolean? = null,
+    val readOverwrite: Boolean? = true,
     val gameSpeed: Int? = null
 ) {
+    private val log = LogManager.getLogger()
+
     fun run() {
+        log.info("Upcoming: ${bots[0]} vs ${bots[1]}")
         val cmd = mutableListOf("scbw.play", "--headless")
 
         fun addParameter(par: String, value: Any?) {

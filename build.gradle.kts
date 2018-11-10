@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    application
     kotlin("jvm") version "1.3.0"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("com.github.ben-manes.versions") version "0.20.0"
@@ -8,6 +9,7 @@ plugins {
 
 group = "ctr"
 version = "1.0-SNAPSHOT"
+application.mainClassName = "org.bytekeeper.ctr.MainKt"
 
 repositories {
     mavenCentral()
