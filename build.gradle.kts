@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-    kotlin("jvm") version "1.3.0"
+    kotlin("jvm") version "1.3.10"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("com.github.ben-manes.versions") version "0.20.0"
 }
@@ -27,7 +27,6 @@ dependencies {
     implementation(kotlin("reflect"))
 
     implementation("com.beust:klaxon:4.0.1")
-    implementation("com.github.docker-java:docker-java:3.1.0-rc-5")
 
     implementation("org.apache.logging.log4j:log4j-api")
     implementation("org.apache.logging.log4j:log4j-core")

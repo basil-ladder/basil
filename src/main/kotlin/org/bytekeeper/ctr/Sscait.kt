@@ -1,25 +1,39 @@
 package org.bytekeeper.ctr
 
 import com.beust.klaxon.Klaxon
-import java.net.URL
+import org.bytekeeper.ctr.Sscait.dateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 object Sscait {
+    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
     fun retrieveListOfBots(): List<BotInfo> {
-        val connection = URL("https://sscaitournament.com/api/bots.php").openConnection()
-        connection.setRequestProperty(
-            "User-Agent",
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
-        )
-        return connection.getInputStream()
-            .use {
-                Klaxon().parseArray(it)!!
-            }
+        return download("https://sscaitournament.com/api/bots.php").use {
+            klaxon.parseArray(it)!!
+        }
     }
 }
 
-data class BotInfo(
-    val name: String, val race: String, val wins: String, val losses: String, val status: String,
-    val update: String, val botBinary: String, val bwapiDLL: String
+class BotInfo(
+    val name: String,
+    val race: String,
+    val wins: String? = "0",
+    val losses: String? = "0",
+    val status: String? = "Disabled",
+    val update: String? = null,
+    val botBinary: String,
+    val bwapiDLL: String,
+    val botType: String
 ) {
     val isDisabled = status == "Disabled"
+
+    fun downloadBinary() = download(botBinary)
+
+    fun downloadBwapiDll() = download(bwapiDLL)
+
+    fun lastUpdated(): Instant =
+        if (update == null) Instant.MIN else LocalDateTime.parse(update, dateFormat).toInstant(ZoneOffset.UTC)
 }
