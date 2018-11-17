@@ -29,6 +29,10 @@ title: Elo-Ratings
 				var rating = document.createTextNode(data[i].rating);
 				ratingCol.appendChild(rating);
 				row.appendChild(ratingCol);
+				var playedCol = document.createElement("td");
+				var played= document.createTextNode(data[i].played);
+				playedCol.appendChild(played);
+				row.appendChild(playedCol);
 				table.appendChild(row);
 			}
 		}
@@ -38,6 +42,7 @@ title: Elo-Ratings
 			<th>#</th>
 			<th>Bot</th>
 			<th>ELO</th>
+			<th># Games</th>
 		</tr>
 	</table>
 	<small>Source: <a href="http://basilicum.bytekeeper.org/agg/elo.json">http://basilicum.bytekeeper.org/agg/elo.json</a></small>
