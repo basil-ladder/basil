@@ -15,5 +15,5 @@ object Ctr {
         return result
     }
 
-    fun botDirs() = botPath.toList()
+    fun botDirs() = Files.list(botPath)
 }
