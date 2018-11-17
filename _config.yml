@@ -16,7 +16,7 @@
 title: BASIL Ladder
 email: bytekeeper@mailbox.org
 description: >- # this means to ignore newlines until "baseurl:"
-  This is the BASIL Ladder page.
+  A Starcraft Broodwar AI bot ladder. Runs 24/7.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "basil.bytekeeper.org" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
