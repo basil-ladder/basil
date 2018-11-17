@@ -48,6 +48,7 @@ object Elo {
 
             val timestamp = Instant.now().toEpochMilli()
             updateEloHistory(winner, eloA.rating, timestamp)
+            updateEloHistory(loser, eloB.rating, timestamp)
             Unit
         }
     }
