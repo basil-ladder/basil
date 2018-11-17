@@ -35,14 +35,17 @@ internal class EloTest {
     }
 
     @Test
-    fun testEloFile() {
+    fun shouldUpdateAggregatedEloFile() {
         // GIVEN
         val tempDirectory = Files.createTempDirectory("ctr")
         Config.workDir = tempDirectory.toFile().absolutePath
 
         // WHEN
         for (i in 1..30) {
-            Elo.updateElo("a", "b", i % 2 == 0)
+            if (i % 2 == 0)
+                Elo.updateElo("a", "b")
+            else
+                Elo.updateElo("b", "a")
         }
 
         // THEN
@@ -52,5 +55,27 @@ internal class EloTest {
                 abs(t.toList()[0] as Int - 1600) < 20 &&
                         t.toList()[1] == 30
             }
+    }
+
+    @Test
+    fun shouldUpdateIndividualEloFile() {
+        // GIVEN
+        val tempDirectory = Files.createTempDirectory("ctr")
+        Config.workDir = tempDirectory.toFile().absolutePath
+
+        // WHEN
+        for (i in 1..30) {
+            if (i % 2 == 0)
+                Elo.updateElo("a", "b")
+            else
+                Elo.updateElo("b", "a")
+        }
+
+        // THEN
+        val eloHistory = klaxon.parse<BotEloHistory>(Ctr.botDir("a").resolve(ELO_HISTORY_FILENAME).toFile())
+        assertThat(eloHistory).hasFieldOrPropertyWithValue("botName", "a")
+        assertThat(eloHistory!!.eloList).extracting("rating")
+            .contains(1602, 1604, 1608)
+            .hasSize(15)
     }
 }
