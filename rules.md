@@ -28,5 +28,9 @@ Bots
 * All replays can be downloaded by everyone.
 * Game, bot and crash logs can also be downloaded by everyone.
 * Accessing the internet/network is generally prohibited. (With some noteable exception I won't disclaim)
+* Hardware resources: 
+  * 1 CPU core of an `AMD Ryzen 7 1700X`.
+  * 1 GB of RAM (- memory uses by OS).
+  * Up to 100MB of disk space total for your read + write + ai drectories.
 
 [SSCAIT]: https://sscaitournament.com/
