@@ -9,7 +9,7 @@ title: Elo-Ratings
 				buildTable(JSON.parse(this.responseText));
 			}
 		}
-		xmlhttp.open("GET", "http://basilicum.bytekeeper.org/agg/elo.json", true);
+		xmlhttp.open("GET", "http://basilicum.bytekeeper.org/stats/elo.json", true);
 		xmlhttp.send();
 
 		function buildTable(data) {
