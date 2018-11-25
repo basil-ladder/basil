@@ -17,12 +17,15 @@ Games
 * *Realtime limit* is 20 minutes - after that a game will be killed and won't count.
 * *Draws* are not possible.
 * *Speed* setting is LF3 (Normal).
-* *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps)
+* *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps).
+* A *crash* counts as a loss, unless both bots crash.
+* Every played game is counted as "played", even if it crashes.
 
 Bots
 ====
 * Generally, the rules of [SSCAIT](https://sscaitournament.com/index.php?action=rules) apply.
-* `bwapi-data/write` will be copied to your `bwapi-data/read` directory. Currently, the `read` directory will not be cleared, even when a bot is updated!
+* `bwapi-data/write` will be copied to your `bwapi-data/read` directory. by default, the `read` directory will not be cleared, when a bot is updated!
+* To have the read directory cleared when updating, add `BASIL: RESET` somewhere in the [SSCAIT] description.
 * Bots are automatically updated every 6 hours.
 * As with [SSCAIT] no other bot author can view or download either the `read` or the `write` folders of your bot.
 * All replays can be downloaded by everyone.
