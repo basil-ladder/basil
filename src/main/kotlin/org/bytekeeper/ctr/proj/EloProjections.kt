@@ -31,13 +31,7 @@ class EloProjections(private val botEloRepository: BotEloRepository,
                                 .map { PublishedBotEloHistoryEntry(it.time.epochSecond, it.rating, it.gameHash) })
                     }
         }
-        publisher.globalStatsWriter("elo.json")
-                .use { out ->
-                    writer.writeValue(out, allBots
-                            .map { PublishedBotElo(it.name, it.rating, it.played) })
-                }
     }
 }
 
 class PublishedBotEloHistoryEntry(val epochSecond: Long, val rating: Int, val gameHash: String)
-class PublishedBotElo(val botName: String, val rating: Int, val played: Int)

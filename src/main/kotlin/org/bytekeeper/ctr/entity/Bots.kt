@@ -28,7 +28,9 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var lastUpdated: Instant? = null,
           var played: Int = 0,
           var rating: Int = 2000,
-          var crashed: Int = 0)
+          var crashed: Int = 0,
+          var won: Int = 0,
+          var lost: Int = 0)
 
 interface BotRepository : CrudRepository<Bot, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)

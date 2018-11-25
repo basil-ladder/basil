@@ -27,14 +27,12 @@ internal class EloProjectionsTest {
     private lateinit var publisher: Publisher
 
     private val botStatsWriter: StringWriter = StringWriter()
-    private val statsWriter: StringWriter = StringWriter()
 
     @Before
     fun setup() {
         sut = EloProjections(botEloRepository, botRepository, publisher)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
-        given(publisher.globalStatsWriter(anyString())).willReturn(statsWriter)
     }
 
     @Test
@@ -54,17 +52,4 @@ internal class EloProjectionsTest {
         assertThat(botStatsWriter.toString()).isEqualTo("[{\"epochSecond\":-31557014167219200,\"rating\":0,\"gameHash\":\"\"},{\"epochSecond\":-31557014167219200,\"rating\":1,\"gameHash\":\"\"}]")
     }
 
-    @Test
-    fun shouldPublishAllElos() {
-        // GIVEN
-        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, null, 100, 1000)
-        val botB = Bot(-1, true, "botB", Race.PROTOSS, null, null, 200, 3000)
-        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
-
-        // WHEN
-        sut.handle(PreparePublish())
-
-        // THEN
-        assertThat(statsWriter.toString()).isEqualTo("[{\"botName\":\"botA\",\"rating\":1000,\"played\":100},{\"botName\":\"botB\",\"rating\":3000,\"played\":200}]")
-    }
 }

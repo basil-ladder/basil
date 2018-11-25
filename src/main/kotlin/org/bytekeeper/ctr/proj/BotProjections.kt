@@ -13,7 +13,9 @@ class BotProjections(private val botService: BotService,
     fun onGameEnded(gameEnded: GameEnded) {
         val (winnerBot, loserBot) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
         winnerBot.played++
+        winnerBot.won++
         loserBot.played++
+        loserBot.lost++
 
         val (newWinnerRating, newLoserRating) = Elo.calculateElos(
                 winnerBot.rating, winnerBot.played,

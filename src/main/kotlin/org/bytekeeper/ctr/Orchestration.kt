@@ -10,7 +10,8 @@ class Orchestration(events: Events,
                     commands: Commands,
                     eloProjections: EloProjections,
                     gameResultsProjections: GameResultsProjections,
-                    botProjections: BotProjections) {
+                    botProjections: BotProjections,
+                    rankingsPublisher: RankingsPublisher) {
     init {
         events.register(gameResultsProjections::gameEnded)
         events.register(gameResultsProjections::gameCrashed)
@@ -19,6 +20,7 @@ class Orchestration(events: Events,
         events.register(eloProjections::onEloUpdated)
 
         commands.register(eloProjections::handle)
+        commands.register(rankingsPublisher::handle)
         commands.register(gameResultsProjections::handle)
         commands.register(botProjections::handle)
     }
