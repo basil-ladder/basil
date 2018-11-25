@@ -1,0 +1,65 @@
+---
+layout: page
+title: Ranking
+---
+<script id="tableTemplate" type="text/x-handlebars-template">
+	{% raw %}
+		{{#each this}}
+		<tr>
+		<th>
+		{{inc @index}}
+		</th>
+		<td class="{{racecol race}}">{{botName}}</td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
+		</tr>
+		{{/each }}
+		{% endraw %}
+</script>
+<script>
+	$(function() {
+		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+		Handlebars.registerHelper("racecol", function(v) { 
+			switch (v) {
+				case "PROTOSS":
+					return "race_protoss";
+				case "ZERG":
+					return "race_zerg";
+				case "TERRAN":
+					return "race_terran";
+				case "RANDOM":
+					return "race_random";
+				default:
+					return "race_unknown";
+			}
+			return parseInt(v) + 1; 
+		});
+		let source = $("#tableTemplate").html();
+		let template = Handlebars.compile(source);
+		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
+		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
+			data.sort(function(a,b) { return b.rating - a.rating; });
+			for (i = 0; i < data.length; i++) {
+				if (data[i].played > 0 && typeof data[i].won !== "undefined") {
+					data[i].winRate = numberFormat(data[i].won / data[i].played);
+				} else {
+					data[i].winRate = "-";
+				}
+			}
+			let html = template(data);
+			$("#eloTable").append(html);
+		});
+	});
+</script>
+<table id="eloTable">
+	<tr>
+		<th>#</th>
+		<th>Bot</th>
+		<th>ELO</th>
+		<th># Games</th>
+		<th># Won</th>
+		<th># Lost</th>
+		<th>% Win</th>
+		<th># Crashes</th>
+	</tr>
+</table>
+<small>Source: <a href="http://basilicum.bytekeeper.org/stats/ranking.json">http://basilicum.bytekeeper.org/stats/ranking.json</a></small>
+</table>

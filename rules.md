@@ -14,7 +14,7 @@ Games
 * All games are 1v1.
 * Starcraft Brood War version 1.16.1 is used.
 * *No in-game time limit* is used due to technical limitations.
-* *Realtime limit* is 20 minutes - after that a game will killed and won't count.
+* *Realtime limit* is 20 minutes - after that a game will be killed and won't count.
 * *Draws* are not possible.
 * *Speed* setting is LF3 (Normal).
 * *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps)
