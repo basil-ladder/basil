@@ -1,0 +1,14 @@
+---
+layout: post
+title:  "BASIL reboot"
+categories: basil
+---
+
+I did a major rewrite of how BASIL server was working. The previously aggregated data would be hard to integrate and was flawed anyways, so it was 'discarded'.
+You can still get all previously aggregated data, it's packed in a large `bz2` file and available in Replays & Results.
+
+Change summary:
+* ELO rating calculation now should mostly match [[SSCAITs]](http://cachedsscaitscores.krasi0.com/eloRatings/) - with the exception of not using a limit of 4000 games.
+* All SSCAIT maps are now used, not only `Benzene`.
+* Removed `Electric Circuit` (albeit it was never used).
+

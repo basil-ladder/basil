@@ -2,48 +2,37 @@
 layout: page
 title: Elo-Ratings
 ---
-	<script>
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.onload = function() {
-			if (this.status === 200) {
-				buildTable(JSON.parse(this.responseText));
-			}
-		}
-		xmlhttp.open("GET", "http://basilicum.bytekeeper.org/stats/elo.json", true);
-		xmlhttp.send();
-
-		function buildTable(data) {
-			data.sort(function(a,b) { return b.rating - a.rating; });
-			var table = document.getElementById("eloTable");
-			for (var i = 0; i < data.length; i++) {
-				var row = document.createElement("tr");
-				var placeCol = document.createElement("th");
-				var place = document.createTextNode(i + 1);
-				placeCol.appendChild(place);
-				row.appendChild(placeCol);
-				var nameCol = document.createElement("td");
-				var name = document.createTextNode(data[i].botName);
-				nameCol.appendChild(name);
-				row.appendChild(nameCol);
-				var ratingCol = document.createElement("td");
-				var rating = document.createTextNode(data[i].rating);
-				ratingCol.appendChild(rating);
-				row.appendChild(ratingCol);
-				var playedCol = document.createElement("td");
-				var played= document.createTextNode(data[i].played);
-				playedCol.appendChild(played);
-				row.appendChild(playedCol);
-				table.appendChild(row);
-			}
-		}
-	</script>
-	<table id="eloTable">
+<script id="tableTemplate" type="text/x-handlebars-template">
+	{% raw %}
+		{{#each this}}
 		<tr>
-			<th>#</th>
-			<th>Bot</th>
-			<th>ELO</th>
-			<th># Games</th>
+		<th>
+		{{inc @index}}
+		</th>
+		<td>{{botName}}</td> <td>{{rating}}</td> <td>{{played}}</td>
 		</tr>
-	</table>
-	<small>Source: <a href="http://basilicum.bytekeeper.org/agg/elo.json">http://basilicum.bytekeeper.org/agg/elo.json</a></small>
+		{{/each }}
+		{% endraw %}
+</script>
+<script>
+	$(function() {
+		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+		let source = $("#tableTemplate").html();
+		let template = Handlebars.compile(source);
+		$.getJSON("http://basilicum.bytekeeper.org/stats/elo.json", function(data) {
+			data.sort(function(a,b) { return b.rating - a.rating; });
+			let html = template(data);
+			$("#eloTable").append(html);
+		});
+	});
+</script>
+<table id="eloTable">
+	<tr>
+		<th>#</th>
+		<th>Bot</th>
+		<th>ELO</th>
+		<th># Games</th>
+	</tr>
+</table>
+<small>Source: <a href="http://basilicum.bytekeeper.org/stats/elo.json">http://basilicum.bytekeeper.org/stats/elo.json</a></small>
 </table>
