@@ -1,0 +1,12 @@
+{
+  "bots": [
+    "UITtest2",
+    "PurpleWave"
+  ],
+  "game_time": 203.13868069648743,
+  "is_crashed": false,
+  "is_gametime_outed": false,
+  "is_realtime_outed": false,
+  "loser": "UITtest2",
+  "winner": "PurpleWave"
+}

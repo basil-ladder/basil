@@ -5,7 +5,7 @@ import java.nio.file.Paths
 
 object DisabledBots {
     fun isEnabled(name: String): Boolean {
-        val disabledBotsFile = Paths.get(Config.workDir, "disabledBots.txt")
+        val disabledBotsFile = Paths.get("", "disabledBots.txt")
         return !disabledBotsFile.toFile().exists() || Files.lines(disabledBotsFile).noneMatch { it == name }
     }
 }

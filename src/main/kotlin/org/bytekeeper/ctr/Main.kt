@@ -1,7 +1,8 @@
 package org.bytekeeper.ctr
 
-import org.apache.logging.log4j.LogManager
+import org.springframework.boot.SpringApplication
 
 fun main(args: Array<String>) {
-    GameRunner().run()
+    SpringApplication.run(Basil::class.java, *args).getBean(GameRunner::class.java)
+            .run()
 }

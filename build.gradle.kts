@@ -1,15 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    application
-    kotlin("jvm") version "1.3.10"
+    val kotlinVersion = "1.3.10"
+
+    kotlin("jvm") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
+    id("org.springframework.boot") version "2.1.0.RELEASE"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("com.github.ben-manes.versions") version "0.20.0"
 }
 
 group = "ctr"
 version = "1.0-SNAPSHOT"
-application.mainClassName = "org.bytekeeper.ctr.MainKt"
 
 repositories {
     mavenCentral()
@@ -26,15 +30,25 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-    implementation("com.beust:klaxon:4.0.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
+    implementation(group = "org.postgresql", name = "postgresql", version = "42.2.5.jre7")
+    implementation("org.flywaydb:flyway-core")
 
-    implementation("org.apache.logging.log4j:log4j-api")
-    implementation("org.apache.logging.log4j:log4j-core")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+    testImplementation("com.h2database:h2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
     testImplementation("org.assertj:assertj-core:3.11.1")
 }
+
+configurations.all {
+    exclude("org.springframework.boot", "spring-boot-starter-logging")
+}
+
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
