@@ -40,7 +40,7 @@ internal class BotInfoTest {
         // GIVEN
 
         // WHEN
-        val botInfo = BotInfo("bot", "race", "0", "0", null, null, "binary", "bwapi", "TYPE", "BASIL: RESET")
+        val botInfo = BotInfo("bot", "race", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: RESET whatever!")
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("clearReadDirectory", true)
