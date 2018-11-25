@@ -12,6 +12,10 @@ class BotProjections(private val botService: BotService,
     @Transactional
     fun onGameEnded(gameEnded: GameEnded) {
         val (winnerBot, loserBot) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
+        handleAsCompleted(winnerBot, loserBot, gameEnded.gameHash)
+    }
+
+    private fun handleAsCompleted(winnerBot: Bot, loserBot: Bot, gameHash: String) {
         winnerBot.played++
         winnerBot.won++
         loserBot.played++
@@ -25,17 +29,22 @@ class BotProjections(private val botService: BotService,
         loserBot.rating = newLoserRating
 
         val time = Instant.now()
-        events.post(EloUpdated(winnerBot, newWinnerRating, time, gameEnded.gameHash))
-        events.post(EloUpdated(loserBot, newLoserRating, time, gameEnded.gameHash))
+        events.post(EloUpdated(winnerBot, newWinnerRating, time, gameHash))
+        events.post(EloUpdated(loserBot, newLoserRating, time, gameHash))
     }
 
     @Transactional
     fun onGameCrashed(event: GameCrashed) {
         val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
-        botA.played++
-        botB.played++
-        if (event.botACrashed) botA.crashed++
-        if (event.botBCrashed) botB.crashed++
+        if (event.botACrashed == event.botBCrashed) {
+            botA.played++
+            botB.played++
+            if (event.botACrashed) botA.crashed++
+            if (event.botBCrashed) botB.crashed++
+        } else {
+            handleAsCompleted(if (event.botACrashed) botB else botA,
+                    if (event.botBCrashed) botB else botA, event.gameHash)
+        }
     }
 
     @Transactional

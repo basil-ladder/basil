@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
+import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -13,12 +14,12 @@ class GameRunner(private val scbw: Scbw,
                  private val config: Config,
                  private val maps: Maps,
                  private val sscait: SscaitClient,
-                 private val commands: Commands) : Runnable {
+                 private val commands: Commands) : CommandLineRunner {
     private val log = LogManager.getLogger()
+
     private val locks = ConcurrentHashMap<BotInfo, BotInfo>()
     private var nextPublishTime: Long = System.currentTimeMillis() + config.publishTimer * 60 * 1000
     private var nextBotUpdateTime: Long = 0
-
     private val phaser = object : Phaser() {
         override fun onAdvance(phase: Int, registeredParties: Int): Boolean {
             if (isTimeToPublish()) publish()
@@ -30,7 +31,7 @@ class GameRunner(private val scbw: Scbw,
 
     var botInfoProvider: () -> BotInfo = { throw IllegalStateException() }
 
-    override fun run() {
+    override fun run(vararg args: String?) {
         updateBotList()
         log.info("Let's play!")
 
