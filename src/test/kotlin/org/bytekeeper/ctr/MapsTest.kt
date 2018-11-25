@@ -26,7 +26,8 @@ internal class MapsTest {
         assertThat(mapNames).contains(
                 "Empire of the Sun",
                 "Destination",
-                "Tau Cross"
+                "Tau Cross",
+                "La Mancha1.1"
         )
     }
 }
