@@ -17,6 +17,7 @@ title: Ranking
 <script>
 	$(function() {
 		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+
 		Handlebars.registerHelper("racecol", function(v) { 
 			switch (v) {
 				case "PROTOSS":
@@ -36,7 +37,6 @@ title: Ranking
 		let template = Handlebars.compile(source);
 		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
 		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
-			data.sort(function(a,b) { return b.rating - a.rating; });
 			for (i = 0; i < data.length; i++) {
 				if (data[i].played > 0 && typeof data[i].won !== "undefined") {
 					data[i].winRate = numberFormat(data[i].won / data[i].played);
@@ -44,12 +44,23 @@ title: Ranking
 					data[i].winRate = "-";
 				}
 			}
+			// Required for index to work as expected
+			data.sort(function(a,b) { 
+				if (a.rating !== b.rating) return b.rating - a.rating; 
+				if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+				return b.won - a.won;
+			});
 			let html = template(data);
-			$("#eloTable").append(html);
+			$("#eloTable tbody").append(html);
+			$("#eloTable").tablesorter({ sortList: [[2, 1], [6, 1], [4, 1]] });
 		});
 	});
 </script>
+<small>
+The following table is sorted by ELO, % Win, # Won by default. To sort multiple columns simulatenously, hold <em>shift</em> when clicking a second, third... column.
+</small>
 <table id="eloTable">
+	<thead>
 	<tr>
 		<th>#</th>
 		<th>Bot</th>
@@ -60,6 +71,9 @@ title: Ranking
 		<th>% Win</th>
 		<th># Crashes</th>
 	</tr>
+	</thead>
+	<tbody>
+	</tbody>
 </table>
 <small>Source: <a href="http://basilicum.bytekeeper.org/stats/ranking.json">http://basilicum.bytekeeper.org/stats/ranking.json</a></small>
 </table>
