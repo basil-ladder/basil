@@ -10,6 +10,7 @@ import javax.transaction.Transactional
 class BotProjections(private val botService: BotService,
                      private val events: Events) {
     @Transactional
+    @EventHandler
     fun onGameEnded(gameEnded: GameEnded) {
         val (winnerBot, loserBot) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
         handleAsCompleted(winnerBot, loserBot, gameEnded.gameHash)
@@ -34,6 +35,7 @@ class BotProjections(private val botService: BotService,
     }
 
     @Transactional
+    @EventHandler
     fun onGameCrashed(event: GameCrashed) {
         val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
         if (event.botACrashed == event.botBCrashed) {
@@ -48,6 +50,7 @@ class BotProjections(private val botService: BotService,
     }
 
     @Transactional
+    @CommandHandler
     fun handle(command: CreateBot) {
         val bot = botService.save(Bot(name = command.name, race = command.race, botType = command.botType, lastUpdated = command.lastUpdated))
         events.post(BotCreated(bot))

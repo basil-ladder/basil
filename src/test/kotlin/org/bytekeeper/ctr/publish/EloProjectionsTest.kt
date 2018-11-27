@@ -1,4 +1,4 @@
-package org.bytekeeper.ctr.proj
+package org.bytekeeper.ctr.publish
 
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.PreparePublish
@@ -15,10 +15,10 @@ import java.io.StringWriter
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class EloProjectionsTest {
+internal class EloPublisherTest {
     @Mock
     private lateinit var botEloRepository: BotEloRepository
-    private lateinit var sut: EloProjections
+    private lateinit var sut: EloPublisher
 
     @Mock
     private lateinit var botRepository: BotRepository
@@ -30,7 +30,7 @@ internal class EloProjectionsTest {
 
     @Before
     fun setup() {
-        sut = EloProjections(botEloRepository, botRepository, publisher)
+        sut = EloPublisher(botEloRepository, botRepository, publisher)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
     }

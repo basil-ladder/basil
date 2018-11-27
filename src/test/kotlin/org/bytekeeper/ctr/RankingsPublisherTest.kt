@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
 import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.publish.RankingsPublisher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

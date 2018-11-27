@@ -1,4 +1,4 @@
-package org.bytekeeper.ctr.proj
+package org.bytekeeper.ctr.publish
 
 import org.assertj.core.api.Assertions
 import org.bytekeeper.ctr.PreparePublish
@@ -18,7 +18,7 @@ import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
 internal class GameResultsProjectionsTest {
-    private lateinit var sut: GameResultsProjections
+    private lateinit var sut: GameResultsPublisher
 
     @Mock
     private lateinit var gameResultRepository: GameResultRepository
@@ -30,7 +30,7 @@ internal class GameResultsProjectionsTest {
 
     @Before
     fun setup() {
-        sut = GameResultsProjections(gameResultRepository, publisher)
+        sut = GameResultsPublisher(gameResultRepository, publisher)
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
                 .willReturn(writer)
