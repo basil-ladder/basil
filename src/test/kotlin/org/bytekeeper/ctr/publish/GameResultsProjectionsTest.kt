@@ -3,6 +3,7 @@ package org.bytekeeper.ctr.publish
 import org.assertj.core.api.Assertions
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.GameResult
 import org.bytekeeper.ctr.entity.GameResultRepository
@@ -42,7 +43,7 @@ internal class GameResultsProjectionsTest {
         val botA = Bot(-1, true, "botA")
         val botB = Bot(-1, true, "botB")
 
-        given(gameResultRepository.findAll()).willReturn(mutableListOf(
+        given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
                 GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, false, false, "")))
 
         // WHEN
@@ -58,7 +59,7 @@ internal class GameResultsProjectionsTest {
         val botA = Bot(-1, true, "botA")
         val botB = Bot(-1, true, "botB")
 
-        given(gameResultRepository.findAll()).willReturn(mutableListOf(
+        given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
                 GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, true, false, "")))
 
         // WHEN

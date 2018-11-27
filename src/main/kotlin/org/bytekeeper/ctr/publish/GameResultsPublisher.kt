@@ -6,6 +6,8 @@ import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.entity.GameResultRepository
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Component
 class GameResultsPublisher(private val gameResultRepository: GameResultRepository,
@@ -15,9 +17,9 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
-        publisher.globalStatsWriter("game results - all games.json")
+        publisher.globalStatsWriter("games_2d.json")
                 .use { out ->
-                    writer.writeValue(out, gameResultRepository.findAll()
+                    writer.writeValue(out, gameResultRepository.findByTimeGreaterThan(Instant.now().minus(2, ChronoUnit.DAYS))
                             .map {
                                 PublishedGameResult(it.botA.name, it.botB.name, it.winner?.name, it.loser?.name, it.realtimeTimeout, it.time.epochSecond,
                                         it.map, it.botACrashed, it.botBCrashed, it.gameHash)

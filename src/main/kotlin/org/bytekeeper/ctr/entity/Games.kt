@@ -24,5 +24,5 @@ class GameResult(@Id @GeneratedValue var id: Long? = null,
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
-    override fun findAll(): MutableIterable<GameResult>
+    fun findByTimeGreaterThan(time: Instant): MutableIterable<GameResult>
 }
