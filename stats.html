@@ -1,0 +1,77 @@
+---
+layout: page
+title: Stats
+---
+<script id="tableTemplate" type="text/x-handlebars-template">
+	{% raw %}
+		<tr>
+		<th>Games played</th>
+		<td>{{gamesPlayed}}</td>
+		</tr>
+		<tr>
+		<th class="race_terran">Terran bots</th>
+		<td>{{terranBots}}</td>
+		</tr>
+		<tr>
+		<th class="race_terran">Terran victories</th>
+		<td>{{terranWins}}</td>
+		</tr>
+		<tr>
+		<th class="race_protoss">Protoss bots</th>
+		<td>{{protossBots}}</td>
+		</tr>
+		<tr>
+		<th class="race_protoss">Protoss victories</th>
+		<td>{{protossWins}}</td>
+		</tr>
+		<tr>
+		<th class="race_zerg">Zerg bots</th>
+		<td>{{zergBots}}</td>
+		</tr>
+		<tr>
+		<th class="race_zerg">Zerg victories</th>
+		<td>{{zergWins}}</td>
+		</tr>
+		<tr>
+		<th class="race_random">Random bots</th>
+		<td>{{randomBots}}</td>
+		</tr>
+		<tr>
+		<th class="race_random">Random victories</th>
+		<td>{{randomWins}}</td>
+		</tr>
+		<tr>
+		<th>Crashes</th>
+		<td>{{crashes}}</td>
+		</tr>
+		<tr>
+		<th>Avg. playtime (realtime)</th>
+		<td>{{time averageGameRealtime}} seconds</td>
+		</tr>
+		{% endraw %}
+</script>
+<script>
+	$(function() {
+		let source = $("#tableTemplate").html();
+		let template = Handlebars.compile(source);
+		let numberFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigis: 2}).format;
+		Handlebars.registerHelper("time", function(v) { return numberFormat(v); });
+
+		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
+			let html = template(data);
+			$("#statsTable tbody").append(html);
+		});
+	});
+</script>
+<table id="statsTable">
+	<thead>
+	<tr>
+		<th>Item</th>
+		<th>Value</th>
+	</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+<small>Source: <a href="http://basilicum.bytekeeper.org/stats/stats.json">http://basilicum.bytekeeper.org/stats/stats.json</a></small>
+</table>
