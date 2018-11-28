@@ -39,6 +39,7 @@ interface BotRepository : CrudRepository<Bot, Long> {
     fun findByName(name: String): Bot?
 
     fun findAllByEnabledTrue(): List<Bot>
+    fun countByRace(race: Race): Int
 }
 
 interface BotEloRepository : CrudRepository<BotElo, Long> {

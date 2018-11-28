@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.entity
 
 import org.springframework.data.jpa.repository.EntityGraph
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import javax.persistence.Entity
@@ -25,4 +26,9 @@ class GameResult(@Id @GeneratedValue var id: Long? = null,
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
     fun findByTimeGreaterThan(time: Instant): MutableIterable<GameResult>
+
+    fun countByWinnerRace(race: Race): Int
+    fun countByBotACrashedIsTrueOrBotBCrashedIsTrue(): Int
+    @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
+    fun averageGameRealtime(): Double
 }

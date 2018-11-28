@@ -1,9 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.bytekeeper.ctr.CommandHandler
-import org.bytekeeper.ctr.PreparePublish
-import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.GameResultRepository
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -11,24 +9,26 @@ import java.time.temporal.ChronoUnit
 
 @Component
 class GameResultsPublisher(private val gameResultRepository: GameResultRepository,
-                           private val publisher: Publisher) {
+                           private val publisher: Publisher,
+                           private val maps: Maps,
+                           private val config: Config) {
 
     @CommandHandler
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
-        publisher.globalStatsWriter("games_2d.json")
+        publisher.globalStatsWriter("game_results.json")
                 .use { out ->
-                    writer.writeValue(out, gameResultRepository.findByTimeGreaterThan(Instant.now().minus(2, ChronoUnit.DAYS))
+                    writer.writeValue(out, gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours, ChronoUnit.HOURS))
                             .map {
-                                PublishedGameResult(it.botA.name, it.botB.name, it.winner?.name, it.loser?.name, it.realtimeTimeout, it.time.epochSecond,
-                                        it.map, it.botACrashed, it.botBCrashed, it.gameHash)
+                                PublishedGameResult(it.botA.name, it.botA.race?.name, it.botB.name, it.botB.race?.name, it.winner?.name, it.loser?.name, it.realtimeTimeout, it.time.epochSecond,
+                                        maps.mapName(it.map) ?: it.map, it.botACrashed, it.botBCrashed, it.gameHash)
                             })
                 }
 
     }
 
-    class PublishedGameResult(val botA: String, val botB: String, val winner: String?, val loser: String?, val realTimeout: Boolean, val endedAt: Long, val map: String,
+    class PublishedGameResult(val botA: String, val botARace: String?, val botB: String, val botBRace: String?, val winner: String?, val loser: String?, val realTimeout: Boolean, val endedAt: Long, val map: String,
                               val botACrashed: Boolean, val botBCrashed: Boolean, val gameHash: String)
 
 }

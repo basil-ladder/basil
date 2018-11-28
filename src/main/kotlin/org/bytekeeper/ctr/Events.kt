@@ -56,19 +56,19 @@ class CreateBot(val name: String, val race: Race?, val botType: String?, val las
 
 @Service
 class Commands {
-    private val handlers = ConcurrentHashMap<Class<*>, (Any) -> Unit>()
+    private val handlers = ConcurrentHashMap<Class<*>, MutableList<(Any) -> Unit>>()
 
 
     fun handle(command: Any) {
-        val handler = handlers[command.javaClass] ?: throw IllegalStateException("Command $command was not handled!")
-        handler(command)
+        val handlers = handlers[command.javaClass] ?: throw IllegalStateException("Command $command was not handled!")
+        handlers.forEach { it(command) }
     }
 
-    final inline fun <reified T> register(noinline listener: (T) -> Unit) = register(T::class.java, listener)
+    inline final fun <reified T> register(noinline listener: (T) -> Unit) = register(T::class.java, listener)
 
     fun <T> register(type: Class<T>, handler: (T) -> Unit) {
-        val existing = handlers.put(type) { handler(it as T) }
-        if (existing != null) throw java.lang.IllegalStateException("Only one command handler must be registered for $type")
+        val handlerList = handlers.computeIfAbsent(type) { CopyOnWriteArrayList() }
+        handlerList += { x -> handler(x as T) }
     }
 }
 

@@ -1,12 +1,11 @@
 package org.bytekeeper.ctr.publish
 
 import org.assertj.core.api.Assertions
-import org.bytekeeper.ctr.PreparePublish
-import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.any
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.GameResult
 import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.entity.Race
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +30,7 @@ internal class GameResultsProjectionsTest {
 
     @Before
     fun setup() {
-        sut = GameResultsPublisher(gameResultRepository, publisher)
+        sut = GameResultsPublisher(gameResultRepository, publisher, Maps(), Config())
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
                 .willReturn(writer)
@@ -40,8 +39,8 @@ internal class GameResultsProjectionsTest {
     @Test
     fun shouldRenderGamesWithWinner() {
         // GIVEN
-        val botA = Bot(-1, true, "botA")
-        val botB = Bot(-1, true, "botB")
+        val botA = Bot(-1, true, "botA", Race.PROTOSS)
+        val botB = Bot(-1, true, "botB", Race.TERRAN)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
                 GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, false, false, "")))
@@ -50,14 +49,15 @@ internal class GameResultsProjectionsTest {
         sut.handle(PreparePublish())
 
         // THEN
-        Assertions.assertThat(writer.toString()).isEqualTo("[{\"botA\":\"botA\",\"botB\":\"botB\",\"winner\":\"botA\",\"loser\":\"botB\",\"realTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"botACrashed\":false,\"botBCrashed\":false,\"gameHash\":\"\"}]")
+        Assertions.assertThat(writer.toString())
+                .isEqualTo("[{\"botA\":\"botA\",\"botARace\":\"PROTOSS\",\"botB\":\"botB\",\"botBRace\":\"TERRAN\",\"winner\":\"botA\",\"loser\":\"botB\",\"realTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"botACrashed\":false,\"botBCrashed\":false,\"gameHash\":\"\"}]")
     }
 
     @Test
     fun shouldRenderGamesWithCrash() {
         // GIVEN
-        val botA = Bot(-1, true, "botA")
-        val botB = Bot(-1, true, "botB")
+        val botA = Bot(-1, true, "botA", Race.RANDOM)
+        val botB = Bot(-1, true, "botB", Race.ZERG)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
                 GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, true, false, "")))
@@ -66,6 +66,7 @@ internal class GameResultsProjectionsTest {
         sut.handle(PreparePublish())
 
         // THEN
-        Assertions.assertThat(writer.toString()).isEqualTo("[{\"botA\":\"botA\",\"botB\":\"botB\",\"winner\":\"botA\",\"loser\":\"botB\",\"realTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"botACrashed\":true,\"botBCrashed\":false,\"gameHash\":\"\"}]")
+        Assertions.assertThat(writer.toString())
+                .isEqualTo("[{\"botA\":\"botA\",\"botARace\":\"RANDOM\",\"botB\":\"botB\",\"botBRace\":\"ZERG\",\"winner\":\"botA\",\"loser\":\"botB\",\"realTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"botACrashed\":true,\"botBCrashed\":false,\"gameHash\":\"\"}]")
     }
 }
