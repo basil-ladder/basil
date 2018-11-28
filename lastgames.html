@@ -51,8 +51,8 @@ title: Last 24h
 				return b.endedAt - a.endedAt;
 			});
 			let html = template(data);
-			$("#eloTable tbody").append(html);
-			$("#eloTable").tablesorter();
+			$("#gamesTable tbody").append(html);
+			$("#gamesTable").tablesorter();
 		});
 	});
 	
@@ -61,8 +61,8 @@ title: Last 24h
 		this.filter = {}
 		this.doFilter = function() {
 			let filter = this.filter;
-			$("#eloTable tr").show();
-			$("#eloTable tbody tr").each(function() {
+			$("#gamesTable tr").show();
+			$("#gamesTable tbody tr").each(function() {
 				let cols = $(this).children("td");
 				if (filter.botName && !cols.eq(0).text().toLowerCase().includes(filter.botName)
 					&& !cols.eq(1).text().toLowerCase().includes(filter.botName)) $(this).hide();
@@ -93,7 +93,7 @@ title: Last 24h
 	<label for="mapName">Map</label>
 	<input type="text" id="mapName" oninput="basil.filterByMap(this.value)">
 </form>
-<table id="eloTable">
+<table id="gamesTable">
 	<thead>
 		<tr>
 			<th>Bot A</th>
