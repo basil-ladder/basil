@@ -29,7 +29,7 @@
 	white-space: nowrap;
 }
 
-.tablesorter-headerUnSorted {
+.tablesorter-headerUnSorted:not(.sorter-false) {
 	background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
 }
 
@@ -39,4 +39,8 @@
 
 .tablesorter-headerDesc {
 	background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
+}
+
+form {
+	margin-bottom: $spacing-unit;
 }
