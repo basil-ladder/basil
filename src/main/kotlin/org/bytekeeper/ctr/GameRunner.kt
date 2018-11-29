@@ -76,7 +76,6 @@ class GameRunner(private val scbw: Scbw,
 
         try {
             commands.handle(PreparePublish())
-////            Elo.copyToTarget()
             val process = Runtime.getRuntime().exec(arrayOf("/bin/bash", config.publishCommand))
             val exited = process
                     .waitFor(5, TimeUnit.MINUTES)

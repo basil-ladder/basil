@@ -257,7 +257,8 @@ class Scbw(private val botRepository: BotRepository,
                             ?: throw BotNotFoundException("Could not find ${bots[0]}")
                     val botB = botRepository.findByName(bots[1])
                             ?: throw BotNotFoundException("Could not find ${bots[1]}")
-                    events.post(GameCrashed(botA, botB, gameConfig.map, scores[0]?.is_crashed == true, scores[1]?.is_crashed == true, Instant.now(),
+                    // Marked as crashed if scores says so or no scores file is present
+                    events.post(GameCrashed(botA, botB, gameConfig.map, scores[0]?.is_crashed != false, scores[1]?.is_crashed != false, Instant.now(),
                             result.is_realtime_outed, result.is_gametime_outed, result.game_time, gameConfig.gameName))
                 }
             } else {
