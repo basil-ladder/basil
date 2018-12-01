@@ -77,9 +77,7 @@ title: Stats
 		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
 			let rowsHtml = rowTemplate(data);
 			$("#statsTable tbody").append(rowsHtml);
-			let rct = {terran: {terran: 10, protoss: 11, zerg: 12, random: 20}, protoss: {terran: 10, protoss: 11, zerg: 12, random: 20},zerg: {terran: 10, protoss: 11, zerg: 12, random: 20}};
 			let crossTableData = data.raceCrossTable;
-			crossTableData = rct;
 			for (let key in crossTableData) {
 				crossTableData[key].lost = 0;
 			}
