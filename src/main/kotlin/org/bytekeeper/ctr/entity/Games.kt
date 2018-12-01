@@ -27,7 +27,7 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
     fun findByTimeGreaterThan(time: Instant): MutableIterable<GameResult>
 
-    fun countByWinnerRace(race: Race): Int
+    fun countByWinnerRaceAndLoserRace(winner: Race, loser: Race): Int
     fun countByBotACrashedIsTrueOrBotBCrashedIsTrue(): Int
     @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
     fun averageGameRealtime(): Double

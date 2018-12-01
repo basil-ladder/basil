@@ -20,31 +20,42 @@ class GeneralStatsPublisher(private val gameResultRepository: GameResultReposito
 
         publisher.globalStatsWriter("stats.json")
                 .use {
+                    val raceCrossCable = RaceCrossTable(
+                            vsRow(Race.TERRAN),
+                            vsRow(Race.PROTOSS),
+                            vsRow(Race.ZERG),
+                            vsRow(Race.RANDOM))
+
                     writer.writeValue(it,
                             PublishedStats(gameResultRepository.count(),
                                     botsRepository.countByRace(Race.TERRAN),
                                     botsRepository.countByRace(Race.ZERG),
                                     botsRepository.countByRace(Race.PROTOSS),
                                     botsRepository.countByRace(Race.RANDOM),
-                                    gameResultRepository.countByWinnerRace(Race.TERRAN),
-                                    gameResultRepository.countByWinnerRace(Race.ZERG),
-                                    gameResultRepository.countByWinnerRace(Race.PROTOSS),
-                                    gameResultRepository.countByWinnerRace(Race.RANDOM),
                                     gameResultRepository.countByBotACrashedIsTrueOrBotBCrashedIsTrue(),
-                                    gameResultRepository.averageGameRealtime()
+                                    gameResultRepository.averageGameRealtime(),
+                                    raceCrossCable
                             ))
                 }
     }
+
+    private fun vsRow(winner: Race): VsRow =
+            VsRow(gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.TERRAN),
+                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.PROTOSS),
+                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.ZERG),
+                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.RANDOM))
 
     class PublishedStats(val gamesPlayed: Long,
                          val terranBots: Int,
                          val zergBots: Int,
                          val protossBots: Int,
                          val randomBots: Int,
-                         val terranWins: Int,
-                         val zergWins: Int,
-                         val protossWins: Int,
-                         val randomWins: Int,
                          val crashes: Int,
-                         val averageGameRealtime: Double)
+                         val averageGameRealtime: Double,
+                         val raceCrossTable: RaceCrossTable
+    )
+
+    class RaceCrossTable(val terran: VsRow, val protoss: VsRow, val zerg: VsRow, val random: VsRow)
+
+    class VsRow(val terran: Int, val protoss: Int, val zerg: Int, val random: Int)
 }
