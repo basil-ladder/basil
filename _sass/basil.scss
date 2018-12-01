@@ -44,3 +44,28 @@
 form {
 	margin-bottom: $spacing-unit;
 }
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+
+	:not(:first-child) {
+		padding-left: 1em;
+	}
+
+	:not(:last-child) {
+		padding-right: 1em;
+	}
+}
+
+@for $i from 1 through 6  {
+	.col-#{$i} {
+		flex-basis: 100% * $i / 6;
+		box-sizing: border-box;
+	}
+}
+
+.cap {
+	text-transform: capitalize;
+}

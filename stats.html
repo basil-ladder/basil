@@ -2,7 +2,7 @@
 layout: page
 title: Stats
 ---
-<script id="tableTemplate" type="text/x-handlebars-template">
+<script id="rowTemplate" type="text/x-handlebars-template">
 	{% raw %}
 		<tr>
 		<th>Games played</th>
@@ -50,28 +50,78 @@ title: Stats
 		</tr>
 		{% endraw %}
 </script>
+<script id="raceCrossTableTemplate" type="text/x-handlebars-template">
+	{% raw %}
+	{{#each this as |vsrow race|}}
+	<tr>
+	<th class="cap">{{race}}</th>
+	<td>{{won}}</td>
+	<td>{{lost}}</td>
+	<td>{{vsrow.terran}}</td>
+	<td>{{vsrow.protoss}}</td>
+	<td>{{vsrow.zerg}}</td>
+	<td>{{vsrow.random}}</td>
+	</tr>
+	{{/each}}
+	{% endraw %}
+</script>
 <script>
 	$(function() {
-		let source = $("#tableTemplate").html();
-		let template = Handlebars.compile(source);
+		let rowTemplateSource = $("#rowTemplate").html();
+		let rowTemplate = Handlebars.compile(rowTemplateSource);
+		let crossTableTemplateSource = $("#raceCrossTableTemplate").html();
+		let crossTableTemplate = Handlebars.compile(crossTableTemplateSource);
 		let numberFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigis: 2}).format;
 		Handlebars.registerHelper("time", function(v) { return numberFormat(v); });
 
 		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
-			let html = template(data);
-			$("#statsTable tbody").append(html);
+			let rowsHtml = rowTemplate(data);
+			$("#statsTable tbody").append(rowsHtml);
+			let rct = {terran: {terran: 10, protoss: 11, zerg: 12, random: 20}, protoss: {terran: 10, protoss: 11, zerg: 12, random: 20},zerg: {terran: 10, protoss: 11, zerg: 12, random: 20}};
+			let crossTableData = data.raceCrossTable;
+			crossTableData = rct;
+			for (let key in crossTableData) {
+				crossTableData[key].lost = 0;
+			}
+			for (let key in crossTableData) {
+				let row = crossTableData[key];
+				row.won = row.terran + row.protoss + row.zerg + row.random;
+				for (let e in row) {
+					if (typeof crossTableData[e] !== "undefined") crossTableData[e].lost += row[e];
+				}
+			}
+			let crossTable = crossTableTemplate(crossTableData);
+			$("#crossTable tbody").append(crossTable);
 		});
 	});
 </script>
-<table id="statsTable">
-	<thead>
-	<tr>
-		<th>Item</th>
-		<th>Value</th>
-	</tr>
-	</thead>
-	<tbody>
-	</tbody>
-</table>
+<div class="row">
+	<div class="col-2">
+		<table id="statsTable">
+			<thead>
+				<tr>
+					<th>Item</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-4">
+		<table id="crossTable">
+			<thead>
+				<th>Race</th>
+				<th>Won</th>
+				<th>Lost</th>
+				<th>Terran</th>
+				<th>Protoss</th>
+				<th>Zerg</th>
+				<th>Random</th>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</div>
 <small>Source: <a href="http://basilicum.bytekeeper.org/stats/stats.json">http://basilicum.bytekeeper.org/stats/stats.json</a></small>
-</table>
