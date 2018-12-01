@@ -13,32 +13,16 @@ title: Stats
 		<td>{{terranBots}}</td>
 		</tr>
 		<tr>
-		<th class="race_terran">Terran victories</th>
-		<td>{{terranWins}}</td>
-		</tr>
-		<tr>
 		<th class="race_protoss">Protoss bots</th>
 		<td>{{protossBots}}</td>
-		</tr>
-		<tr>
-		<th class="race_protoss">Protoss victories</th>
-		<td>{{protossWins}}</td>
 		</tr>
 		<tr>
 		<th class="race_zerg">Zerg bots</th>
 		<td>{{zergBots}}</td>
 		</tr>
 		<tr>
-		<th class="race_zerg">Zerg victories</th>
-		<td>{{zergWins}}</td>
-		</tr>
-		<tr>
 		<th class="race_random">Random bots</th>
 		<td>{{randomBots}}</td>
-		</tr>
-		<tr>
-		<th class="race_random">Random victories</th>
-		<td>{{randomWins}}</td>
 		</tr>
 		<tr>
 		<th>Crashes</th>
@@ -52,9 +36,18 @@ title: Stats
 </script>
 <script id="raceCrossTableTemplate" type="text/x-handlebars-template">
 	{% raw %}
+	<thead>
+	<th>Race</th>
+	<th>Won</th>
+	<th>Lost</th>
+	{{#each this}}
+	<th class="cap race_{{@key}}">{{@key}}</th>
+	{{/each}}
+	</thead>
+	<tbody>
 	{{#each this as |vsrow race|}}
 	<tr>
-	<th class="cap">{{race}}</th>
+	<th class="cap race_{{race}}">{{race}}</th>
 	<td>{{won}}</td>
 	<td>{{lost}}</td>
 	<td>{{vsrow.terran}}</td>
@@ -63,6 +56,7 @@ title: Stats
 	<td>{{vsrow.random}}</td>
 	</tr>
 	{{/each}}
+	</tbody>
 	{% endraw %}
 </script>
 <script>
@@ -89,7 +83,7 @@ title: Stats
 				}
 			}
 			let crossTable = crossTableTemplate(crossTableData);
-			$("#crossTable tbody").append(crossTable);
+			$("#crossTable").append(crossTable);
 		});
 	});
 </script>
@@ -108,17 +102,6 @@ title: Stats
 	</div>
 	<div class="col-4">
 		<table id="crossTable">
-			<thead>
-				<th>Race</th>
-				<th>Won</th>
-				<th>Lost</th>
-				<th>Terran</th>
-				<th>Protoss</th>
-				<th>Zerg</th>
-				<th>Random</th>
-			</thead>
-			<tbody>
-			</tbody>
 		</table>
 	</div>
 </div>
