@@ -9,7 +9,7 @@ title: Ranking
 		<th>
 		{{inc @index}}
 		</th>
-		<td class="{{racecol race}}">{{botName}}</td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
+		<td class="{{racecol race}}"><a href="elo.html?bot={{botName}}" target="_blank">{{botName}}</a></td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
 		</tr>
 		{{/each }}
 		{% endraw %}

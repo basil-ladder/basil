@@ -1,0 +1,83 @@
+---
+layout: page
+title: Elo
+---
+<script id="tableTemplate" type="text/x-handlebars-template">
+	{% raw %}
+		{{#each this}}
+		<tr>
+		<th>
+		{{inc @index}}
+		</th>
+		<td class="{{racecol race}}">{{botName}}</td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
+		</tr>
+		{{/each }}
+		{% endraw %}
+</script>
+<script>
+	$(function() {
+		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+
+		Handlebars.registerHelper("racecol", function(v) { 
+			switch (v) {
+				case "PROTOSS":
+					return "race_protoss";
+				case "ZERG":
+					return "race_zerg";
+				case "TERRAN":
+					return "race_terran";
+				case "RANDOM":
+					return "race_random";
+				default:
+					return "race_unknown";
+			}
+			return parseInt(v) + 1; 
+		});
+		let source = $("#tableTemplate").html();
+		let template = Handlebars.compile(source);
+		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
+		let botName = new URL(window.location.href).searchParams.get("bot");
+//		let botName = "Ecgberht";
+		$.getJSON("http://basilicum.bytekeeper.org/stats/" + botName + "/eloHistory.json", function(data) {
+			let chartData = [];
+			let chartData2 = [];
+			let lastSecond = 0;
+			for (i = 0; i < data.length; i++) {
+				let entry = data[i];
+				if (entry.epochSecond - lastSecond >= 43200) {
+					chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
+					chartData2.push({x: new Date(entry.epochSecond * 1000), y: entry.rating + 50});
+					lastSecond = entry.epochSecond;
+				}
+			}
+			let ctx = document.getElementById("eloChart");
+			new Chart(ctx, {
+				type: "line",
+				data: {
+					datasets: [{
+						label: botName,
+						fill: false,
+						borderColor: "rgba(0, 0, 200, 0.4)",
+						data: chartData
+					}]
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							type: "time",
+							time: {
+								unit: "day"
+							}
+						}]
+					}
+				}
+			});
+		});
+	});
+</script>
+<h1>WIP: No chart here? Click on a bot in Ranking</h1>
+<canvas id="eloChart" width="1200" height="600">
+</canvas>
+
+<small>Source: <a href="http://basilicum.bytekeeper.org/stats/ranking.json">http://basilicum.bytekeeper.org/stats/ranking.json</a></small>
+</table>
