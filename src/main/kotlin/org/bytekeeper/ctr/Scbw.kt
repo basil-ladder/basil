@@ -171,6 +171,8 @@ class Scbw(private val botRepository: BotRepository,
                     }
                 }
                 cleanUpBotContainers()
+                // Wait for a short while to make sure scores and results are written
+                Thread.sleep(5000)
                 // Try to move results
                 moveResult(config.gamesDir, gameName, config.targetDir, bots)
                 if (config.deleteGamesInGameDir) {
@@ -266,7 +268,7 @@ class Scbw(private val botRepository: BotRepository,
                         ?: throw BotNotFoundException("Could not find ${bots[0]}")
                 val botB = botRepository.findByName(bots[1])
                         ?: throw BotNotFoundException("Could not find ${bots[1]}")
-                events.post(GameCrashed(botA, botB, gameConfig.map, false, false, Instant.now(), false, false, 0.0, gameConfig.gameName))
+                events.post(GameCrashed(botA, botB, gameConfig.map, scores[0]?.is_crashed != false, scores[1]?.is_crashed != false, Instant.now(), false, false, 0.0, gameConfig.gameName))
             }
         }
 
