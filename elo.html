@@ -4,45 +4,73 @@ permalink: /elo.html
 ---
 <script>
 	$(function() {
+		let statsBaseUrl = "http://basilicum.bytekeeper.org/stats/";
 		let botName = window.location.search.substring(1).split("=")[1];
-		$.getJSON("http://basilicum.bytekeeper.org/stats/" + botName + "/eloHistory.json", function(data) {
-			let chartData = [];
-			let chartData2 = [];
-			let lastSecond = 0;
-			for (i = 0; i < data.length; i++) {
-				let entry = data[i];
-				if (entry.epochSecond - lastSecond >= 43200) {
-					chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
-					chartData2.push({x: new Date(entry.epochSecond * 1000), y: entry.rating + 50});
-					lastSecond = entry.epochSecond;
-				}
-			}
-			let ctx = document.getElementById("eloChart");
-			new Chart(ctx, {
-				type: "line",
-				data: {
-					datasets: [{
-						label: botName,
-						fill: false,
-						borderColor: "rgba(0, 0, 200, 0.4)",
-						data: chartData
-					}]
-				},
-				options: {
-					scales: {
-						xAxes: [{
-							type: "time",
-							time: {
-								unit: "day"
+		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json")
+			.then(function(data) {
+				data.sort(function(a,b) { 
+					if (a.rating !== b.rating) return b.rating - a.rating; 
+					if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+					return b.won - a.won;
+				})
+				let topBots = data.slice(0,5).map(function(bot) { return bot.botName; });
+				if (topBots.indexOf(botName) === -1) topBots.push(botName);
+				return $.when.apply($, topBots.map(function(bot) {
+					return $.getJSON(statsBaseUrl + bot + "/eloHistory.json")
+						.then(function(data) { return {name: bot, data: data}; });
+				}));
+			}).then(function() {
+				const colors = [
+					"rgba(200, 0, 0, 0.8)",
+					"rgba(0, 200, 0, 0.4)",
+					"rgba(200, 200, 0, 0.4)",
+					"rgba(0, 0, 200, 0.4)",
+					"rgba(200, 0, 200, 0.4)",
+					"rgba(200, 200, 200, 0.4)",
+				];
+				let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)).reverse();
+				let datasets = args.map(function(bot, i) {
+					function filter(data) {
+						let chartData = [];
+						let lastSecond = 0;
+						for (i = 0; i < data.length; i++) {
+							let entry = data[i];
+							if (entry.epochSecond - lastSecond >= 43200) {
+								chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
+								lastSecond = entry.epochSecond;
 							}
-						}]
+						}
+						return chartData;
 					}
-				}
+					return {
+						label: unescape(bot.name),
+						fill: false,
+						borderColor: colors[i],
+						data: filter(bot.data)
+
+					};
+				});
+				let ctx = document.getElementById("eloChart");
+				new Chart(ctx, {
+					type: "line",
+					data: {
+						datasets: datasets
+					},
+					options: {
+						scales: {
+							xAxes: [{
+								type: "time",
+								time: {
+									unit: "day"
+								}
+							}]
+						}
+					}
+				});
+
 			});
-		});
 	});
 </script>
-<h1>WIP: No chart here? Click on a bot in Ranking</h1>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
 
