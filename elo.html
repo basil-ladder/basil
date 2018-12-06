@@ -1,43 +1,10 @@
 ---
 layout: page
-title: Elo
+permalink: /elo.html
 ---
-<script id="tableTemplate" type="text/x-handlebars-template">
-	{% raw %}
-		{{#each this}}
-		<tr>
-		<th>
-		{{inc @index}}
-		</th>
-		<td class="{{racecol race}}">{{botName}}</td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
-		</tr>
-		{{/each }}
-		{% endraw %}
-</script>
 <script>
 	$(function() {
-		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
-
-		Handlebars.registerHelper("racecol", function(v) { 
-			switch (v) {
-				case "PROTOSS":
-					return "race_protoss";
-				case "ZERG":
-					return "race_zerg";
-				case "TERRAN":
-					return "race_terran";
-				case "RANDOM":
-					return "race_random";
-				default:
-					return "race_unknown";
-			}
-			return parseInt(v) + 1; 
-		});
-		let source = $("#tableTemplate").html();
-		let template = Handlebars.compile(source);
-		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
-		let botName = new URL(window.location.href).searchParams.get("bot");
-//		let botName = "Ecgberht";
+		let botName = window.location.search.substring(1).split("=")[1];
 		$.getJSON("http://basilicum.bytekeeper.org/stats/" + botName + "/eloHistory.json", function(data) {
 			let chartData = [];
 			let chartData2 = [];
