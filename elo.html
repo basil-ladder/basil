@@ -14,7 +14,13 @@ permalink: /elo.html
 					return b.won - a.won;
 				})
 				let topBots = data.slice(0,5).map(function(bot) { return bot.botName; });
-				if (topBots.indexOf(botName) === -1) topBots.push(botName);
+				let myIndex = topBots.indexOf(botName);
+				if (myIndex === -1) topBots.push(botName); 
+				else {
+					let tmp = topBots[topBots.length - 1];
+					topBots[topBots.length - 1] = topBots[myIndex];
+					topBots[myIndex] = tmp;
+				}
 				return $.when.apply($, topBots.map(function(bot) {
 					return $.getJSON(statsBaseUrl + bot + "/eloHistory.json")
 						.then(function(data) { return {name: bot, data: data}; });
