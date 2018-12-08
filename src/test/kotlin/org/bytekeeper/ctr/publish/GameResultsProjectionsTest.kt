@@ -43,7 +43,7 @@ internal class GameResultsProjectionsTest {
         val botB = Bot(-1, true, "botB", Race.TERRAN)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, false, false, "")))
+                GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -60,7 +60,7 @@ internal class GameResultsProjectionsTest {
         val botB = Bot(-1, true, "botB", Race.ZERG)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, true, false, "")))
+                GameResult(-1, Instant.MIN, 1.0, false, "map", botA, botB, botA, botB, true, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())

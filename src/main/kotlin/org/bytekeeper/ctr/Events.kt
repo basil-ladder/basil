@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 
-data class GameEnded(val winner: Bot, val loser: Bot, val map: String, val timestamp: Instant = Instant.now(), val gameTime: Double, val gameHash: String)
+data class GameEnded(val winner: Bot, val loser: Bot, val map: String, val timestamp: Instant = Instant.now(), val gameTime: Double, val gameHash: String, val frameCount: Int?)
 class GameCrashed(val botA: Bot, val botB: Bot, val map: String, val botACrashed: Boolean, val botBCrashed: Boolean, val timestamp: Instant = Instant.now(),
-                  val realTimedOut: Boolean, val gameTimedOut: Boolean, val gameTime: Double, val gameHash: String)
+                  val realTimedOut: Boolean, val gameTimedOut: Boolean, val gameTime: Double, val gameHash: String, val frameCount: Int?)
 
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
 class BotCreated(val bot: Bot)
@@ -103,6 +103,6 @@ class EventsAndCommandsProcessor(private val events: Events,
         } catch (e: Throwable) {
             log.debug(e)
         }
-        return bean;
+        return bean
     }
 }

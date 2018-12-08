@@ -16,7 +16,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
     fun gameEnded(gameEnded: GameEnded) {
         gameResultRepository.save(GameResult(time = gameEnded.timestamp, winner = gameEnded.winner, loser = gameEnded.loser,
                 gameRealtime = gameEnded.gameTime, botA = gameEnded.winner, botB = gameEnded.loser, map = gameEnded.map,
-                gameHash = gameEnded.gameHash))
+                gameHash = gameEnded.gameHash, frameCount = gameEnded.frameCount))
     }
 
     @Transactional
@@ -24,6 +24,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
     fun gameCrashed(gameCrashed: GameCrashed) {
         gameResultRepository.save(GameResult(time = gameCrashed.timestamp, realtimeTimeout = gameCrashed.realTimedOut,
                 botA = gameCrashed.botA, botB = gameCrashed.botB, gameRealtime = gameCrashed.gameTime, map = gameCrashed.map,
-                botACrashed = gameCrashed.botACrashed, botBCrashed = gameCrashed.botBCrashed, gameHash = gameCrashed.gameHash))
+                botACrashed = gameCrashed.botACrashed, botBCrashed = gameCrashed.botBCrashed, gameHash = gameCrashed.gameHash,
+                frameCount = gameCrashed.frameCount))
     }
 }

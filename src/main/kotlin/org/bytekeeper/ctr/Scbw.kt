@@ -147,6 +147,8 @@ class Scbw(private val botRepository: BotRepository,
             addParameter("--game_speed", config.gameSpeed)
             addParameter("--game_name", gameName)
             addParameter("--docker_image", config.dockerImage)
+//            cmd += "--log_level"
+//            cmd += "DEBUG"
             if (config.readOverWrite == true) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
@@ -172,7 +174,7 @@ class Scbw(private val botRepository: BotRepository,
                 }
                 cleanUpBotContainers()
                 // Wait for a short while to make sure scores and results are written
-                Thread.sleep(5000)
+                Thread.sleep(2000)
                 // Try to move results
                 moveResult(config.gamesDir, gameName, config.targetDir, bots)
                 if (config.deleteGamesInGameDir) {
@@ -183,7 +185,7 @@ class Scbw(private val botRepository: BotRepository,
             }
         }
 
-        private fun cleanUpBotContainers() {
+        private fun cleanUpBotContainers(): Int {
             val started = System.currentTimeMillis()
             var remaining = 2
             while (System.currentTimeMillis() - started < 10000 && remaining > 0) {
@@ -199,13 +201,14 @@ class Scbw(private val botRepository: BotRepository,
                         }
                 Thread.sleep(1000)
             }
+            return remaining
         }
 
         private fun moveResult(gameDir: Path, gameName: String, targetPath: Path, bots: List<String>) {
             val mapper = jacksonObjectMapper()
             val gamePath = gameDir.resolve("GAME_$gameName")
             val botsPath = targetPath.resolve("bots")
-            val scores = bots.mapIndexed { index, name ->
+            val botResults = bots.mapIndexed { index, name ->
                 val botPath = botsPath.resolve(name)
                 Files.createDirectories(botPath)
                 val replayPath = gamePath.resolve("player_$index.rep")
@@ -228,23 +231,32 @@ class Scbw(private val botRepository: BotRepository,
                             }
                 }
                 val logDir = gamePath.resolve("logs_$index")
-                val scoresFile = logDir.resolve("scores.json")
-                if (Files.exists(scoresFile)) {
-                    val scores = mapper.readValue<ScoresJson>(scoresFile.toFile())
-                    if (scores.is_crashed) {
-                        val gameLog = logDir.resolve("game.log")
-                        if (gameLog.toFile().exists() && Files.size(gameLog) <= LOG_LIMIT) {
-                            Files.move(gameLog, targetLogsPath.resolve("${gameName}_game.log"))
-                        }
-                        val botLog = logDir.resolve("bot.log")
-                        if (botLog.toFile().exists() && Files.size(botLog) <= LOG_LIMIT) {
-                            Files.move(botLog, targetLogsPath.resolve("${gameName}_bot.log"))
-                        }
-                    }
-                    return@mapIndexed scores
+                val frameCount = logDir.resolve("frames.csv").let { frameFile ->
+                    if (frameFile.toFile().exists()) {
+                        Files.newBufferedReader(frameFile).useLines { lines -> lines.last().substringBefore(',') }.toInt()
+                    } else null
                 }
-                return@mapIndexed null
+
+                val scores = logDir.resolve("scores.json").let { scoresFile ->
+                    if (scoresFile.toFile().exists()) {
+                        val scores = mapper.readValue<ScoresJson>(scoresFile.toFile())
+                        if (scores.is_crashed) {
+                            val gameLog = logDir.resolve("game.log")
+                            if (gameLog.toFile().exists() && Files.size(gameLog) <= LOG_LIMIT) {
+                                Files.move(gameLog, targetLogsPath.resolve("${gameName}_game.log"))
+                            }
+                            val botLog = logDir.resolve("bot.log")
+                            if (botLog.toFile().exists() && Files.size(botLog) <= LOG_LIMIT) {
+                                Files.move(botLog, targetLogsPath.resolve("${gameName}_bot.log"))
+                            }
+                        }
+                        scores
+                    } else null
+                }
+
+                return@mapIndexed BotResult(scores, frameCount)
             }
+            val frameCount = botResults.mapNotNull { it.frameCount }.min()
             val resultFile = gamePath.resolve("result.json").toFile()
             if (resultFile.exists()) {
                 val result = mapper.readValue<ResultJson>(resultFile)
@@ -253,22 +265,26 @@ class Scbw(private val botRepository: BotRepository,
                             ?: throw BotNotFoundException("Could not find ${result.winner}")
                     val loserBot = botRepository.findByName(result.loser)
                             ?: throw BotNotFoundException("Could not find ${result.loser}")
-                    events.post(GameEnded(winnerBot, loserBot, gameConfig.map, Instant.now(), result.game_time, gameConfig.gameName))
+                    events.post(GameEnded(winnerBot, loserBot, gameConfig.map, Instant.now(), result.game_time, gameConfig.gameName, frameCount))
                 } else {
                     val botA = botRepository.findByName(bots[0])
                             ?: throw BotNotFoundException("Could not find ${bots[0]}")
                     val botB = botRepository.findByName(bots[1])
                             ?: throw BotNotFoundException("Could not find ${bots[1]}")
                     // Marked as crashed if scores says so or no scores file is present
-                    events.post(GameCrashed(botA, botB, gameConfig.map, scores[0]?.is_crashed != false, scores[1]?.is_crashed != false, Instant.now(),
-                            result.is_realtime_outed, result.is_gametime_outed, result.game_time, gameConfig.gameName))
+                    events.post(GameCrashed(botA, botB, gameConfig.map,
+                            botResults[0].scores?.is_crashed != false, botResults[1].scores?.is_crashed != false, Instant.now(),
+                            result.is_realtime_outed, result.is_gametime_outed, result.game_time, gameConfig.gameName, frameCount))
                 }
             } else {
                 val botA = botRepository.findByName(bots[0])
                         ?: throw BotNotFoundException("Could not find ${bots[0]}")
                 val botB = botRepository.findByName(bots[1])
                         ?: throw BotNotFoundException("Could not find ${bots[1]}")
-                events.post(GameCrashed(botA, botB, gameConfig.map, scores[0]?.is_crashed != false, scores[1]?.is_crashed != false, Instant.now(), false, false, 0.0, gameConfig.gameName))
+                events.post(GameCrashed(botA, botB, gameConfig.map,
+                        botResults[0].scores?.is_crashed != false,
+                        botResults[1].scores?.is_crashed != false, Instant.now(),
+                        false, false, 0.0, gameConfig.gameName, frameCount))
             }
         }
 
@@ -318,6 +334,8 @@ class ScoresJson(
         val razing_score: Long,
         val unit_score: Long
 )
+
+class BotResult(val scores: ScoresJson?, val frameCount: Int?)
 
 class FailedToLimitResources(message: String) : RuntimeException(message)
 class FailedToKillContainer(message: String) : RuntimeException(message)

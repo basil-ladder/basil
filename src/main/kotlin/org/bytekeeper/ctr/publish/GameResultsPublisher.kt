@@ -22,13 +22,14 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                     writer.writeValue(out, gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours, ChronoUnit.HOURS))
                             .map {
                                 PublishedGameResult(it.botA.name, it.botA.race?.name, it.botB.name, it.botB.race?.name, it.winner?.name, it.loser?.name, it.realtimeTimeout, it.time.epochSecond,
-                                        maps.mapName(it.map) ?: it.map, it.botACrashed, it.botBCrashed, it.gameHash)
+                                        maps.mapName(it.map)
+                                                ?: it.map, it.botACrashed, it.botBCrashed, it.gameHash, it.frameCount)
                             })
                 }
 
     }
 
     class PublishedGameResult(val botA: String, val botARace: String?, val botB: String, val botBRace: String?, val winner: String?, val loser: String?, val realTimeout: Boolean, val endedAt: Long, val map: String,
-                              val botACrashed: Boolean, val botBCrashed: Boolean, val gameHash: String)
+                              val botACrashed: Boolean, val botBCrashed: Boolean, val gameHash: String, val frameCount: Int?)
 
 }

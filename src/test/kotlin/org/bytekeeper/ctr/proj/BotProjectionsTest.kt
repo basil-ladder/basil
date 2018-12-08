@@ -38,9 +38,9 @@ internal class BotProjectionsTest {
         (1..100).map {
             for (i in 1..50) {
                 if (Math.random() < 0.5)
-                    sut.onGameEnded(GameEnded(botA, botB, "someMap", Instant.now(), 0.0, ""))
+                    sut.onGameEnded(GameEnded(botA, botB, "someMap", Instant.now(), 0.0, "", null))
                 else
-                    sut.onGameEnded(GameEnded(botB, botA, "someMap", Instant.now(), 0.0, ""))
+                    sut.onGameEnded(GameEnded(botB, botA, "someMap", Instant.now(), 0.0, "", null))
             }
         }
 
