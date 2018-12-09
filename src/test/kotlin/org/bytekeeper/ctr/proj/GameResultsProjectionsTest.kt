@@ -1,9 +1,6 @@
 package org.bytekeeper.ctr.proj
 
-import org.bytekeeper.ctr.Events
-import org.bytekeeper.ctr.GameTimedOut
-import org.bytekeeper.ctr.GameWon
-import org.bytekeeper.ctr.any
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.GameResultRepository
 import org.junit.Before
@@ -56,7 +53,7 @@ internal class GameResultsProjectionsTest {
     }
 
     @Test
-    fun `should count as score if neither bot was slower and score was equal`() {
+    fun `should count as draw if neither bot was slower and score was equal`() {
         // GIVEN
 
         // WHEN
@@ -64,5 +61,16 @@ internal class GameResultsProjectionsTest {
 
         // THEN
         verify(events, never()).post(any())
+    }
+
+    @Test
+    fun `should count as win if only the enemy crashed`() {
+        // GIVEN
+
+        // WHEN
+        sut.gameCrashed(GameCrashed(botA, botB, "", true, false, Instant.now(), 0.0, "", 0))
+
+        // THEN
+        verify(events).post(GameWon(botB, botA, ""))
     }
 }

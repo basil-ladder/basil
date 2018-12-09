@@ -279,9 +279,16 @@ class Scbw(private val botRepository: BotRepository,
                             ?: throw BotNotFoundException("Could not find ${bots[1]}")
 
                     if (result.is_crashed) {
-                        events.post(GameCrashed(botA, botB, gameConfig.map,
-                                botResults[0].scores?.is_crashed != false, botResults[1].scores?.is_crashed != false, Instant.now(),
-                                result.game_time, gameConfig.gameName, frameCount))
+                        events.post(GameCrashed(
+                                botA,
+                                botB,
+                                gameConfig.map,
+                                botResults[0].scores?.is_crashed != false,
+                                botResults[1].scores?.is_crashed != false,
+                                Instant.now(),
+                                result.game_time,
+                                gameConfig.gameName,
+                                frameCount))
                     } else {
                         require(result.is_gametime_outed || result.is_realtime_outed)
                         val slowerBot =

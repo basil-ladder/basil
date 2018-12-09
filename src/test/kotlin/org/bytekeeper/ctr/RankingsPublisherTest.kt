@@ -12,6 +12,7 @@ import org.mockito.BDDMockito
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.StringWriter
+import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
 internal class RankingsPublisherTest {
@@ -34,7 +35,7 @@ internal class RankingsPublisherTest {
     @Test
     fun shouldPublishAllElos() {
         // GIVEN
-        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, null, 100, 1000)
+        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, Instant.MIN, 100, 1000)
         val botB = Bot(-1, true, "botB", Race.PROTOSS, null, null, 200, 3000)
         BDDMockito.given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
 
@@ -43,8 +44,8 @@ internal class RankingsPublisherTest {
 
         // THEN
         Assertions.assertThat(statsWriter.toString()).isEqualTo(
-                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\"}," +
-                        "{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\"}]")
+                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200}," +
+                        "{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":null}]")
     }
 
 }
