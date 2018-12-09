@@ -64,58 +64,25 @@ title: Last 24h
 			});
 			let html = template(data);
 			$("#gamesTable tbody").append(html);
-			$("#gamesTable").tablesorter();
+			$("#gamesTable").tablesorter({
+				widgets: ["filter"],
+				widgetOptions: {
+				}
+			});
 		});
 	});
-	
-	var basil = {};
-	(function() {
-		this.filter = {}
-		this.doFilter = function() {
-			let filter = this.filter;
-			$("#gamesTable tr").show();
-			$("#gamesTable tbody tr").each(function() {
-				let cols = $(this).children("td");
-				if (filter.botName && !cols.eq(0).text().toLowerCase().includes(filter.botName)
-					&& !cols.eq(1).text().toLowerCase().includes(filter.botName)) $(this).hide();
-				if (filter.mapName && !cols.eq(2).text().toLowerCase().includes(filter.mapName)) $(this).hide();
-			});
-		};
-		let timer = 0;
-		function scheduleFiltering() {
-			if (timer) clearTimeout(timer);
-			timer = setTimeout(basil.doFilter.bind(basil), 400);
-		}
-
-		this.filterByBot = function(value) {
-			this.filter.botName = value.toLowerCase();
-			scheduleFiltering();
-		}
-		this.filterByMap = function(value) {
-			this.filter.mapName = value.toLowerCase();
-			scheduleFiltering();
-		}
-
-	}).apply(basil);
 </script>
-<form action="javascript:void(0);">
-	<h3>Filters:</h3>
-	<label for="botName">Bot</label>
-	<input type="text" id="botName" oninput="basil.filterByBot(this.value)">
-	<label for="mapName">Map</label>
-	<input type="text" id="mapName" oninput="basil.filterByMap(this.value)">
-</form>
 <table id="gamesTable">
 	<thead>
 		<tr>
 			<th>Bot A</th>
 			<th>Bot B</th>
-		<th>Map</th>
-		<th>Ended At</th>
-		<th data-sorter="false">Game time</th>
-		<th data-sorter="false"><i class="fas fa-download"></i></th>
-		<th data-sorter="false"><i class="fas fa-eye"></i></th>
-	</tr>
+			<th class="filter-select">Map</th>
+			<th class="filter-false">Ended At</th>
+			<th class="filter-false" data-sorter="false">Game time</th>
+			<th class="filter-false" data-sorter="false"><i class="fas fa-download"></i></th>
+			<th class="filter-false" data-sorter="false"><i class="fas fa-eye"></i></th>
+		</tr>
 	</thead>
 	<tbody>
 	</tbody>

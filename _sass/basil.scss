@@ -85,3 +85,10 @@ dt {
 	width: 2em;
 }
 
+.tablesorter .filtered {
+	display: none;
+}
+
+.tablesorter-filter.disabled {
+	display: none;
+}
