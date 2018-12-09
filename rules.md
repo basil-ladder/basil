@@ -14,8 +14,9 @@ Games
 * All games are 1v1.
 * Starcraft Brood War version 1.16.1 is used.
 * *No in-game time limit* is used due to technical limitations.
-* *Realtime limit* is 20 minutes - after that a game will be killed and won't count.
-* *Draws* are not possible.
+* *Realtime limit* is 30 minutes - after that a game will be killed and the bot with lower time spend per frame (all frames > 0) will be assigned winner.
+* *Gametime limit* is 60 minutes - after which the player with the highest ingame kills+razings score will be assigned winner. If the score is identical, the *Realtime limit* rule applies.
+* *Draws* are only possible if bots have the same score and the same time spent per frame (almost impossible) - and are not counted as win/loss.
 * *Speed* setting is LF3 (Normal).
 * *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps).
 * A *crash* counts as a loss, unless both bots crash.
@@ -25,7 +26,6 @@ Bots
 ====
 * Generally, the rules of [SSCAIT](https://sscaitournament.com/index.php?action=rules) apply.
 * `bwapi-data/write` will be copied to your `bwapi-data/read` directory. by default, the `read` directory will not be cleared, when a bot is updated!
-* To have the read directory cleared when updating, add `BASIL: RESET` somewhere in the [SSCAIT] description.
 * Bots are automatically updated every 6 hours.
 * As with [SSCAIT] no other bot author can view or download either the `read` or the `write` folders of your bot.
 * All replays can be downloaded by everyone.
@@ -35,5 +35,7 @@ Bots
   * 1 CPU core of an `AMD Ryzen 7 1700X`.
   * 1 GB of RAM (- memory uses by OS).
   * Up to 100MB of disk space total for your read + write + ai drectories.
+* Special options (applied by adding `BASIL: <option>[,<option>...]`:
+  * RESET - Clear the directory on the next update (note: this will only delete the first time the new update is received) 
 
 [SSCAIT]: https://sscaitournament.com/

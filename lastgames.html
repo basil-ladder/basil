@@ -6,13 +6,13 @@ title: Last 24h
 	{% raw %}
 		{{#each this}}
 		<tr>
-		<td class="{{racecol botARace}}">{{#if botAWon}}<i class="fas fa-trophy"></i> {{/if}}{{#if botBWon}}<i class="fas fa-sad-tear"></i> {{/if}}{{#if realTimeout}}<i class="fas fa-stopwatch"></i> {{else}}{{#if botACrashed}}<i class="fas fa-car-crash"></i> {{else}}{{#unless winner}}<i class="fas fa-poo-storm"></i>{{/unless}}{{/if}}{{/if}}{{botA}}</td> 
-		<td class="{{racecol botBRace}}">{{#if botBWon}}<i class="fas fa-trophy"></i> {{/if}}{{#if botAWon}}<i class="fas fa-sad-tear"></i> {{/if}}{{#if realTimeout}}<i class="fas fa-stopwatch"></i> {{else}}{{#if botBCrashed}}<i class="fas fa-car-crash"></i> {{else}}{{#unless winner}}<i class="fas fa-poo-storm"></i>{{/unless}}{{/if}}{{/if}}{{botB}}</td> 
+		{{> bot botA}}
+		{{> bot botB}}
 		<td>{{map}}</td>
 		<td>{{time}}</td>
-		<td>{{gameTime}}</td>
-		<td>{{#if winner}}<a href="{{replayUrl}}"><i class="fas fa-download"></i></a>{{/if}}</td>
-		<td>{{#if winner}}<a href="http://www.openbw.com/replay-viewer/?rep={{replayUrl}}" target="_blank">OpenBW</a>{{/if}}</td>
+		<td>{{#unless frameCount}}<i class="fas fa-poo-storm"></i> {{/unless}}{{#if realTimeout}}<i class="fas fa-fish"></i> {{/if}}{{#if frameTimeout}}<i class="fas fa-stopwatch"></i> {{/if}}{{gameTime}}</td>
+		<td>{{#if validGame}}<a href="{{replayUrl}}"><i class="fas fa-download"></i></a>{{/if}}</td>
+		<td>{{#if validGame}}<a href="http://www.openbw.com/replay-viewer/?rep={{replayUrl}}" target="_blank">OpenBW</a>{{/if}}</td>
 		</tr>
 		{{/each }}
 		{% endraw %}
@@ -35,15 +35,21 @@ title: Last 24h
 			}
 			return parseInt(v) + 1; 
 		});
+		{% raw %}
+		Handlebars.registerPartial("bot", 
+			'<td class="{{racecol race}}">'
+			+ '{{#if winner}}<i class="fas fa-trophy"></i>{{/if}}'
+			+ '{{#if loser}}<i class="fas fa-sad-tear"></i>{{/if}}'
+			+ '{{#if crashed}}<i class="fas fa-car-crash"></i>{{/if}}'
+			+ ' {{name}}</td>');
+		{% endraw %}
 		let source = $("#tableTemplate").html();
 		let template = Handlebars.compile(source);
 		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
 		$.getJSON("http://basilicum.bytekeeper.org/stats/game_results.json", function(data) {
 			for (i = 0; i < data.length; i++) {
-				let botA = data[i].botA;
-				let botB = data[i].botB;
-				data[i].botAWon = botA === data[i].winner;
-				data[i].botBWon = botB === data[i].winner;
+				let botA = data[i].botA.name;
+				let botB = data[i].botB.name;
 				data[i].time = new Date(data[i].endedAt * 1000).toLocaleString();
 				data[i].replayUrl = "http://basilicum.bytekeeper.org/bots/" + botA + "/"+  botA + " vs " + botB + " " + data[i].map + " " + data[i].gameHash + ".rep"
 				if (data[i].frameCount) {
@@ -121,7 +127,9 @@ title: Last 24h
 	<dt><i class="fas fa-sad-tear"></i></dt>
 	<dd>Bot has lost the game.</dd>
 	<dt><i class="fas fa-stopwatch"></i></dt>
-	<dd>Game timed out (realtime).</dd>
+	<dd>Game timed out (in-game).</dd>
+	<dt><i class="fas fa-fish"></i></dt>
+	<dd>Game timed out (real time).</dd>
 	<dt><i class="fas fa-car-crash"></i></dt>
 	<dd>Bot crashed.</dd>
 	<dt><i class="fas fa-poo-storm"></i></i></dt>
