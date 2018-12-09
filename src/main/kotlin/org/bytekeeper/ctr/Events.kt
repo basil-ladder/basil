@@ -14,10 +14,44 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 
-data class GameEnded(val winner: Bot, val loser: Bot, val map: String, val timestamp: Instant = Instant.now(), val gameTime: Double, val gameHash: String, val frameCount: Int?)
-class GameCrashed(val botA: Bot, val botB: Bot, val map: String, val botACrashed: Boolean, val botBCrashed: Boolean, val timestamp: Instant = Instant.now(),
-                  val realTimedOut: Boolean, val gameTimedOut: Boolean, val gameTime: Double, val gameHash: String, val frameCount: Int?)
+class GameEnded(val winner: Bot,
+                val loser: Bot,
+                val map: String,
+                val timestamp: Instant = Instant.now(),
+                val gameTime: Double,
+                val gameHash: String,
+                val frameCount: Int?)
 
+class GameCrashed(val botA: Bot,
+                  val botB: Bot,
+                  val map: String,
+                  val botACrashed: Boolean,
+                  val botBCrashed: Boolean,
+                  val timestamp: Instant = Instant.now(),
+                  val gameTime: Double,
+                  val gameHash: String,
+                  val frameCount: Int?)
+
+class GameTimedOut(val botA: Bot,
+                   val botB: Bot,
+                   val slowerBot: Bot?,
+                   val scoreA: Int,
+                   val scoreB: Int,
+                   val map: String,
+                   val timestamp: Instant = Instant.now(),
+                   val realTimedOut: Boolean,
+                   val gameTimedOut: Boolean,
+                   val gameTime: Double,
+                   val gameHash: String,
+                   val frameCount: Int?)
+
+class GameFailedToStart(val botA: Bot,
+                        val botB: Bot,
+                        val map: String,
+                        val timestamp: Instant = Instant.now(),
+                        val gameHash: String)
+
+data class GameWon(val winner: Bot, val loser: Bot, val gameHash: String)
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
 class BotCreated(val bot: Bot)
 class BotDisabled(val bot: Bot)

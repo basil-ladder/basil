@@ -72,6 +72,5 @@ class BotInfo(
     companion object {
         internal val BASIL_COMMAND_MATCHER = "BASIL:\\s*((?:\\w+\\s*,\\s*)*\\w+)".toPattern()
         internal fun commands(basicCommand: String) = basicCommand.split("\\s*,\\s*".toRegex())
-
     }
 }

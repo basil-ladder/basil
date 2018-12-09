@@ -12,41 +12,56 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @EventHandler
     fun onGameEnded(gameEnded: GameEnded) {
-        val (winnerBot, loserBot) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
-        handleAsCompleted(winnerBot, loserBot, gameEnded.gameHash)
+        val (botA, botB) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
+        botA.played++
+        botB.played++
     }
 
-    private fun handleAsCompleted(winnerBot: Bot, loserBot: Bot, gameHash: String) {
-        winnerBot.played++
-        winnerBot.won++
-        loserBot.played++
-        loserBot.lost++
+    @Transactional
+    @EventHandler
+    fun onGameWon(gameWon: GameWon) {
+        val (winner, loser) = botService.getBotsForUpdate(listOf(gameWon.winner, gameWon.loser))
+        winner.won++
+        loser.lost++
 
         val (newWinnerRating, newLoserRating) = Elo.calculateElos(
-                winnerBot.rating, winnerBot.played,
-                loserBot.rating, loserBot.played)
+                winner.rating, winner.played,
+                loser.rating, loser.played)
 
-        winnerBot.rating = newWinnerRating
-        loserBot.rating = newLoserRating
+        winner.rating = newWinnerRating
+        loser.rating = newLoserRating
 
         val time = Instant.now()
-        events.post(EloUpdated(winnerBot, newWinnerRating, time, gameHash))
-        events.post(EloUpdated(loserBot, newLoserRating, time, gameHash))
+        events.post(EloUpdated(winner, newWinnerRating, time, gameWon.gameHash))
+        events.post(EloUpdated(loser, newLoserRating, time, gameWon.gameHash))
     }
 
     @Transactional
     @EventHandler
     fun onGameCrashed(event: GameCrashed) {
         val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
-        if (event.botACrashed == event.botBCrashed) {
-            botA.played++
-            botB.played++
-            if (event.botACrashed) botA.crashed++
-            if (event.botBCrashed) botB.crashed++
-        } else {
-            handleAsCompleted(if (event.botACrashed) botB else botA,
-                    if (event.botBCrashed) botB else botA, event.gameHash)
-        }
+        botA.played++
+        botB.played++
+        if (event.botACrashed) botA.crashed++
+        if (event.botBCrashed) botB.crashed++
+    }
+
+    @Transactional
+    @EventHandler
+    fun onGameFailedToStart(event: GameFailedToStart) {
+        val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
+        botA.played++
+        botB.played++
+        botA.crashed++
+        botB.crashed++
+    }
+
+    @Transactional
+    @EventHandler
+    fun onGameTimedOut(event: GameTimedOut) {
+        val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
+        botA.played++
+        botB.played++
     }
 
     @Transactional

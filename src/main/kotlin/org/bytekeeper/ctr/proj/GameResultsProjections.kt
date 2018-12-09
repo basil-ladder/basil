@@ -1,15 +1,15 @@
 package org.bytekeeper.ctr.proj
 
-import org.bytekeeper.ctr.EventHandler
-import org.bytekeeper.ctr.GameCrashed
-import org.bytekeeper.ctr.GameEnded
+import org.bytekeeper.ctr.*
+import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.GameResult
 import org.bytekeeper.ctr.entity.GameResultRepository
 import org.springframework.stereotype.Component
 import javax.transaction.Transactional
 
 @Component
-class GameResultsProjections(private val gameResultRepository: GameResultRepository) {
+class GameResultsProjections(private val gameResultRepository: GameResultRepository,
+                             private val events: Events) {
 
     @Transactional
     @EventHandler
@@ -22,9 +22,71 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
     @Transactional
     @EventHandler
     fun gameCrashed(gameCrashed: GameCrashed) {
-        gameResultRepository.save(GameResult(time = gameCrashed.timestamp, realtimeTimeout = gameCrashed.realTimedOut,
-                botA = gameCrashed.botA, botB = gameCrashed.botB, gameRealtime = gameCrashed.gameTime, map = gameCrashed.map,
-                botACrashed = gameCrashed.botACrashed, botBCrashed = gameCrashed.botBCrashed, gameHash = gameCrashed.gameHash,
+        gameResultRepository.save(GameResult(
+                time = gameCrashed.timestamp,
+                botA = gameCrashed.botA,
+                botB = gameCrashed.botB,
+                gameRealtime = gameCrashed.gameTime,
+                map = gameCrashed.map,
+                botACrashed = gameCrashed.botACrashed,
+                botBCrashed = gameCrashed.botBCrashed,
+                gameHash = gameCrashed.gameHash,
                 frameCount = gameCrashed.frameCount))
+        if (gameCrashed.botACrashed != gameCrashed.botBCrashed) {
+            val winner = if (gameCrashed.botBCrashed) gameCrashed.botA else gameCrashed.botB
+            val loser = if (gameCrashed.botBCrashed) gameCrashed.botB else gameCrashed.botA
+            events.post(GameWon(winner, loser, gameCrashed.gameHash))
+        }
+    }
+
+    @Transactional
+    @EventHandler
+    fun gameFailedToStart(gameFailedToStart: GameFailedToStart) {
+        gameResultRepository.save(GameResult(time = gameFailedToStart.timestamp, realtimeTimeout = false,
+                botA = gameFailedToStart.botA, botB = gameFailedToStart.botB, gameRealtime = 0.0, map = gameFailedToStart.map,
+                botACrashed = true, botBCrashed = true, gameHash = gameFailedToStart.gameHash))
+    }
+
+    @Transactional
+    @EventHandler
+    fun gameTimedOut(gameTimedOut: GameTimedOut) {
+        var winner: Bot? = null
+        var loser: Bot? = null
+
+        if (gameTimedOut.gameTimedOut && gameTimedOut.scoreA != gameTimedOut.scoreB) {
+            if (gameTimedOut.scoreA > gameTimedOut.scoreB) {
+                winner = gameTimedOut.botA
+                loser = gameTimedOut.botB
+            } else if (gameTimedOut.scoreA < gameTimedOut.scoreB) {
+                winner = gameTimedOut.botB
+                loser = gameTimedOut.botA
+            }
+        }
+
+        if (gameTimedOut.slowerBot != null && winner == null && loser == null) {
+            if (gameTimedOut.botA == gameTimedOut.slowerBot) {
+                winner = gameTimedOut.botB
+                loser = gameTimedOut.botA
+            } else {
+                winner = gameTimedOut.botA
+                loser = gameTimedOut.botB
+            }
+        }
+        if (winner != null && loser != null) events.post(GameWon(winner, loser, gameTimedOut.gameHash))
+
+        gameResultRepository.save(GameResult(
+                time = gameTimedOut.timestamp,
+                realtimeTimeout = gameTimedOut.realTimedOut,
+                frameTimeout = gameTimedOut.gameTimedOut,
+                botA = gameTimedOut.botA,
+                botB = gameTimedOut.botB,
+                winner = winner,
+                loser = loser,
+                gameRealtime = gameTimedOut.gameTime,
+                map = gameTimedOut.map,
+                botACrashed = false,
+                botBCrashed = false,
+                gameHash = gameTimedOut.gameHash,
+                frameCount = gameTimedOut.frameCount))
     }
 }

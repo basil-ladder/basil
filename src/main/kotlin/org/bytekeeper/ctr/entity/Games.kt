@@ -14,6 +14,7 @@ class GameResult(@Id @GeneratedValue var id: Long? = null,
                  var time: Instant,
                  var gameRealtime: Double,
                  var realtimeTimeout: Boolean = false,
+                 var frameTimeout: Boolean? = false,
                  var map: String,
                  @ManyToOne var botA: Bot,
                  @ManyToOne var botB: Bot,
@@ -22,7 +23,7 @@ class GameResult(@Id @GeneratedValue var id: Long? = null,
                  var botACrashed: Boolean = false,
                  var botBCrashed: Boolean = false,
                  var gameHash: String,
-                 var frameCount: Int?)
+                 var frameCount: Int? = null)
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
