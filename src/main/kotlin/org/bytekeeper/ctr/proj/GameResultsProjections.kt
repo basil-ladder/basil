@@ -22,21 +22,25 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
     @Transactional
     @EventHandler
     fun gameCrashed(gameCrashed: GameCrashed) {
+        val (winner, loser) =
+                if (gameCrashed.botACrashed != gameCrashed.botBCrashed) {
+                    (if (gameCrashed.botBCrashed) gameCrashed.botA else gameCrashed.botB) to
+                            (if (gameCrashed.botBCrashed) gameCrashed.botB else gameCrashed.botA)
+                } else null to null
         gameResultRepository.save(GameResult(
                 time = gameCrashed.timestamp,
                 botA = gameCrashed.botA,
                 botB = gameCrashed.botB,
+                winner = winner,
+                loser = loser,
                 gameRealtime = gameCrashed.gameTime,
                 map = gameCrashed.map,
                 botACrashed = gameCrashed.botACrashed,
                 botBCrashed = gameCrashed.botBCrashed,
                 gameHash = gameCrashed.gameHash,
                 frameCount = gameCrashed.frameCount))
-        if (gameCrashed.botACrashed != gameCrashed.botBCrashed) {
-            val winner = if (gameCrashed.botBCrashed) gameCrashed.botA else gameCrashed.botB
-            val loser = if (gameCrashed.botBCrashed) gameCrashed.botB else gameCrashed.botA
+        if (winner != null && loser != null)
             events.post(GameWon(winner, loser, gameCrashed.gameHash))
-        }
     }
 
     @Transactional
