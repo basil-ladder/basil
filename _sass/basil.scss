@@ -71,7 +71,10 @@ form {
 }
 
 a.normal {
-	color: #3f3f3f;
+	color: inherit;
+	&:hover {
+		text-decoration: none;
+	}
 }
 
 .float-right {
