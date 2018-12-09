@@ -95,3 +95,12 @@ dt {
 .tablesorter-filter.disabled {
 	display: none;
 }
+
+tr.disabled {
+	background-color: #cfcfcf;
+}
+
+thead tr th {
+	position: sticky;
+	top: 0;
+}

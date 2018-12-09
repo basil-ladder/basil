@@ -41,7 +41,7 @@ title: Last 24h
 			+ '{{#if winner}}<i class="fas fa-trophy"></i>{{/if}}'
 			+ '{{#if loser}}<i class="fas fa-sad-tear"></i>{{/if}}'
 			+ '{{#if crashed}}<i class="fas fa-car-crash"></i>{{/if}}'
-			+ ' {{name}}</td>');
+			+ ' {{name}} <a class="float-right normal" href="ranking.html#{{name}}"><i class="fas fa-align-left"></i></a></td>');
 		{% endraw %}
 		let source = $("#tableTemplate").html();
 		let template = Handlebars.compile(source);

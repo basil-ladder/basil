@@ -5,11 +5,18 @@ title: Ranking
 <script id="tableTemplate" type="text/x-handlebars-template">
 	{% raw %}
 		{{#each this}}
-		<tr>
+		<tr {{#unless enabled}}class="disabled"{{/unless}}>
 		<th>
 		{{inc @index}}
 		</th>
-		<td class="{{racecol race}}">{{botName}}<div class="float-right"><a class="normal" href="elo.html?bot={{botName}}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td> <td>{{rating}}</td> <td>{{played}}</td> <td>{{won}}</td> <td>{{lost}}</td> <td>{{winRate}}</td> <td>{{crashed}}</td>
+		<td name="{{anchorName}}" class="{{racecol race}}">{{botName}}<div class="float-right"><a class="normal" href="elo.html?bot={{botName}}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
+		<td>{{rating}}</td>
+		<td>{{played}}</td>
+		<td>{{won}}</td>
+		<td>{{lost}}</td>
+		<td>{{winRate}}</td>
+		<td>{{crashed}}</td>
+		<td>{{lastUpdated}}</td>
 		</tr>
 		{{/each }}
 		{% endraw %}
@@ -44,6 +51,8 @@ title: Ranking
 				} else {
 					data[i].winRate = "-";
 				}
+				if (data[i].lastUpdated) data[i].lastUpdated = moment.unix(data[i].lastUpdated).format("YYYY.MM.DD hh:mm:ss a");
+				data[i].anchorName = encodeURIComponent(data[i].botName);
 			}
 			// Required for index to work as expected
 			data.sort(function(a,b) { 
@@ -54,6 +63,11 @@ title: Ranking
 			let html = template(data);
 			$("#eloTable tbody").append(html);
 			$("#eloTable").tablesorter({ sortList: [[2, 1], [6, 1], [4, 1]] });
+			if (location.hash) {
+				let headerHeight = $("thead tr").height();
+				let dest = $("td[name='" + location.hash.substring(1) + "']");
+				$("html, body").animate({ scrollTop: dest.offset().top - headerHeight }, 'slow');
+			}
 		});
 	});
 </script>
@@ -71,6 +85,7 @@ The following table is sorted by ELO, % Win, # Won by default. To sort multiple 
 		<th># Lost</th>
 		<th>% Win</th>
 		<th># Crashes</th>
+		<th>Last updated</th>
 	</tr>
 	</thead>
 	<tbody>
