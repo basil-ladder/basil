@@ -14,7 +14,9 @@ class GameRunner(private val scbw: Scbw,
                  private val config: Config,
                  private val maps: Maps,
                  private val sscait: SscaitClient,
-                 private val commands: Commands) : CommandLineRunner {
+                 private val commands: Commands,
+                 private val botService: BotService,
+                 private val events: Events) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
     private val locks = ConcurrentHashMap<BotInfo, BotInfo>()
@@ -60,7 +62,15 @@ class GameRunner(private val scbw: Scbw,
 
     private fun updateBotList() {
         log.info("Retrieving list of bots")
-        val allBots = sscait.retrieveListOfBots().collectList().block()
+        val allBots = sscait.retrieveListOfBots().collectList().block()!!
+        allBots.filter { it.isDisabled }
+                .forEach {
+                    botService.findByName(it.name)?.let {
+                        if (it.enabled) {
+                            events.post(BotDisabled(it))
+                        }
+                    }
+                }
         val enabledBots = allBots.filter { !it.isDisabled }
         log.info("Received ${allBots.size} (${enabledBots.size} enabled) bots")
         if (allBots.isEmpty()) {
@@ -101,6 +111,8 @@ class GameRunner(private val scbw: Scbw,
 
                     scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), maps.maps.random(), "CTR_$hash"))
                 } catch (e: FailedToLimitResources) {
+                    log.warn(e.message)
+                } catch (e: BotDisabledException) {
                     log.warn(e.message)
                 } catch (e: Exception) {
                     log.warn("Error while trying to schedule ${botA.name} vs ${botB.name}", e)

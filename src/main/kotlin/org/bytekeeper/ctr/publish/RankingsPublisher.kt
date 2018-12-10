@@ -28,7 +28,8 @@ class RankingsPublisher(private val publisher: Publisher,
                                         it.lost,
                                         it.crashed,
                                         it.race?.name,
-                                        it.lastUpdated?.epochSecond)
+                                        it.lastUpdated?.epochSecond,
+                                        it.enabled)
                             })
                 }
     }
@@ -42,4 +43,5 @@ class PublishedBotRanking(val botName: String,
                           val lost: Int,
                           val crashed: Int,
                           val race: String?,
-                          val lastUpdated: Long?)
+                          val lastUpdated: Long?,
+                          val enabled: Boolean)

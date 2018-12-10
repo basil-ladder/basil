@@ -70,4 +70,23 @@ class BotProjections(private val botService: BotService,
         val bot = botService.save(Bot(name = command.name, race = command.race, botType = command.botType, lastUpdated = command.lastUpdated))
         events.post(BotCreated(bot))
     }
+
+    @Transactional
+    @EventHandler
+    fun handle(botUpdated: BotUpdated) {
+        val bot = botService.getById(botUpdated.bot.id!!)
+        bot.lastUpdated = botUpdated.timestamp
+    }
+
+    @Transactional
+    @EventHandler
+    fun onBotDisabled(command: BotDisabled) {
+        botService.getById(command.bot.id!!).enabled = false
+    }
+
+    @Transactional
+    @EventHandler
+    fun onBotEnabled(command: BotEnabled) {
+        botService.getById(command.bot.id!!).enabled = true
+    }
 }

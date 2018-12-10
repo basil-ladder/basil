@@ -44,8 +44,8 @@ internal class RankingsPublisherTest {
 
         // THEN
         Assertions.assertThat(statsWriter.toString()).isEqualTo(
-                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200}," +
-                        "{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":null}]")
+                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200,\"enabled\":true}," +
+                        "{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":null,\"enabled\":true}]")
     }
 
 }

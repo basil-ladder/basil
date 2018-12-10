@@ -50,7 +50,7 @@ internal class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"PROTOSS\",\"winner\":true,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"TERRAN\",\"winner\":false,\"crashed\":false},\"realTimeout\":false,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
+                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"PROTOSS\",\"winner\":true,\"loser\":false,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"TERRAN\",\"winner\":false,\"loser\":true,\"crashed\":false},\"validGame\":true,\"realTimeout\":false,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
     }
 
     @Test
@@ -67,7 +67,7 @@ internal class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":true,\"crashed\":true},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"crashed\":false},\"realTimeout\":false,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
+                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":true,\"loser\":false,\"crashed\":true},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"loser\":true,\"crashed\":false},\"validGame\":true,\"realTimeout\":false,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
     }
 
     @Test
@@ -84,7 +84,7 @@ internal class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":false,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"crashed\":false},\"realTimeout\":true,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
+                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":false,\"loser\":false,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"loser\":false,\"crashed\":false},\"validGame\":false,\"realTimeout\":true,\"frameTimeout\":false,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
     }
 
     @Test
@@ -101,6 +101,6 @@ internal class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":true,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"crashed\":false},\"realTimeout\":false,\"frameTimeout\":true,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
+                .isEqualTo("[{\"botA\":{\"name\":\"botA\",\"race\":\"RANDOM\",\"winner\":true,\"loser\":false,\"crashed\":false},\"botB\":{\"name\":\"botB\",\"race\":\"ZERG\",\"winner\":false,\"loser\":true,\"crashed\":false},\"validGame\":true,\"realTimeout\":false,\"frameTimeout\":true,\"endedAt\":-31557014167219200,\"map\":\"map\",\"gameHash\":\"\",\"frameCount\":0}]")
     }
 }

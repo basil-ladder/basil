@@ -21,7 +21,7 @@ class BotElo(@Id @GeneratedValue var id: Long? = null,
 
 @Entity
 class Bot(@Id @GeneratedValue var id: Long? = null,
-          val enabled: Boolean = true,
+          var enabled: Boolean = true,
           var name: String,
           @Enumerated(EnumType.STRING) var race: Race? = null,
           var botType: String? = null,

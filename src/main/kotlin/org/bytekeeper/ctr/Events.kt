@@ -55,6 +55,8 @@ data class GameWon(val winner: Bot, val loser: Bot, val gameHash: String)
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
 class BotCreated(val bot: Bot)
 class BotDisabled(val bot: Bot)
+class BotEnabled(val bot: Bot)
+class BotUpdated(val bot: Bot, val timestamp: Instant)
 
 @Service
 class Events {

@@ -49,6 +49,9 @@ class Scbw(private val botRepository: BotRepository,
             events.post(BotDisabled(disabledBot))
             throw BotDisabledException("${disabledBot.name} is disabled")
         }
+        if (!bot!!.enabled) {
+            events.post(BotEnabled(bot))
+        }
 
         val botDir = config.botsDir.resolve(name)
         val aiDir = botDir.resolve("AI")
@@ -57,7 +60,9 @@ class Scbw(private val botRepository: BotRepository,
         val additionalReadPath = botDir.resolve("additionalRead")
         val botJsonDef = botDir.resolve("bot.json")
 
-        log.info("Bot $name was updated ${sscaitBot.lastUpdated()}${if (bot?.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
+        log.info("Bot $name was updated ${sscaitBot.lastUpdated()}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
+        events.post(BotUpdated(bot, sscaitBot.lastUpdated()))
+
         deleteDirectory(aiDir)
 
         if (sscaitBot.clearReadDirectory) {
