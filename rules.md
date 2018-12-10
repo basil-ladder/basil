@@ -5,7 +5,7 @@ title: Rules
 
 Participants
 ============
-* Any of bot already uploaded to [SSCAIT] automatically participates if enabled.
+* Any bot already uploaded to [SSCAIT] automatically participates if enabled.
 * If you want to opt-out, just drop me a mail: [bytekeeper@mailbox.org](mailto:bytekeeper@mailbox.org).
 * If you want to participate but have not uploaded your bot to SSCAIT, drop me a mail and I'll try to add your bot.
 
@@ -19,6 +19,7 @@ Games
 * *Draws* are only possible if bots have the same score and the same time spent per frame (almost impossible) - and are not counted as win/loss.
 * *Speed* setting is LF3 (Normal).
 * *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps).
+* *Random* race is not possible, random bots will get a random race selected _before_ the game is launched.
 * A *crash* counts as a loss, unless both bots crash.
 * Every played game is counted as "played", even if it crashes.
 

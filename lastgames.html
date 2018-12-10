@@ -39,8 +39,9 @@ title: Last 24h
 		Handlebars.registerPartial("bot", 
 			'<td class="{{racecol race}}">'
 			+ '{{#if winner}}<i class="fas fa-trophy"></i>{{/if}}'
+			+ '{{#if crashed}}<i class="fas fa-car-crash"></i>{{else}}'
 			+ '{{#if loser}}<i class="fas fa-sad-tear"></i>{{/if}}'
-			+ '{{#if crashed}}<i class="fas fa-car-crash"></i>{{/if}}'
+			+ '{{/if}}'
 			+ ' {{name}} <a class="float-right normal" href="ranking.html#{{name}}"><i class="fas fa-align-left"></i></a></td>');
 		{% endraw %}
 		let source = $("#tableTemplate").html();

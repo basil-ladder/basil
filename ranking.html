@@ -56,13 +56,20 @@ title: Ranking
 			}
 			// Required for index to work as expected
 			data.sort(function(a,b) { 
+				if (a.enabled != b.enabled) {
+					if (a.enabled) return 1; else return -1;
+				}
+				let aPlayed = a.won + a.lost;
+				let bPlayed = b.won + b.lost;
+				if (aPlayed < 30 && bPlayed >= 30) return 1;
+				if (bPlayed < 30 && aPlayed >= 30) return -1;
 				if (a.rating !== b.rating) return b.rating - a.rating; 
 				if (a.winRate !== b.winRate) return b.winRate - a.winRate;
 				return b.won - a.won;
 			});
 			let html = template(data);
 			$("#eloTable tbody").append(html);
-			$("#eloTable").tablesorter({ sortList: [[2, 1], [6, 1], [4, 1]] });
+			$("#eloTable").tablesorter({ sortList: [[0, 0]] });
 			if (location.hash) {
 				let headerHeight = $("thead tr").height();
 				let dest = $("td[name='" + location.hash.substring(1) + "']");
