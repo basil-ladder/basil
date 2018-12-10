@@ -144,7 +144,10 @@ class Scbw(private val botRepository: BotRepository,
             }
 
             cmd += "--bots"
-            cmd += bots
+
+            cmd += if (botRepository.findByName(bots[0])?.race == Race.RANDOM) bots[0] + ":" + listOf("Z", "T", "P").random() else bots[0]
+            cmd += if (botRepository.findByName(bots[1])?.race == Race.RANDOM) bots[1] + ":" + listOf("Z", "T", "P").random() else bots[1]
+
             addParameter("--timeout", config.realtimeTimeoutSeconds)
             addParameter("--bot_dir", config.botsDir)
             addParameter("--map", gameConfig.map)
