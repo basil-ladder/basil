@@ -15,9 +15,20 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
         val writer = jacksonObjectMapper().writer()
         publisher.globalStatsWriter("botVsBot.json")
                 .use { out ->
-                    writer.writeValue(out, gameResultRepository.listBotVsBotWonGames().map { PublishedBotVsBot(it.botA.name, it.botB.name, it.won) })
+                    val wonGames = gameResultRepository.listBotVsBotWonGames()
+                    writer.writeValue(out, PublishedBotVsBot(wonGames
+                            .flatMap { listOf(it.botA, it.botB) }
+                            .distinct()
+                            .sortedBy { it.name.toLowerCase() }
+                            .map { PublishedBotinfo(it.name, it.race?.name) },
+                            wonGames
+                                    .map { PublishedBotVsBotStat(it.botA.name, it.botB.name, it.won) }
+                    ))
                 }
     }
 
-    class PublishedBotVsBot(val winner: String, val loser: String, val won: Long)
+
+    class PublishedBotinfo(val name: String, val race: String?)
+    class PublishedBotVsBotStat(val winner: String, val loser: String, val won: Long)
+    class PublishedBotVsBot(val botinfos: List<PublishedBotinfo>, val botVsBotStat: List<PublishedBotVsBotStat>)
 }
