@@ -35,13 +35,14 @@ permalink: /elo.html
 					"rgba(200, 200, 200, 0.4)",
 				];
 				let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)).reverse();
+				let startSeconds = (Date.now() / 1000) - 30 * 86400;
 				let datasets = args.map(function(bot, i) {
 					function filter(data) {
 						let chartData = [];
 						let lastSecond = 0;
 						for (i = 0; i < data.length; i++) {
 							let entry = data[i];
-							if (entry.epochSecond - lastSecond >= 43200) {
+							if (entry.epochSecond >= startSeconds && entry.epochSecond - lastSecond >= 43200) {
 								chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
 								lastSecond = entry.epochSecond;
 							}
