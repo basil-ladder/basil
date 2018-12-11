@@ -25,6 +25,11 @@ class GameResult(@Id @GeneratedValue var id: Long? = null,
                  var gameHash: String,
                  var frameCount: Int? = null)
 
+class BotVsBotWonGames(val botA: Bot,
+                       val botB: Bot,
+                       val won: Long)
+
+
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
     fun findByTimeGreaterThan(time: Instant): MutableIterable<GameResult>
@@ -33,4 +38,8 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     fun countByBotACrashedIsTrueOrBotBCrashedIsTrue(): Int
     @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
     fun averageGameRealtime(): Double
+
+    @Query("SELECT new org.bytekeeper.ctr.entity.BotVsBotWonGames(r.winner, r.loser, COUNT(r)) FROM GameResult r GROUP BY r.winner, r.loser")
+    fun listBotVsBotWonGames(): List<BotVsBotWonGames>
+
 }
