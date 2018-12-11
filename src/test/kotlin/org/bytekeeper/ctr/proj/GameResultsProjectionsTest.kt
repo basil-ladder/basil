@@ -73,4 +73,15 @@ internal class GameResultsProjectionsTest {
         // THEN
         verify(events).post(GameWon(botB, botA, ""))
     }
+
+    @Test
+    fun `should select winner if game ended normally`() {
+        // GIVEN
+
+        // WHEN
+        sut.gameEnded(GameEnded(botB, botA, "", Instant.now(), 0.0, "", 0))
+
+        // THEN
+        verify(events).post(GameWon(botB, botA, ""))
+    }
 }

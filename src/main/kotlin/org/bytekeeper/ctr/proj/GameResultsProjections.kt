@@ -17,6 +17,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
         gameResultRepository.save(GameResult(time = gameEnded.timestamp, winner = gameEnded.winner, loser = gameEnded.loser,
                 gameRealtime = gameEnded.gameTime, botA = gameEnded.winner, botB = gameEnded.loser, map = gameEnded.map,
                 gameHash = gameEnded.gameHash, frameCount = gameEnded.frameCount))
+        events.post(GameWon(gameEnded.winner, gameEnded.loser, gameEnded.gameHash))
     }
 
     @Transactional
