@@ -105,3 +105,29 @@ thead tr th {
 	position: sticky;
 	top: 0;
 }
+
+table.tiny {
+	th, td {
+		padding: 0;
+		border: 1px solid #dedede;
+		font-size: 0.7em;
+		white-space: nowrap;
+		overflow: hidden;
+		min-width: 72px;
+		max-width: 72px;
+	}
+	thead tr th, td {
+		text-align: center;
+	}
+	width: auto;
+	table-layout: fixed;
+}
+
+td.highlight {
+	background-color: rgba(0, 255, 0, 0.2);
+}
+
+tr.highlight:hover {
+	background-color: rgba(0, 255, 0, 0.2);
+}
+
