@@ -19,7 +19,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
                     writer.writeValue(out, PublishedBotVsBot(wonGames
                             .flatMap { listOf(it.botA, it.botB) }
                             .distinct()
-                            .sortedBy { it.name.toLowerCase() }
+                            .sortedByDescending { it.rating }
                             .map { PublishedBotinfo(it.name, it.race?.name) },
                             wonGames
                                     .map { PublishedBotVsBotStat(it.botA.name, it.botB.name, it.won) }
