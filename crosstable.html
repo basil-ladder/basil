@@ -4,21 +4,20 @@ title: Crosstable
 ---
 <script id="crosstable" type="text/x-handlebars-template">
 	{% raw %}
-{{#each chunks as |chunk|}}
 <table class="tiny">
 <thead>
 	<tr>
 		<th style="max-width: 116px; min-width: 116px;">Bot</th>
-		{{#each chunk}}
+		{{#each bots}}
 		<th class="{{racecol race}}">{{ name }}</th>
 		{{/each}}
 	</tr>
 </thead>
 <tbody>
-	{{#each @root.bots as |botA|}}
+	{{#each bots as |botA|}}
 	<tr class="highlight">
 		<th class="{{racecol race}}">{{ name }}</th>
-		{{#each chunk as |botB|}}
+		{{#each @root.bots as |botB|}}
 		<td>
 		{{#with (lookup (lookup @root.stats botA.name) botB.name)}}
 		{{#unless self}}{{won}} - {{lost}}{{/unless}}
@@ -31,7 +30,6 @@ title: Crosstable
 	{{/each}}
 </tbody>
 </table>
-{{/each}}
 {% endraw %}
 </script>
 <script>
@@ -51,12 +49,6 @@ title: Crosstable
 			}
 			return parseInt(v) + 1; 
 		});
-		function chunk(arr, len) {
-			var chunks = [], i = 0,	n = arr.length;
-			while (i < n) { chunks.push(arr.slice(i, i += len)); }
-			return chunks;
-		}
-
 		let source = $("#crosstable").html();
 		let template = Handlebars.compile(source);
 		$.getJSON("http://basilicum.bytekeeper.org/stats/botVsBot.json", function(recv) {
@@ -75,7 +67,7 @@ title: Crosstable
 				let bot = recv.botinfos[i].name;
 				entry(bot, bot).self = true;
 			}
-			let table = {bots: recv.botinfos, chunks: chunk(recv.botinfos, 14), stats: stats}
+			let table = {bots: recv.botinfos, stats: stats}
 			let html = template(table);
 			let htmlTable = $("#tablePlaceholder");
 			htmlTable.append(html);

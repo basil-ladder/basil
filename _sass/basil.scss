@@ -109,12 +109,13 @@ thead tr th {
 table.tiny {
 	th, td {
 		padding: 0;
-		border: 1px solid #dedede;
+		border: 1px solid #aeaeae;
 		font-size: 0.7em;
 		white-space: nowrap;
 		overflow: hidden;
-		min-width: 72px;
-		max-width: 72px;
+		min-width: 34px;
+		max-width: 34px;
+		background-clip: padding-box;
 	}
 	thead tr th, td {
 		text-align: center;
