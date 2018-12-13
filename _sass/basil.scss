@@ -101,9 +101,19 @@ tr.disabled {
 	color: #afafaf;
 }
 
-thead tr th {
-	position: sticky;
-	top: 0;
+thead tr {
+	th:not(:first-child) {
+		position: sticky;
+		top: 0;
+	}
+}
+
+tr {
+	th:first-child {
+		position: sticky;
+		left: 0;
+		z-index: 1;
+	}
 }
 
 table.tiny {
@@ -125,10 +135,10 @@ table.tiny {
 }
 
 td.highlight {
-	background-color: rgba(0, 255, 0, 0.2);
+	background-color: rgba(0, 0, 255, 0.2) !important;
 }
 
-tr.highlight:hover {
-	background-color: rgba(0, 255, 0, 0.2);
+tr.highlight:hover td {
+	background-color: rgba(0, 0, 255, 0.2) !important;
 }
 

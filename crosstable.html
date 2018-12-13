@@ -18,13 +18,15 @@ title: Crosstable
 	<tr class="highlight">
 		<th class="{{racecol race}}">{{ name }}</th>
 		{{#each @root.bots as |botB|}}
-		<td>
 		{{#with (lookup (lookup @root.stats botA.name) botB.name)}}
-		{{#unless self}}{{won}} - {{lost}}{{/unless}}
-		{{else}}
-		{{#unless self}}0 - 0{{/unless}}
-		{{/with}}
+		{{#unless self}}
+		<td style="background-color: rgba({{color}});">
+		{{won}} - {{lost}}
 		</td>
+		{{else}}
+		<td> </td>
+		{{/unless}}
+		{{/with}}
 		{{/each}}
 	</tr>
 	{{/each}}
@@ -64,9 +66,22 @@ title: Crosstable
 				entry(bvb.loser, bvb.winner).lost= bvb.won;
 			}
 			for (i = 0; i < recv.botinfos.length; i++) {
-				let bot = recv.botinfos[i].name;
-				entry(bot, bot).self = true;
+				let botI = recv.botinfos[i].name;
+				for (j = 0; j < recv.botinfos.length; j++) {
+					let botJ =  recv.botinfos[j].name;
+					let e = entry(botI, botJ);
+					if (i != j) {
+						let w = e.won + 1;
+						let l = e.lost + 1;
+						let sumSq = (w + l) * (w + l);
+						let red =  1 - w * w / sumSq;
+						let green = 1 - l * l / sumSq;
+						e.color = Math.ceil(255 * red) + "," + Math.ceil(255 * green) + ",0,0.8";
+
+					} else e.self = true;
+				}
 			}
+
 			let table = {bots: recv.botinfos, stats: stats}
 			let html = template(table);
 			let htmlTable = $("#tablePlaceholder");
@@ -81,5 +96,5 @@ title: Crosstable
 		});
 	});
 </script>
-<div id="tablePlaceholder">
+<div id="tablePlaceholder" style="position: absolute; left: 0;">
 </div>
