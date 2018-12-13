@@ -36,8 +36,8 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 loser = loser,
                 gameRealtime = gameCrashed.gameTime,
                 map = gameCrashed.map,
-                botACrashed = gameCrashed.botACrashed,
-                botBCrashed = gameCrashed.botBCrashed,
+                botACrashed = if (winner ?: gameCrashed.botA == gameCrashed.botA) gameCrashed.botACrashed else gameCrashed.botBCrashed,
+                botBCrashed = if (loser ?: gameCrashed.botB == gameCrashed.botB) gameCrashed.botBCrashed else gameCrashed.botACrashed,
                 gameHash = gameCrashed.gameHash,
                 frameCount = gameCrashed.frameCount))
         if (winner != null && loser != null)
