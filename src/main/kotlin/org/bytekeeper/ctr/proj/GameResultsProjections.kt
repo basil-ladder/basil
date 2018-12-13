@@ -30,8 +30,8 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 } else null to null
         gameResultRepository.save(GameResult(
                 time = gameCrashed.timestamp,
-                botA = gameCrashed.botA,
-                botB = gameCrashed.botB,
+                botA = winner ?: gameCrashed.botA,
+                botB = loser ?: gameCrashed.botB,
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameCrashed.gameTime,
@@ -83,8 +83,8 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 time = gameTimedOut.timestamp,
                 realtimeTimeout = gameTimedOut.realTimedOut,
                 frameTimeout = gameTimedOut.gameTimedOut,
-                botA = if (winner != null) winner else gameTimedOut.botA,
-                botB = if (loser != null) loser else gameTimedOut.botB,
+                botA = winner ?: gameTimedOut.botA,
+                botB = loser ?: gameTimedOut.botB,
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameTimedOut.gameTime,
