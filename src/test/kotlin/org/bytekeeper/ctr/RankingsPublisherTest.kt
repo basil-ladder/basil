@@ -11,6 +11,7 @@ import org.junit.runner.RunWith
 import org.mockito.BDDMockito
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import java.io.BufferedWriter
 import java.io.StringWriter
 import java.time.Instant
 
@@ -29,7 +30,7 @@ internal class RankingsPublisherTest {
     fun setup() {
         sut = RankingsPublisher(publisher, botRepository)
 
-        BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(statsWriter)
+        BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(statsWriter))
     }
 
     @Test

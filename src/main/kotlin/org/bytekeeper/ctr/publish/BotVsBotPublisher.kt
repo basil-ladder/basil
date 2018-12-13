@@ -1,11 +1,11 @@
-package org.bytekeeper.ctr.publish;
+package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.entity.GameResultRepository
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component
 
 @Component
 class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
@@ -13,21 +13,38 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
     @CommandHandler
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
+        val wonGames = gameResultRepository.listBotVsBotWonGames()
+        val sortedBotList = wonGames
+                .flatMap { listOf(it.botA, it.botB) }
+                .distinct()
+                .sortedByDescending { it.rating }
         publisher.globalStatsWriter("botVsBot.json")
                 .use { out ->
-                    val wonGames = gameResultRepository.listBotVsBotWonGames()
-                    writer.writeValue(out, PublishedBotVsBot(wonGames
-                            .flatMap { listOf(it.botA, it.botB) }
-                            .distinct()
-                            .sortedByDescending { it.rating }
-                            .map { PublishedBotinfo(it.name, it.race?.name) },
+                    writer.writeValue(out, PublishedBotVsBot(
+                            sortedBotList.map { PublishedBotinfo(it.name, it.race?.name) },
                             wonGames
                                     .map { PublishedBotVsBotStat(it.botA.name, it.botB.name, it.won) }
                     ))
                 }
+        publisher.globalStatsWriter("botVsBot.csv")
+                .use { out ->
+                    val wonMap = wonGames.map { Coord(it.botA.name, it.botB.name) to it.won }.toMap()
+
+                    out.append((listOf("Bot") + sortedBotList.map { it.name }).joinToString(", "))
+                    out.newLine()
+                    for (botA in sortedBotList) {
+                        val row = (listOf(botA.name) + sortedBotList.map { botB ->
+                            wonMap[Coord(botA.name, botB.name)] ?: "0"
+                        })
+                                .joinToString(", ")
+                        out.append(row)
+                        out.newLine()
+                    }
+
+                }
     }
 
-
+    data class Coord(val botA: String, val botB: String)
     class PublishedBotinfo(val name: String, val race: String?)
     class PublishedBotVsBotStat(val winner: String, val loser: String, val won: Long)
     class PublishedBotVsBot(val botinfos: List<PublishedBotinfo>, val botVsBotStat: List<PublishedBotVsBotStat>)

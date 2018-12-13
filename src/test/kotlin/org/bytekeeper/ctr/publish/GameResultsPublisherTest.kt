@@ -13,6 +13,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import java.io.BufferedWriter
 import java.io.StringWriter
 import java.time.Instant
 
@@ -33,7 +34,7 @@ internal class GameResultsPublisherTest {
         sut = GameResultsPublisher(gameResultRepository, publisher, Maps(), Config())
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
-                .willReturn(writer)
+                .willReturn(BufferedWriter(writer))
     }
 
     @Test

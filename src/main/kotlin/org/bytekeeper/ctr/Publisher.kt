@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.springframework.stereotype.Service
+import java.io.BufferedWriter
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
@@ -23,6 +24,6 @@ class Publisher(config: Config) {
     fun botStatsWriter(bot: String, file: String): Writer =
             Files.newBufferedWriter(botStatsPath(bot).resolve("eloHistory.json"), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
 
-    fun globalStatsWriter(file: String): Writer =
+    fun globalStatsWriter(file: String): BufferedWriter =
             Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 }
