@@ -21,7 +21,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
         publisher.globalStatsWriter("botVsBot.json")
                 .use { out ->
                     writer.writeValue(out, PublishedBotVsBot(
-                            sortedBotList.map { PublishedBotinfo(it.name, it.race?.name) },
+                            sortedBotList.map { PublishedBotinfo(it.name, it.race?.name, it.enabled) },
                             wonGames
                                     .map { PublishedBotVsBotStat(it.botA.name, it.botB.name, it.won) }
                     ))
@@ -45,7 +45,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
     }
 
     data class Coord(val botA: String, val botB: String)
-    class PublishedBotinfo(val name: String, val race: String?)
+    class PublishedBotinfo(val name: String, val race: String?, val enabled: Boolean)
     class PublishedBotVsBotStat(val winner: String, val loser: String, val won: Long)
     class PublishedBotVsBot(val botinfos: List<PublishedBotinfo>, val botVsBotStat: List<PublishedBotVsBotStat>)
 }

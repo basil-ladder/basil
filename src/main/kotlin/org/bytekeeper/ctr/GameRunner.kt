@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
+import org.bytekeeper.ctr.entity.BotRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.util.*
@@ -15,7 +16,7 @@ class GameRunner(private val scbw: Scbw,
                  private val maps: Maps,
                  private val sscait: SscaitClient,
                  private val commands: Commands,
-                 private val botService: BotService,
+                 private val botRepository: BotRepository,
                  private val events: Events) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
@@ -65,7 +66,7 @@ class GameRunner(private val scbw: Scbw,
         val allBots = sscait.retrieveListOfBots().collectList().block()!!
         allBots.filter { it.isDisabled }
                 .forEach {
-                    botService.findByName(it.name)?.let {
+                    botRepository.findByName(it.name)?.let {
                         if (it.enabled) {
                             events.post(BotDisabled(it))
                         }

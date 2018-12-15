@@ -2,17 +2,19 @@ package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
+import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.entity.getBotsForUpdate
 import org.springframework.stereotype.Component
 import java.time.Instant
 import javax.transaction.Transactional
 
 @Component
-class BotProjections(private val botService: BotService,
+class BotProjections(private val botRepository: BotRepository,
                      private val events: Events) {
     @Transactional
     @EventHandler
     fun onGameEnded(gameEnded: GameEnded) {
-        val (botA, botB) = botService.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
+        val (botA, botB) = botRepository.getBotsForUpdate(listOf(gameEnded.winner, gameEnded.loser))
         botA.played++
         botB.played++
     }
@@ -20,7 +22,7 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @EventHandler
     fun onGameWon(gameWon: GameWon) {
-        val (winner, loser) = botService.getBotsForUpdate(listOf(gameWon.winner, gameWon.loser))
+        val (winner, loser) = botRepository.getBotsForUpdate(listOf(gameWon.winner, gameWon.loser))
         winner.won++
         loser.lost++
 
@@ -39,7 +41,7 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @EventHandler
     fun onGameCrashed(event: GameCrashed) {
-        val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
+        val (botA, botB) = botRepository.getBotsForUpdate(listOf(event.botA, event.botB))
         botA.played++
         botB.played++
         if (event.botACrashed) botA.crashed++
@@ -49,7 +51,7 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @EventHandler
     fun onGameFailedToStart(event: GameFailedToStart) {
-        val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
+        val (botA, botB) = botRepository.getBotsForUpdate(listOf(event.botA, event.botB))
         botA.played++
         botB.played++
         botA.crashed++
@@ -59,7 +61,7 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @EventHandler
     fun onGameTimedOut(event: GameTimedOut) {
-        val (botA, botB) = botService.getBotsForUpdate(listOf(event.botA, event.botB))
+        val (botA, botB) = botRepository.getBotsForUpdate(listOf(event.botA, event.botB))
         botA.played++
         botB.played++
     }
@@ -67,26 +69,26 @@ class BotProjections(private val botService: BotService,
     @Transactional
     @CommandHandler
     fun handle(command: CreateBot) {
-        val bot = botService.save(Bot(name = command.name, race = command.race, botType = command.botType, lastUpdated = command.lastUpdated))
+        val bot = botRepository.save(Bot(name = command.name, race = command.race, botType = command.botType, lastUpdated = command.lastUpdated))
         events.post(BotCreated(bot))
     }
 
     @Transactional
     @EventHandler
     fun handle(botUpdated: BotUpdated) {
-        val bot = botService.getById(botUpdated.bot.id!!)
+        val bot = botRepository.getById(botUpdated.bot.id!!)
         bot.lastUpdated = botUpdated.timestamp
     }
 
     @Transactional
     @EventHandler
     fun onBotDisabled(command: BotDisabled) {
-        botService.getById(command.bot.id!!).enabled = false
+        botRepository.getById(command.bot.id!!).enabled = false
     }
 
     @Transactional
     @EventHandler
     fun onBotEnabled(command: BotEnabled) {
-        botService.getById(command.bot.id!!).enabled = true
+        botRepository.getById(command.bot.id!!).enabled = true
     }
 }

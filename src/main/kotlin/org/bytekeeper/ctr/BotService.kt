@@ -6,14 +6,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class BotService(private val botRepository: BotRepository) {
-    fun getBotsForUpdate(bots: List<Bot>) =
-            bots.mapIndexed { index, bot -> index to bot }
-                    .sortedBy { it.second.name }
-                    .map {
-                        it.first to botRepository.getById(it.second.id!!)
-                    }
-                    .sortedBy { it.first }
-                    .map { it.second }
 
     fun findByName(name: String) = botRepository.findByName(name)
 

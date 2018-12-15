@@ -3,6 +3,7 @@ package org.bytekeeper.ctr.proj
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
+import org.bytekeeper.ctr.entity.BotRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,19 +20,25 @@ internal class BotProjectionsTest {
     private lateinit var sut: BotProjections
 
     @Mock
-    private lateinit var botService: BotService
+    private lateinit var botRepository: BotRepository
 
     @Mock
     private lateinit var events: Events
 
-    private val botA = Bot(name = "A", enabled = true)
-    private val botB = Bot(name = "B", enabled = true)
+    private val botA = Bot(id = 1, name = "A", enabled = true)
+    private val botB = Bot(id = 2, name = "B", enabled = true)
 
     @Before
     fun setup() {
-        sut = BotProjections(botService, events)
-        given(botService.getBotsForUpdate(ArgumentMatchers.anyList()))
-                .willAnswer { it.arguments[0] }
+        sut = BotProjections(botRepository, events)
+        given(botRepository.getById(ArgumentMatchers.anyLong()))
+                .willAnswer {
+                    when (it.arguments[0]) {
+                        1L -> botA
+                        2L -> botB
+                        else -> throw IllegalStateException()
+                    }
+                }
     }
 
     @Test

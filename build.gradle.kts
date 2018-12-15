@@ -36,6 +36,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     implementation(group = "org.postgresql", name = "postgresql", version = "42.2.5.jre7")
     implementation("org.flywaydb:flyway-core")
+    implementation("org.apache.commons:commons-compress:1.18")
+    implementation("org.tukaani:xz:1.8")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 

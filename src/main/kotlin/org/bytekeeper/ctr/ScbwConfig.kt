@@ -17,5 +17,4 @@ class ScbwConfig(@Value("\${user.home}") private val userHome: Path) {
     var dockerImage: String = "starcraft:game"
     var readOverWrite: Boolean = true
     var deleteGamesInGameDir: Boolean = true
-    lateinit var targetDir: Path
 }

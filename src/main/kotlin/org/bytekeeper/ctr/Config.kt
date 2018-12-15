@@ -12,4 +12,5 @@ class Config {
     lateinit var publishCommand: String
     lateinit var publishBasePath: Path
     var gameResultsHours: Long = 48
+    lateinit var dataBasePath: Path
 }

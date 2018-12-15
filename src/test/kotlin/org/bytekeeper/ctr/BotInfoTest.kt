@@ -45,4 +45,27 @@ internal class BotInfoTest {
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("clearReadDirectory", true)
     }
+
+    @Test
+    fun `should parse publish read`() {
+        // GIVEN
+
+        // WHEN
+        val botInfo = BotInfo("bot", "race", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PUBLISH-READ whatever!")
+
+        // THEN
+        assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
+    }
+
+    @Test
+    fun `should parse multiple settings`() {
+        // GIVEN
+
+        // WHEN
+        val botInfo = BotInfo("bot", "race", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PUBLISH-READ,RESET whatever!")
+
+        // THEN
+        assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
+        assertThat(botInfo).hasFieldOrPropertyWithValue("clearReadDirectory", true)
+    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
+import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
 import org.bytekeeper.ctr.entity.Race
 import org.springframework.stereotype.Service
@@ -21,7 +22,8 @@ const val LOG_LIMIT = 200 * 1024
 @Service
 class Scbw(private val botRepository: BotRepository,
            private val sscaitClient: SscaitClient,
-           private val config: ScbwConfig,
+           private val scbwConfig: ScbwConfig,
+           private val config: Config,
            private val events: Events,
            private val commands: Commands,
            private val maps: Maps) {
@@ -53,7 +55,7 @@ class Scbw(private val botRepository: BotRepository,
             events.post(BotEnabled(bot))
         }
 
-        val botDir = config.botsDir.resolve(name)
+        val botDir = scbwConfig.botsDir.resolve(name)
         val aiDir = botDir.resolve("AI")
         val readDir = botDir.resolve("read")
         val writeDir = botDir.resolve("write")
@@ -119,13 +121,17 @@ class Scbw(private val botRepository: BotRepository,
             }
 
     fun runGame(gameConfig: GameConfig) {
-        ScbwGameRunner(gameConfig, config).run()
+        ScbwGameRunner(gameConfig).run()
+    }
+
+    fun readDirectoryOf(bot: Bot): Path {
+        val botDir = scbwConfig.botsDir.resolve(bot.name)
+        return botDir.resolve("read")
     }
 
     data class GameConfig(val bots: List<String>, val map: String, val gameName: String)
 
-    private inner class ScbwGameRunner(val gameConfig: GameConfig,
-                                       val config: ScbwConfig) {
+    private inner class ScbwGameRunner(val gameConfig: GameConfig) {
         private val log = LogManager.getLogger()
         private val dockerPrefix = "GAME_${gameConfig.gameName}"
         private val bots = gameConfig.bots
@@ -148,24 +154,24 @@ class Scbw(private val botRepository: BotRepository,
             cmd += if (botRepository.findByName(bots[0])?.race == Race.RANDOM) bots[0] + ":" + listOf("Z", "T", "P").random() else bots[0]
             cmd += if (botRepository.findByName(bots[1])?.race == Race.RANDOM) bots[1] + ":" + listOf("Z", "T", "P").random() else bots[1]
 
-            addParameter("--timeout", config.realtimeTimeoutSeconds)
-            addParameter("--bot_dir", config.botsDir)
+            addParameter("--timeout", scbwConfig.realtimeTimeoutSeconds)
+            addParameter("--bot_dir", scbwConfig.botsDir)
             addParameter("--map", gameConfig.map)
-            addParameter("--game_dir", config.gamesDir)
-            addParameter("--game_speed", config.gameSpeed)
+            addParameter("--game_dir", scbwConfig.gamesDir)
+            addParameter("--game_speed", scbwConfig.gameSpeed)
             addParameter("--game_name", gameName)
-            addParameter("--docker_image", config.dockerImage)
-            addParameter("--timeout_at_frame", config.frameTimeout)
+            addParameter("--docker_image", scbwConfig.dockerImage)
+            addParameter("--timeout_at_frame", scbwConfig.frameTimeout)
 //            cmd += "--log_level"
 //            cmd += "DEBUG"
-            if (config.readOverWrite == true) cmd += "--read_overwrite"
+            if (scbwConfig.readOverWrite == true) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                     .start()
             try {
                 updateResourceConstraints()
-                val hardTimeLimit = config.realtimeTimeoutSeconds + 30L
+                val hardTimeLimit = scbwConfig.realtimeTimeoutSeconds + 30L
                 val exited = process.waitFor(hardTimeLimit, TimeUnit.SECONDS)
                 if (!exited) {
                     log.error("Timeout - killing game $gameName, $botsParticipating")
@@ -185,11 +191,11 @@ class Scbw(private val botRepository: BotRepository,
                 // Wait for a short while to make sure scores and results are written
                 Thread.sleep(2000)
                 // Try to move results
-                moveResult(config.gamesDir, gameName, config.targetDir, bots)
-                if (config.deleteGamesInGameDir) {
-                    deleteDirectory(config.gamesDir.resolve("GAME_$gameName"))
+                moveResult(scbwConfig.gamesDir, gameName, bots)
+                if (scbwConfig.deleteGamesInGameDir) {
+                    deleteDirectory(scbwConfig.gamesDir.resolve("GAME_$gameName"))
                 } else {
-                    log.warn("Deleting game dirs is switched off, the ${config.gamesDir.toFile().absolutePath} might run full.")
+                    log.warn("Deleting game dirs is switched off, the ${scbwConfig.gamesDir.toFile().absolutePath} might run full.")
                 }
             }
         }
@@ -213,10 +219,10 @@ class Scbw(private val botRepository: BotRepository,
             return remaining
         }
 
-        private fun moveResult(gameDir: Path, gameName: String, targetPath: Path, bots: List<String>) {
+        private fun moveResult(gameDir: Path, gameName: String, bots: List<String>) {
             val mapper = jacksonObjectMapper()
             val gamePath = gameDir.resolve("GAME_$gameName")
-            val botsPath = targetPath.resolve("bots")
+            val botsPath = config.dataBasePath.resolve("bots")
             val botResults = bots.mapIndexed { index, name ->
                 val botPath = botsPath.resolve(name)
                 Files.createDirectories(botPath)

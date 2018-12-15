@@ -66,11 +66,13 @@ class BotInfo(
 
     val clearReadDirectory = basilCommands.contains("RESET")
 
+    val publishReadDirectory = basilCommands.contains("PUBLISH-READ")
+
     fun lastUpdated(): Instant =
             if (update == null) Instant.MIN else LocalDateTime.parse(update, SSCAIT_DATE_FORMAT).toInstant(ZoneOffset.UTC)
 
     companion object {
-        internal val BASIL_COMMAND_MATCHER = "BASIL:\\s*((?:\\w+\\s*,\\s*)*\\w+)".toPattern()
+        internal val BASIL_COMMAND_MATCHER = "BASIL:\\s*((?:\\S+\\s*,\\s*)*\\S+)".toPattern()
         internal fun commands(basicCommand: String) = basicCommand.split("\\s*,\\s*".toRegex())
     }
 }

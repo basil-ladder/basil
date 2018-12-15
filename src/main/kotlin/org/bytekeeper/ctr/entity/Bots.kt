@@ -30,7 +30,8 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var rating: Int = 2000,
           var crashed: Int = 0,
           var won: Int = 0,
-          var lost: Int = 0)
+          var lost: Int = 0,
+          var publishRead: Boolean = false)
 
 interface BotRepository : CrudRepository<Bot, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -39,8 +40,20 @@ interface BotRepository : CrudRepository<Bot, Long> {
     fun findByName(name: String): Bot?
 
     fun findAllByEnabledTrue(): List<Bot>
+    fun findAllByEnabledTrueAndPublishReadTrue(): List<Bot>
     fun countByRace(race: Race): Int
 }
+
+fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
+        bots.mapIndexed { index, bot -> index to bot }
+                .sortedBy { it.second.name }
+                .map {
+                    it.first to getById(it.second.id!!)
+                }
+                .sortedBy { it.first }
+                .map { it.second }
+
+
 
 interface BotEloRepository : CrudRepository<BotElo, Long> {
     fun findAllByBot(bot: Bot): List<BotElo>

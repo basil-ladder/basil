@@ -10,6 +10,7 @@ import java.nio.file.StandardOpenOption
 @Service
 class Publisher(config: Config) {
     private final val statsPath = config.publishBasePath.resolve("stats")
+    private final val dataPath = config.dataBasePath
 
     init {
         Files.createDirectories(statsPath)
@@ -21,9 +22,16 @@ class Publisher(config: Config) {
         return botPath
     }
 
+    fun botDataPath(bot: String): Path {
+        val botPath = dataPath.resolve(bot)
+        Files.createDirectories(botPath)
+        return botPath
+    }
+
     fun botStatsWriter(bot: String, file: String): Writer =
             Files.newBufferedWriter(botStatsPath(bot).resolve("eloHistory.json"), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
 
     fun globalStatsWriter(file: String): BufferedWriter =
             Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+
 }
