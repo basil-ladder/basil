@@ -53,10 +53,8 @@ class GameFailedToStart(val botA: Bot,
 
 data class GameWon(val winner: Bot, val loser: Bot, val gameHash: String)
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
-class BotCreated(val bot: Bot)
-class BotDisabled(val bot: Bot)
-class BotEnabled(val bot: Bot)
-class BotUpdated(val bot: Bot, val timestamp: Instant)
+class BotBinaryUpdated(val bot: Bot, val timestamp: Instant)
+class BotInfoUpdated(val name: String, val race: Race, val botType: String, val lastUpdated: Instant, val enabled: Boolean, val publishReadDirectory: Boolean)
 
 @Service
 class Events {
@@ -88,7 +86,6 @@ class Events {
 }
 
 class PreparePublish
-class CreateBot(val name: String, val race: Race?, val botType: String?, val lastUpdated: Instant?)
 
 @Service
 class Commands {

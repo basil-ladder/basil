@@ -10,7 +10,7 @@ import java.nio.file.StandardOpenOption
 @Service
 class Publisher(config: Config) {
     private final val statsPath = config.publishBasePath.resolve("stats")
-    private final val dataPath = config.dataBasePath
+    private final val botsDataPath = config.dataBasePath.resolve("bots")
 
     init {
         Files.createDirectories(statsPath)
@@ -23,7 +23,7 @@ class Publisher(config: Config) {
     }
 
     fun botDataPath(bot: String): Path {
-        val botPath = dataPath.resolve(bot)
+        val botPath = botsDataPath.resolve(bot)
         Files.createDirectories(botPath)
         return botPath
     }

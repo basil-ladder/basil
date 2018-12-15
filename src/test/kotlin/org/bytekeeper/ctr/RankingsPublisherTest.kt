@@ -36,8 +36,8 @@ internal class RankingsPublisherTest {
     @Test
     fun shouldPublishAllElos() {
         // GIVEN
-        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, Instant.MIN, 100, 1000)
-        val botB = Bot(-1, true, "botB", Race.PROTOSS, null, null, 200, 3000)
+        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, Instant.MIN, false, 100, 1000)
+        val botB = Bot(-1, true, "botB", Race.PROTOSS, null, null, false, 200, 3000)
         BDDMockito.given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
 
         // WHEN

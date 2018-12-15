@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
@@ -21,7 +20,7 @@ const val LOG_LIMIT = 200 * 1024
 
 @Service
 class Scbw(private val botRepository: BotRepository,
-           private val sscaitClient: SscaitClient,
+           private val botSources: BotSources,
            private val scbwConfig: ScbwConfig,
            private val config: Config,
            private val events: Events,
@@ -29,31 +28,18 @@ class Scbw(private val botRepository: BotRepository,
            private val maps: Maps) {
     private val log = LogManager.getLogger()
 
-    fun setupOrUpdateBot(sscaitBot: BotInfo) {
+    fun setupOrUpdateBot(sscaitBot: org.bytekeeper.ctr.BotInfo) {
         val name = sscaitBot.name
 
         log.info("Checking $name for updates...")
-        val bot = botRepository.findByName(name)
+        val bot = botRepository.findByName(name)!!
 
-        if (bot?.lastUpdated?.isBefore(sscaitBot.lastUpdated()) == false) {
+        if (bot.lastUpdated?.isBefore(sscaitBot.lastUpdated()) == false) {
             log.info("Bot $name is already up-to-date.")
             return
         }
 
-        if (bot == null) {
-            log.info("Bot $name not yet registered, creating it.")
-            commands.handle(CreateBot(sscaitBot.name, parseRace(sscaitBot.race), sscaitBot.botType, sscaitBot.lastUpdated()))
-        }
-
-        if (sscaitBot.isDisabled || sscaitBot.isDisabledForBasil) {
-            log.info("Bot is disabled on SSCAIT: ${sscaitBot.isDisabled}, disabled for BASIL: ${sscaitBot.isDisabledForBasil}")
-            val disabledBot = bot ?: botRepository.findByName(name)!!
-            events.post(BotDisabled(disabledBot))
-            throw BotDisabledException("${disabledBot.name} is disabled")
-        }
-        if (!bot!!.enabled) {
-            events.post(BotEnabled(bot))
-        }
+        check(!sscaitBot.disabled)
 
         val botDir = scbwConfig.botsDir.resolve(name)
         val aiDir = botDir.resolve("AI")
@@ -63,7 +49,7 @@ class Scbw(private val botRepository: BotRepository,
         val botJsonDef = botDir.resolve("bot.json")
 
         log.info("Bot $name was updated ${sscaitBot.lastUpdated()}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
-        events.post(BotUpdated(bot, sscaitBot.lastUpdated()))
+        events.post(BotBinaryUpdated(bot, sscaitBot.lastUpdated()))
 
         deleteDirectory(aiDir)
 
@@ -80,16 +66,9 @@ class Scbw(private val botRepository: BotRepository,
         Files.createDirectories(botDir.resolve("write"))
 
         log.info("Downloading $name's BWAPI.dll")
-        val bwApiDll = sscaitClient.downloadBwapiDLL(sscaitBot)
-                .block(Duration.ofSeconds(10))
-                ?: throw FailedToDownloadBwApi("Could not download BWAPI.dll for bot $name")
-
-        Files.copy(bwApiDll.inputStream, botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
+        Files.copy(botSources.downloadBwapiDLL(sscaitBot), botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
         log.info("Downloading $name's binary")
-        val botBinary = sscaitClient.downloadBinary(sscaitBot)
-                .block(Duration.ofSeconds(30))
-                ?: throw FailedToDownloadBot("Could not download bot binary for bot $name")
-        ZipInputStream(botBinary.inputStream)
+        ZipInputStream(botSources.downloadBinary(sscaitBot))
                 .use { zipIn ->
                     while (true) {
                         val nextEntry = zipIn.nextEntry ?: return@use
@@ -100,7 +79,13 @@ class Scbw(private val botRepository: BotRepository,
                         }
                     }
                 }
-        jacksonObjectMapper().writeValue(botJsonDef.toFile(), BotJson(name, sscaitBot.race, sscaitBot.botType))
+        jacksonObjectMapper().writeValue(botJsonDef.toFile(), BotJson(name,
+                when (sscaitBot.race) {
+                    Race.TERRAN -> "Terran"
+                    Race.ZERG -> "Zerg"
+                    Race.PROTOSS -> "Protoss"
+                    Race.RANDOM -> "Random"
+                }, sscaitBot.botType))
         if (additionalReadPath.toFile().exists() && Files.isDirectory(additionalReadPath)) {
             log.info("There are additional 'read' files that will be copied to the read directory")
             Files.list(additionalReadPath)
@@ -110,15 +95,6 @@ class Scbw(private val botRepository: BotRepository,
         }
         log.info("Successfully setup $name")
     }
-
-    private fun parseRace(race: String): Race? =
-            when (race) {
-                "Terran" -> Race.TERRAN
-                "Zerg" -> Race.ZERG
-                "Protoss" -> Race.PROTOSS
-                "Random" -> Race.RANDOM
-                else -> null
-            }
 
     fun runGame(gameConfig: GameConfig) {
         ScbwGameRunner(gameConfig).run()

@@ -14,7 +14,7 @@ import kotlin.concurrent.thread
 class GameRunner(private val scbw: Scbw,
                  private val config: Config,
                  private val maps: Maps,
-                 private val sscait: SscaitClient,
+                 private val botSources: BotSources,
                  private val commands: Commands,
                  private val botRepository: BotRepository,
                  private val events: Events) : CommandLineRunner {
@@ -63,16 +63,9 @@ class GameRunner(private val scbw: Scbw,
 
     private fun updateBotList() {
         log.info("Retrieving list of bots")
-        val allBots = sscait.retrieveListOfBots().collectList().block()!!
-        allBots.filter { it.isDisabled }
-                .forEach {
-                    botRepository.findByName(it.name)?.let {
-                        if (it.enabled) {
-                            events.post(BotDisabled(it))
-                        }
-                    }
-                }
-        val enabledBots = allBots.filter { !it.isDisabled }
+        botSources.refresh()
+        val allBots = botSources.allBotInfos()
+        val enabledBots = allBots.filter { !it.disabled }
         log.info("Received ${allBots.size} (${enabledBots.size} enabled) bots")
         if (allBots.isEmpty()) {
             log.error("No bots to send to the arena found!")

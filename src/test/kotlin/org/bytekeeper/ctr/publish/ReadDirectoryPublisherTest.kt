@@ -43,7 +43,7 @@ internal class ReadDirectoryPublisherTest {
 
     private lateinit var sut: ReadDirectoryPublisher
 
-    val botA = Bot(null, true, "botA", null, null, null, 0, 1000)
+    val botA = Bot(null, true, "botA", null, null, null, false, 0, 1000)
 
     @Before
     fun setup() {
@@ -54,7 +54,6 @@ internal class ReadDirectoryPublisherTest {
         given(publisher.botDataPath(ArgumentMatchers.anyString())).willReturn(dataPath)
         given(botRepository.findAllByEnabledTrueAndPublishReadTrue())
                 .willReturn(listOf(botA))
-
     }
 
     @Test

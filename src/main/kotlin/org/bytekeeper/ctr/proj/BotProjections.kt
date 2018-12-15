@@ -1,5 +1,6 @@
 package org.bytekeeper.ctr.proj
 
+import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
@@ -11,6 +12,8 @@ import javax.transaction.Transactional
 @Component
 class BotProjections(private val botRepository: BotRepository,
                      private val events: Events) {
+    private val log = LogManager.getLogger()
+
     @Transactional
     @EventHandler
     fun onGameEnded(gameEnded: GameEnded) {
@@ -67,28 +70,29 @@ class BotProjections(private val botRepository: BotRepository,
     }
 
     @Transactional
-    @CommandHandler
-    fun handle(command: CreateBot) {
-        val bot = botRepository.save(Bot(name = command.name, race = command.race, botType = command.botType, lastUpdated = command.lastUpdated))
-        events.post(BotCreated(bot))
+    @EventHandler
+    fun handle(event: BotInfoUpdated) {
+        val bot = botRepository.findByName(event.name)?.also { bot ->
+            bot.enabled = event.enabled
+            bot.lastUpdated = event.lastUpdated
+            bot.publishRead = event.publishReadDirectory
+        } ?: kotlin.run {
+            log.info("Bot ${event.name} not yet registered, creating it.")
+            Bot(null,
+                    event.enabled,
+                    event.name,
+                    event.race,
+                    event.botType,
+                    event.lastUpdated,
+                    event.publishReadDirectory)
+        }
+        botRepository.save(bot)
     }
 
     @Transactional
     @EventHandler
-    fun handle(botUpdated: BotUpdated) {
+    fun handle(botUpdated: BotBinaryUpdated) {
         val bot = botRepository.getById(botUpdated.bot.id!!)
         bot.lastUpdated = botUpdated.timestamp
-    }
-
-    @Transactional
-    @EventHandler
-    fun onBotDisabled(command: BotDisabled) {
-        botRepository.getById(command.bot.id!!).enabled = false
-    }
-
-    @Transactional
-    @EventHandler
-    fun onBotEnabled(command: BotEnabled) {
-        botRepository.getById(command.bot.id!!).enabled = true
     }
 }
