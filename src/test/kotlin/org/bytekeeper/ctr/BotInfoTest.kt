@@ -1,6 +1,10 @@
 package org.bytekeeper.ctr
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.groups.Tuple
 import org.bytekeeper.ctr.SscaitSource.BotInfo
 import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.BASIL_COMMAND_MATCHER
 import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.commands
@@ -78,5 +82,19 @@ internal class BotInfoTest {
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
         assertThat(botInfo).hasFieldOrPropertyWithValue("authorKey", "12345678")
+    }
+
+
+    @Test
+    fun `should find bot with BASIL command`() {
+        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        // WHEN
+        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json"))
+
+        // THEN
+        assertThat(botInfoList).extracting("authorKey", "publishReadDirectory")
+                .contains(Tuple.tuple("4E5297FFDB40A6FA", true))
+
     }
 }
