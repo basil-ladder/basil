@@ -135,10 +135,10 @@ table.tiny {
 }
 
 td.highlight {
-	background-color: rgba(0, 0, 255, 0.2) !important;
+	outline: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 tr.highlight:hover td {
-	background-color: rgba(0, 0, 255, 0.2) !important;
+	outline: 1px solid rgba(0, 0, 0, 0.5);
 }
 
