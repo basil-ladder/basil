@@ -43,7 +43,7 @@ internal class ReadDirectoryPublisherTest {
 
     private lateinit var sut: ReadDirectoryPublisher
 
-    val botA = Bot(null, true, "botA", null, null, null, false, 0, 1000)
+    val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
 
     @Before
     fun setup() {
@@ -133,5 +133,18 @@ internal class ReadDirectoryPublisherTest {
 
         // THEN
         assertThat(Files.getLastModifiedTime(compressedRead).toInstant()).isAfter(lastModified)
+    }
+
+    @Test
+    fun `should encrypt read if requested`() {
+        // GIVEN
+        botA.authorKeyId = "228B7F33"
+        Files.write(botReadDir.resolve("test"), ByteArray(1024 * 1024))
+
+        // WHEN
+        sut.handle(PreparePublish())
+
+        // THEN
+        assertThat(publisher.botDataPath("botA").resolve("read.7z")).exists()
     }
 }

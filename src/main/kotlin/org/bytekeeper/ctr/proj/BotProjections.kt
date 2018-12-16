@@ -76,6 +76,7 @@ class BotProjections(private val botRepository: BotRepository,
             bot.enabled = event.enabled
             bot.lastUpdated = event.lastUpdated
             bot.publishRead = event.publishReadDirectory
+            bot.authorKeyId = event.authorKey
         } ?: kotlin.run {
             log.info("Bot ${event.name} not yet registered, creating it.")
             Bot(null,
@@ -84,7 +85,8 @@ class BotProjections(private val botRepository: BotRepository,
                     event.race,
                     event.botType,
                     event.lastUpdated,
-                    event.publishReadDirectory)
+                    event.publishReadDirectory,
+                    event.authorKey)
         }
         botRepository.save(bot)
     }

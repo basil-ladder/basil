@@ -16,6 +16,7 @@ interface BotSource {
 interface BotInfo {
     val name: String
     val publishReadDirectory: Boolean
+    val authorKey: String?
     val clearReadDirectory: Boolean
     val disabled: Boolean
     val race: Race
@@ -41,7 +42,8 @@ class BotSources(private val botSources: List<BotSource>,
                     botInfo.botType,
                     botInfo.lastUpdated(),
                     !botInfo.disabled,
-                    botInfo.publishReadDirectory))
+                    botInfo.publishReadDirectory,
+                    botInfo.authorKey))
         }
     }
 

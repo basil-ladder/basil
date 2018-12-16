@@ -69,4 +69,14 @@ internal class BotInfoTest {
         assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
         assertThat(botInfo).hasFieldOrPropertyWithValue("clearReadDirectory", true)
     }
+
+    @Test
+    fun `should parse public key id`() {
+        // WHEN
+        val botInfo = BotInfo("bot", "Terran", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PB-KEY-12345678,RESET whatever!")
+
+        // THEN
+        assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
+        assertThat(botInfo).hasFieldOrPropertyWithValue("authorKey", "12345678")
+    }
 }

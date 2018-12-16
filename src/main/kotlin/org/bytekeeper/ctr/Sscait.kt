@@ -84,7 +84,9 @@ class SscaitSource : BotSource {
 
         override val clearReadDirectory = basilCommands.contains("RESET")
 
-        override val publishReadDirectory = basilCommands.contains("PUBLISH-READ")
+        override val publishReadDirectory = basilCommands.contains("PUBLISH-READ") || basilCommands.any { it.startsWith("PB-KEY-") }
+
+        override val authorKey = basilCommands.mapNotNull { if (it.startsWith("PB-KEY-")) it.substring(7) else null }.firstOrNull()
 
         override fun lastUpdated(): Instant =
                 if (update == null) Instant.MIN else LocalDateTime.parse(update, SSCAIT_DATE_FORMAT).toInstant(ZoneOffset.UTC)
