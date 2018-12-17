@@ -52,6 +52,9 @@ object Gpg {
                     if (!stopped) {
                         throw FailedToEncrypt("Encryption still ran after 1min for key ${keyId}, aborting.")
                     }
+                    if (it.exitValue() != 0) {
+                        throw FailedToEncrypt("Encryption with key $keyId failed!")
+                    }
                 }
     }
 }

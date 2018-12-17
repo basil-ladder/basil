@@ -48,6 +48,10 @@ class ReadDirectoryPublisher(private val botRepository: BotRepository,
             Gpg.encryptFile(compressedFile, targetFile, bot.authorKeyId!!)
 
             log.info("Successfully encrypted read file for ${bot.name}")
+        } catch (e: FailedToEncrypt) {
+            log.error(e)
+        } catch (e: FailedToEnsureKey) {
+            log.error(e)
         } finally {
             Files.delete(compressedFile)
         }
