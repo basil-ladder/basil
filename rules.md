@@ -37,6 +37,8 @@ Bots
   * 1 GB of RAM (- memory uses by OS).
   * Up to 100MB of disk space total for your read + write + ai drectories.
 * Special options (applied by adding `BASIL: <option>[,<option>...]`:
-  * RESET - Clear the directory on the next update (note: this will only delete the first time the new update is received) 
+  * *RESET* - Clear the directory on the next update (note: this will only delete the first time the new update is received) 
+  * *PB-KEY-\<KeyId\>* - Publish the read directory compressed and encrypted. This will use the key (given by KeyId - without whitespaces) with the given key id (or fingerprint, or long id), downloaded from a public PGP keyserver (pgp.mit.edu). Using that the read directory will be compressed to `7z` file and then encrypted. Read directories are currently published once a day. For example: PB-KEY-ABCD01234 for the key id `ABCD0124`.
+    
 
 [SSCAIT]: https://sscaitournament.com/
