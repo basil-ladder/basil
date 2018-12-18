@@ -49,7 +49,6 @@ class Scbw(private val botRepository: BotRepository,
         val botJsonDef = botDir.resolve("bot.json")
 
         log.info("Bot $name was updated ${sscaitBot.lastUpdated()}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
-        events.post(BotBinaryUpdated(bot, sscaitBot.lastUpdated()))
 
         deleteDirectory(aiDir)
 
@@ -66,7 +65,9 @@ class Scbw(private val botRepository: BotRepository,
         Files.createDirectories(botDir.resolve("write"))
 
         log.info("Downloading $name's BWAPI.dll")
-        Files.copy(botSources.downloadBwapiDLL(sscaitBot), botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
+        botSources.downloadBwapiDLL(sscaitBot).use {
+            Files.copy(it, botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
+        }
         log.info("Downloading $name's binary")
         ZipInputStream(botSources.downloadBinary(sscaitBot))
                 .use { zipIn ->
@@ -94,6 +95,7 @@ class Scbw(private val botRepository: BotRepository,
                     }
         }
         log.info("Successfully setup $name")
+        events.post(BotBinaryUpdated(bot, sscaitBot.lastUpdated()))
     }
 
     fun runGame(gameConfig: GameConfig) {

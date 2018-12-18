@@ -57,7 +57,6 @@ class BotBinaryUpdated(val bot: Bot, val timestamp: Instant)
 class BotInfoUpdated(val name: String,
                      val race: Race,
                      val botType: String,
-                     val lastUpdated: Instant,
                      val enabled: Boolean,
                      val publishReadDirectory: Boolean,
                      val authorKey: String?)
@@ -66,7 +65,7 @@ class BotInfoUpdated(val name: String,
 class Events {
     private val log = LogManager.getLogger()
     private val listeners = ConcurrentHashMap<Class<*>, MutableList<(Any) -> Unit>>()
-    private val executService = Executors.newSingleThreadExecutor()
+    private val executorService = Executors.newSingleThreadExecutor()
     @Volatile
     final var postsRunning = 0
         private set
@@ -74,12 +73,27 @@ class Events {
     fun post(event: Any) {
         postsRunning++
         val listeners = listeners[event.javaClass] ?: run { log.error("Event $event was not handled!"); return }
-        executService.submit {
+        executorService.submit {
             try {
                 listeners.forEach { it(event) }
             } finally {
                 postsRunning--
             }
+        }
+    }
+
+    fun waitForEmptyQueue() {
+        val lastEntry = Object()
+
+        synchronized(lastEntry) {
+            var done = false
+            executorService.submit {
+                synchronized(lastEntry) {
+                    done = true
+                    lastEntry.notify()
+                }
+            }
+            while (!done) lastEntry.wait()
         }
     }
 

@@ -3,6 +3,7 @@ package org.bytekeeper.ctr
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.bytekeeper.ctr.entity.Race
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -36,8 +37,9 @@ class SscaitSource : BotSource {
             webClient.get().uri(botInfo.bwapiDLL)
                     .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve()
-                    .bodyToMono<InputStream>()
-                    .block(Duration.ofSeconds(10))
+                    .bodyToMono<DataBuffer>()
+                    .block(Duration.ofSeconds(10))!!
+                    .asInputStream(true)
                     ?: throw FailedToDownloadBwApi("Could not download BWAPI.dll for bot ${botInfo.name}")
         }
     }
@@ -47,8 +49,9 @@ class SscaitSource : BotSource {
             webClient.get().uri(botInfo.botBinary)
                     .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve()
-                    .bodyToMono<InputStream>()
-                    .block(Duration.ofSeconds(30))
+                    .bodyToMono<DataBuffer>()
+                    .block(Duration.ofSeconds(30))!!
+                    .asInputStream(true)
                     ?: throw FailedToDownloadBot("Could not download bot binary for bot ${botInfo.name}")
         }
     }

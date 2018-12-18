@@ -40,7 +40,6 @@ class BotSources(private val botSources: List<BotSource>,
                     botInfo.name,
                     botInfo.race,
                     botInfo.botType,
-                    botInfo.lastUpdated(),
                     !botInfo.disabled,
                     botInfo.publishReadDirectory,
                     botInfo.authorKey))

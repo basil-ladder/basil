@@ -73,6 +73,8 @@ class GameRunner(private val scbw: Scbw,
         }
         botInfoProvider = enabledBots::random
         nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
+
+        events.waitForEmptyQueue()
     }
 
     private fun publish() {

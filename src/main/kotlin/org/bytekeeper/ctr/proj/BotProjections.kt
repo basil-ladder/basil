@@ -74,7 +74,6 @@ class BotProjections(private val botRepository: BotRepository,
     fun handle(event: BotInfoUpdated) {
         val bot = botRepository.findByName(event.name)?.also { bot ->
             bot.enabled = event.enabled
-            bot.lastUpdated = event.lastUpdated
             bot.publishRead = event.publishReadDirectory
             bot.authorKeyId = event.authorKey
         } ?: kotlin.run {
@@ -84,7 +83,7 @@ class BotProjections(private val botRepository: BotRepository,
                     event.name,
                     event.race,
                     event.botType,
-                    event.lastUpdated,
+                    null,
                     event.publishReadDirectory,
                     event.authorKey)
         }
