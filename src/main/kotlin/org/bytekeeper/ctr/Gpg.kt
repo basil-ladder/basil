@@ -42,6 +42,7 @@ object Gpg {
         ProcessBuilder(listOf(
                 "gpg",
                 "--batch",
+                "--yes",
                 "--trust-model", "ALWAYS",
                 "--output", target.toString(),
                 "--encrypt",
