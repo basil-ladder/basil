@@ -147,4 +147,22 @@ internal class ReadDirectoryPublisherTest {
         // THEN
         assertThat(publisher.botDataPath("botA").resolve("read.7z")).exists()
     }
+
+    @Test
+    fun `should overwrite existing file`() {
+        // GIVEN
+        botA.authorKeyId = "228B7F33"
+        val testFile = botReadDir.resolve("test")
+        val compressed = publisher.botDataPath("botA").resolve("read.7z")
+        Files.write(testFile, ByteArray(1024 * 1024))
+        sut.handle(PreparePublish())
+        Files.write(testFile, ByteArray(0))
+        Files.setLastModifiedTime(compressed, FileTime.from(Instant.MIN))
+
+        // WHEN
+        sut.handle(PreparePublish())
+
+        // THEN
+        assertThat(Files.size(compressed)).isLessThanOrEqualTo(450)
+    }
 }
