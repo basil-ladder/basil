@@ -51,7 +51,7 @@ object Gpg {
                 .also {
                     val stopped = it.waitFor(1, TimeUnit.MINUTES)
                     if (!stopped) {
-                        throw FailedToEncrypt("Encryption still ran after 1min for key ${keyId}, aborting.")
+                        throw FailedToEncrypt("Encryption still ran after 1min for key $keyId, aborting.")
                     }
                     if (it.exitValue() != 0) {
                         throw FailedToEncrypt("Encryption with key $keyId failed!")

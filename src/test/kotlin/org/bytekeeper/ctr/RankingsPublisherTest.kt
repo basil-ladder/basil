@@ -16,7 +16,7 @@ import java.io.StringWriter
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class RankingsPublisherTest {
+class RankingsPublisherTest {
     @Mock
     private lateinit var botRepository: BotRepository
     private lateinit var sut: RankingsPublisher

@@ -124,7 +124,7 @@ class Scbw(private val botRepository: BotRepository,
                 val notNull = value.filterNotNull()
                 if (notNull.isEmpty()) return
                 cmd += par
-                cmd += value.map { it.toString() }.joinToString(" ")
+                cmd += value.joinToString(" ") { it.toString() }
             }
 
             cmd += "--bots"
@@ -142,7 +142,7 @@ class Scbw(private val botRepository: BotRepository,
             addParameter("--timeout_at_frame", scbwConfig.frameTimeout)
 //            cmd += "--log_level"
 //            cmd += "DEBUG"
-            if (scbwConfig.readOverWrite == true) cmd += "--read_overwrite"
+            if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
@@ -288,9 +288,11 @@ class Scbw(private val botRepository: BotRepository,
                                 else {
                                     val frameSumA = botResults[0].frames!!.sumFrameTime
                                     val frameSumB = botResults[1].frames!!.sumFrameTime
-                                    if (frameSumA > frameSumB) botA
-                                    else if (frameSumA < frameSumB) botB
-                                    else null
+                                    when {
+                                        frameSumA > frameSumB -> botA
+                                        frameSumA < frameSumB -> botB
+                                        else -> null
+                                    }
                                 }
 
                         events.post(GameTimedOut(
@@ -381,3 +383,4 @@ class FailedToKillSCBW(message: String) : RuntimeException(message)
 class FailedToDownloadBot(message: String) : RuntimeException(message)
 class FailedToDownloadBwApi(message: String) : RuntimeException(message)
 class BotDisabledException(message: String) : RuntimeException(message)
+class BotNotFoundException(message: String) : RuntimeException(message)

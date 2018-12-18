@@ -10,7 +10,7 @@ import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.BASIL_COMMAND_MATCHER
 import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.commands
 import org.junit.Test
 
-internal class BotInfoTest {
+class BotInfoTest {
     @Test
     fun shouldMatchBasilCommand() {
         assertThat("BASIL: DESTROY, ALL, HUMAN").containsPattern(BASIL_COMMAND_MATCHER)

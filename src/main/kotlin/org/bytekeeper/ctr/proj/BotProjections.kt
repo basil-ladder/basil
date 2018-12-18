@@ -1,10 +1,9 @@
 package org.bytekeeper.ctr.proj
 
-import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
 import org.bytekeeper.ctr.entity.getBotsForUpdate
+import org.bytekeeper.ctr.math.Elo
 import org.springframework.stereotype.Component
 import java.time.Instant
 import javax.transaction.Transactional
@@ -12,7 +11,6 @@ import javax.transaction.Transactional
 @Component
 class BotProjections(private val botRepository: BotRepository,
                      private val events: Events) {
-    private val log = LogManager.getLogger()
 
     @Transactional
     @EventHandler
@@ -67,27 +65,6 @@ class BotProjections(private val botRepository: BotRepository,
         val (botA, botB) = botRepository.getBotsForUpdate(listOf(event.botA, event.botB))
         botA.played++
         botB.played++
-    }
-
-    @Transactional
-    @EventHandler
-    fun handle(event: BotInfoUpdated) {
-        val bot = botRepository.findByName(event.name)?.also { bot ->
-            bot.enabled = event.enabled
-            bot.publishRead = event.publishReadDirectory
-            bot.authorKeyId = event.authorKey
-        } ?: kotlin.run {
-            log.info("Bot ${event.name} not yet registered, creating it.")
-            Bot(null,
-                    event.enabled,
-                    event.name,
-                    event.race,
-                    event.botType,
-                    null,
-                    event.publishReadDirectory,
-                    event.authorKey)
-        }
-        botRepository.save(bot)
     }
 
     @Transactional

@@ -15,7 +15,7 @@ import java.io.StringWriter
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class EloPublisherTest {
+class EloPublisherTest {
     @Mock
     private lateinit var botEloRepository: BotEloRepository
     private lateinit var sut: EloPublisher

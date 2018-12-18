@@ -3,7 +3,7 @@ package org.bytekeeper.ctr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-internal class MapsTest {
+class MapsTest {
     private val sut = Maps()
 
     @Test

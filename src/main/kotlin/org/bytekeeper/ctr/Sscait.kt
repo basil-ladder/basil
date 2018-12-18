@@ -57,7 +57,7 @@ class SscaitSource : BotSource {
     }
 
     companion object {
-        val SSCAIT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val SSCAIT_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     }
 

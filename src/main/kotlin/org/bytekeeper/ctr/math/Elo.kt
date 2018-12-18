@@ -1,4 +1,4 @@
-package org.bytekeeper.ctr
+package org.bytekeeper.ctr.math
 
 import kotlin.math.roundToInt
 

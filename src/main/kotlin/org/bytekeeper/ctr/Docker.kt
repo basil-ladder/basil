@@ -11,7 +11,7 @@ object Docker {
                     .bufferedReader()
                     .useLines { it.toList() }
 
-    fun killContainer(nameOrId: String) =
+    fun killContainer(nameOrId: String): Process =
             Runtime.getRuntime().exec(arrayOf("docker", "rm", "vf", nameOrId))
 
     fun updateResourceConstraints(nameOrId: String) {

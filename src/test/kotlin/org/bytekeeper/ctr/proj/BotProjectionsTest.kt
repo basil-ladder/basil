@@ -16,7 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class BotProjectionsTest {
+class BotProjectionsTest {
     private lateinit var sut: BotProjections
 
     @Mock

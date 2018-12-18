@@ -1,6 +1,5 @@
 package org.bytekeeper.ctr
 
-import org.bytekeeper.ctr.entity.BotRepository
 import org.bytekeeper.ctr.entity.Race
 import org.springframework.stereotype.Service
 import java.io.InputStream
@@ -25,26 +24,13 @@ interface BotInfo {
 }
 
 @Service
-class BotSources(private val botSources: List<BotSource>,
-                 private val botRepository: BotRepository,
-                 private val events: Events) {
+class BotSources(private val botSources: List<BotSource>) {
     fun allBotInfos() = botSources.asReversed()
             .flatMap { it.allBotInfos() }
             .distinctBy { it.name }
 
-    fun refresh() {
-        botSources.forEach(BotSource::refresh)
+    fun refresh() = botSources.forEach(BotSource::refresh)
 
-        allBotInfos().forEach { botInfo ->
-            events.post(BotInfoUpdated(
-                    botInfo.name,
-                    botInfo.race,
-                    botInfo.botType,
-                    !botInfo.disabled,
-                    botInfo.publishReadDirectory,
-                    botInfo.authorKey))
-        }
-    }
 
     fun downloadBwapiDLL(botInfo: BotInfo): InputStream = botSources.asSequence().mapNotNull { it.downloadBwapiDLL(botInfo) }.first()
     fun downloadBinary(botInfo: BotInfo): InputStream = botSources.asSequence().mapNotNull { it.downloadBinary(botInfo) }.first()

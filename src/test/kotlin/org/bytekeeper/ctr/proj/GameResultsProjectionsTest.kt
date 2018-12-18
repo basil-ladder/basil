@@ -13,7 +13,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class GameResultsProjectionsTest {
+class GameResultsProjectionsTest {
     private lateinit var sut: GameResultsProjections
 
     @Mock

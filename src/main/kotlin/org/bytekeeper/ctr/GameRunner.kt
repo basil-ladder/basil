@@ -1,7 +1,6 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.BotRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.util.*
@@ -16,8 +15,7 @@ class GameRunner(private val scbw: Scbw,
                  private val maps: Maps,
                  private val botSources: BotSources,
                  private val commands: Commands,
-                 private val botRepository: BotRepository,
-                 private val events: Events) : CommandLineRunner {
+                 private val botService: BotService) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
     private val locks = ConcurrentHashMap<BotInfo, BotInfo>()
@@ -64,17 +62,19 @@ class GameRunner(private val scbw: Scbw,
     private fun updateBotList() {
         log.info("Retrieving list of bots")
         botSources.refresh()
+
         val allBots = botSources.allBotInfos()
         val enabledBots = allBots.filter { !it.disabled }
         log.info("Received ${allBots.size} (${enabledBots.size} enabled) bots")
+        log.info("Updating database...")
+        allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
+        log.info("done")
         if (allBots.isEmpty()) {
             log.error("No bots to send to the arena found!")
             return
         }
         botInfoProvider = enabledBots::random
         nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
-
-        events.waitForEmptyQueue()
     }
 
     private fun publish() {
@@ -119,7 +119,7 @@ class GameRunner(private val scbw: Scbw,
 
     private fun withLockedBot(block: (BotInfo) -> Unit) {
         val bot = generateSequence(botInfoProvider)
-                .filter { DisabledBots.isEnabled(it.name) }
+                .filter { !botService.isDisabledLocally(it.name) }
                 .mapNotNull { botInfo ->
                     locks.putIfAbsent(botInfo, botInfo) ?: return@mapNotNull botInfo
                     null

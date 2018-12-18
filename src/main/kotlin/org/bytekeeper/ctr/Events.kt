@@ -2,7 +2,6 @@ package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.Race
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -54,12 +53,6 @@ class GameFailedToStart(val botA: Bot,
 data class GameWon(val winner: Bot, val loser: Bot, val gameHash: String)
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
 class BotBinaryUpdated(val bot: Bot, val timestamp: Instant)
-class BotInfoUpdated(val name: String,
-                     val race: Race,
-                     val botType: String,
-                     val enabled: Boolean,
-                     val publishReadDirectory: Boolean,
-                     val authorKey: String?)
 
 @Service
 class Events {
@@ -82,23 +75,6 @@ class Events {
         }
     }
 
-    fun waitForEmptyQueue() {
-        val lastEntry = Object()
-
-        synchronized(lastEntry) {
-            var done = false
-            executorService.submit {
-                synchronized(lastEntry) {
-                    done = true
-                    lastEntry.notify()
-                }
-            }
-            while (!done) lastEntry.wait()
-        }
-    }
-
-    inline final fun <reified T> register(noinline listener: (T) -> Unit) = register(T::class.java, listener)
-
     fun <T> register(type: Class<T>, listener: (T) -> Unit) {
         val listenerList = listeners.computeIfAbsent(type) { CopyOnWriteArrayList() }
         listenerList += { x -> listener(x as T) }
@@ -116,8 +92,6 @@ class Commands {
         val handlers = handlers[command.javaClass] ?: throw IllegalStateException("Command $command was not handled!")
         handlers.forEach { it(command) }
     }
-
-    inline final fun <reified T> register(noinline listener: (T) -> Unit) = register(T::class.java, listener)
 
     fun <T> register(type: Class<T>, handler: (T) -> Unit) {
         val handlerList = handlers.computeIfAbsent(type) { CopyOnWriteArrayList() }

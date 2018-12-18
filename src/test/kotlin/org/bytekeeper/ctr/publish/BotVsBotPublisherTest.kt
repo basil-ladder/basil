@@ -17,7 +17,7 @@ import java.io.BufferedWriter
 import java.io.StringWriter
 
 @RunWith(MockitoJUnitRunner::class)
-internal class BotVsBotPublisherTest {
+class BotVsBotPublisherTest {
     private lateinit var sut: BotVsBotPublisher
 
     @Mock
@@ -29,9 +29,9 @@ internal class BotVsBotPublisherTest {
     private val jsonWriter: StringWriter = StringWriter()
     private val csvWriter: StringWriter = StringWriter()
 
-    val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
-    val botB = Bot(null, true, "botB", null, null, null, false, null, 0, 2000)
-    val botC = Bot(null, true, "botC", null, null, null, false, null, 0, 3000)
+    private val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
+    private val botB = Bot(null, true, "botB", null, null, null, false, null, 0, 2000)
+    private val botC = Bot(null, true, "botC", null, null, null, false, null, 0, 3000)
 
     @Before
     fun setup() {

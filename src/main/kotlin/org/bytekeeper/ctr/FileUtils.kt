@@ -14,8 +14,6 @@ fun deleteDirectory(path: Path) {
             }
 }
 
-val userHome = System.getProperty("user.home")
-
 fun createCompressedFile(targetFile: Path, sourceFolder: Path) =
         SevenZOutputFile(targetFile.toFile())
                 .use { outFile ->

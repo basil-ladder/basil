@@ -24,7 +24,7 @@ import java.nio.file.attribute.FileTime
 import java.time.Instant
 
 @RunWith(MockitoJUnitRunner::class)
-internal class ReadDirectoryPublisherTest {
+class ReadDirectoryPublisherTest {
     @Mock
     private lateinit var publisher: Publisher
 
@@ -43,7 +43,7 @@ internal class ReadDirectoryPublisherTest {
 
     private lateinit var sut: ReadDirectoryPublisher
 
-    val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
+    private val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
 
     @Before
     fun setup() {
