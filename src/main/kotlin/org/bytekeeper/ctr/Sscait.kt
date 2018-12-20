@@ -56,6 +56,8 @@ class SscaitSource : BotSource {
         }
     }
 
+    override fun botInfoOf(name: String): org.bytekeeper.ctr.BotInfo? = botCache[name]
+
     companion object {
         val SSCAIT_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
@@ -91,8 +93,8 @@ class SscaitSource : BotSource {
 
         override val authorKey = basilCommands.mapNotNull { if (it.startsWith("PB-KEY-")) it.substring(7) else null }.firstOrNull()
 
-        override fun lastUpdated(): Instant =
-                if (update == null) Instant.MIN else LocalDateTime.parse(update, SSCAIT_DATE_FORMAT).toInstant(ZoneOffset.UTC)
+        override val lastUpdated
+            get() = if (update == null) Instant.MIN else LocalDateTime.parse(update, SSCAIT_DATE_FORMAT).toInstant(ZoneOffset.UTC)
 
         @JsonIgnore
         override val race: Race = parseRace(raceValue)

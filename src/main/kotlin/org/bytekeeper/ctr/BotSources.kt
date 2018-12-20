@@ -10,6 +10,7 @@ interface BotSource {
     fun refresh()
     fun downloadBwapiDLL(info: BotInfo): InputStream?
     fun downloadBinary(info: BotInfo): InputStream?
+    fun botInfoOf(name: String): BotInfo?
 }
 
 interface BotInfo {
@@ -20,7 +21,7 @@ interface BotInfo {
     val disabled: Boolean
     val race: Race
     val botType: String
-    fun lastUpdated(): Instant
+    val lastUpdated: Instant
 }
 
 @Service
@@ -34,4 +35,5 @@ class BotSources(private val botSources: List<BotSource>) {
 
     fun downloadBwapiDLL(botInfo: BotInfo): InputStream = botSources.asSequence().mapNotNull { it.downloadBwapiDLL(botInfo) }.first()
     fun downloadBinary(botInfo: BotInfo): InputStream = botSources.asSequence().mapNotNull { it.downloadBinary(botInfo) }.first()
+    fun botInfoOf(name: String) = botSources.asSequence().mapNotNull { it.botInfoOf(name) }.first()
 }

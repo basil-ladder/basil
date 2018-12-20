@@ -16,7 +16,7 @@ class BotService(val botRepository: BotRepository) {
     fun registerOrUpdateBot(botInfo: BotInfo) {
         botRepository.findByName(botInfo.name)
                 ?.also { bot ->
-                    bot.enabled = !botInfo.disabled && !isDisabledLocally(botInfo.name)
+                    bot.enabled = (!botInfo.disabled || bot.enabled && bot.lastUpdated != null) && !isDisabledLocally(botInfo.name)
                     bot.publishRead = botInfo.publishReadDirectory
                     bot.authorKeyId = botInfo.authorKey
                 } ?: run {

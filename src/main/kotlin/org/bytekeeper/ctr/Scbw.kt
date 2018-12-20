@@ -28,18 +28,18 @@ class Scbw(private val botRepository: BotRepository,
            private val maps: Maps) {
     private val log = LogManager.getLogger()
 
-    fun setupOrUpdateBot(sscaitBot: org.bytekeeper.ctr.BotInfo) {
-        val name = sscaitBot.name
+    fun setupOrUpdateBot(botInfo: org.bytekeeper.ctr.BotInfo) {
+        val name = botInfo.name
 
         log.info("Checking $name for updates...")
         val bot = botRepository.findByName(name)!!
 
-        if (bot.lastUpdated?.isBefore(sscaitBot.lastUpdated()) == false) {
+        if (bot.lastUpdated?.isBefore(botInfo.lastUpdated) == false) {
             log.info("Bot $name is already up-to-date.")
             return
         }
 
-        check(!sscaitBot.disabled)
+        check(!botInfo.disabled)
 
         val botDir = scbwConfig.botsDir.resolve(name)
         val aiDir = botDir.resolve("AI")
@@ -48,11 +48,11 @@ class Scbw(private val botRepository: BotRepository,
         val additionalReadPath = botDir.resolve("additionalRead")
         val botJsonDef = botDir.resolve("bot.json")
 
-        log.info("Bot $name was updated ${sscaitBot.lastUpdated()}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
+        log.info("Bot $name was updated ${botInfo.lastUpdated}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
 
         deleteDirectory(aiDir)
 
-        if (sscaitBot.clearReadDirectory) {
+        if (botInfo.clearReadDirectory) {
             log.info("Clearing READ of bot as requested.")
             deleteDirectory(readDir)
         }
@@ -65,11 +65,11 @@ class Scbw(private val botRepository: BotRepository,
         Files.createDirectories(botDir.resolve("write"))
 
         log.info("Downloading $name's BWAPI.dll")
-        botSources.downloadBwapiDLL(sscaitBot).use {
+        botSources.downloadBwapiDLL(botInfo).use {
             Files.copy(it, botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
         }
         log.info("Downloading $name's binary")
-        ZipInputStream(botSources.downloadBinary(sscaitBot))
+        ZipInputStream(botSources.downloadBinary(botInfo))
                 .use { zipIn ->
                     while (true) {
                         val nextEntry = zipIn.nextEntry ?: return@use
@@ -81,12 +81,12 @@ class Scbw(private val botRepository: BotRepository,
                     }
                 }
         jacksonObjectMapper().writeValue(botJsonDef.toFile(), BotJson(name,
-                when (sscaitBot.race) {
+                when (botInfo.race) {
                     Race.TERRAN -> "Terran"
                     Race.ZERG -> "Zerg"
                     Race.PROTOSS -> "Protoss"
                     Race.RANDOM -> "Random"
-                }, sscaitBot.botType))
+                }, botInfo.botType))
         if (additionalReadPath.toFile().exists() && Files.isDirectory(additionalReadPath)) {
             log.info("There are additional 'read' files that will be copied to the read directory")
             Files.list(additionalReadPath)
@@ -95,7 +95,7 @@ class Scbw(private val botRepository: BotRepository,
                     }
         }
         log.info("Successfully setup $name")
-        events.post(BotBinaryUpdated(bot, sscaitBot.lastUpdated()))
+        events.post(BotBinaryUpdated(bot, botInfo.lastUpdated))
     }
 
     fun runGame(gameConfig: GameConfig) {
@@ -382,5 +382,4 @@ class FailedToKillContainer(message: String) : RuntimeException(message)
 class FailedToKillSCBW(message: String) : RuntimeException(message)
 class FailedToDownloadBot(message: String) : RuntimeException(message)
 class FailedToDownloadBwApi(message: String) : RuntimeException(message)
-class BotDisabledException(message: String) : RuntimeException(message)
 class BotNotFoundException(message: String) : RuntimeException(message)

@@ -1,24 +1,22 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
+import org.bytekeeper.ctr.entity.BotRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 @Component
-class GameRunner(private val scbw: Scbw,
+class GameRunner(private val gameService: GameService,
                  private val config: Config,
-                 private val maps: Maps,
                  private val botSources: BotSources,
                  private val commands: Commands,
-                 private val botService: BotService) : CommandLineRunner {
+                 private val botService: BotService,
+                 private val botRepository: BotRepository) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
-    private val locks = ConcurrentHashMap<BotInfo, BotInfo>()
     private var nextPublishTime: Long = System.currentTimeMillis() + config.publishTimer * 60 * 1000
     private var nextBotUpdateTime: Long = 0
     private val phaser = object : Phaser() {
@@ -27,10 +25,8 @@ class GameRunner(private val scbw: Scbw,
             if (isTimeToUpdateBotList()) updateBotList()
             return false
         }
-
     }
 
-    var botInfoProvider: () -> BotInfo = { throw IllegalStateException() }
 
     override fun run(vararg args: String?) {
         updateBotList()
@@ -42,7 +38,7 @@ class GameRunner(private val scbw: Scbw,
                 try {
                     phaser.register()
                     while (true) {
-                        runGame()
+                        gameService.schedule1on1()
                         if (isTimeToPublish() || isTimeToUpdateBotList()) {
                             phaser.arriveAndAwaitAdvance()
                         }
@@ -69,11 +65,12 @@ class GameRunner(private val scbw: Scbw,
         log.info("Updating database...")
         allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
         log.info("done")
-        if (allBots.isEmpty()) {
+        gameService.candidates = botRepository.findAllByEnabledTrue()
+        if (gameService.candidates.isEmpty()) {
             log.error("No bots to send to the arena found!")
             return
         }
-        botInfoProvider = enabledBots::random
+        log.info("${gameService.candidates.size} bots are enabled for BASIL")
         nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
     }
 
@@ -96,38 +93,6 @@ class GameRunner(private val scbw: Scbw,
         }
     }
 
-    private fun runGame() {
-        withLockedBot { botA ->
-            withLockedBot { botB ->
-                try {
-                    val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).toUpperCase()
-
-                    scbw.setupOrUpdateBot(botA)
-                    scbw.setupOrUpdateBot(botB)
-
-                    scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), maps.maps.random(), "CTR_$hash"))
-                } catch (e: FailedToLimitResources) {
-                    log.warn(e.message)
-                } catch (e: BotDisabledException) {
-                    log.warn(e.message)
-                } catch (e: Exception) {
-                    log.warn("Error while trying to schedule ${botA.name} vs ${botB.name}", e)
-                }
-            }
-        }
-    }
-
-    private fun withLockedBot(block: (BotInfo) -> Unit) {
-        val bot = generateSequence(botInfoProvider)
-                .filter { !botService.isDisabledLocally(it.name) }
-                .mapNotNull { botInfo ->
-                    locks.putIfAbsent(botInfo, botInfo) ?: return@mapNotNull botInfo
-                    null
-                }.first()
-        try {
-            block(bot)
-        } finally {
-            locks.remove(bot)
-        }
-    }
 }
+
+class BotDisabledException(message: String) : RuntimeException(message)
