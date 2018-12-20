@@ -97,18 +97,24 @@ dt {
 }
 
 tr.disabled {
-//	background-color: #cfcfcf;
 	color: #afafaf;
 }
 
-thead tr {
+.crosstable thead tr {
 	th:not(:first-child) {
 		position: sticky;
 		top: 0;
 	}
 }
 
-tr {
+thead tr {
+	th {
+		position: sticky;
+		top: 0;
+	}
+}
+
+.crosstable tr {
 	th:first-child {
 		position: sticky;
 		left: 0;
