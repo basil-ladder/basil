@@ -2,9 +2,11 @@ package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.Bot
+import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
+@Component
 class GameService(private val scbw: Scbw,
                   private val maps: Maps,
                   private val botSources: BotSources) {
