@@ -73,10 +73,12 @@ title: Crosstable
 					if (i != j) {
 						let w = e.won + 1;
 						let l = e.lost + 1;
-						let sumSq = (w + l) * (w + l);
-						let red =  1 - w * w / sumSq;
-						let green = 1 - l * l / sumSq;
-						e.color = Math.ceil(255 * red) + "," + Math.ceil(255 * green) + ",0,0.8";
+						let red = l / w;
+						red = Math.min(1, red * red);
+						let green = w / l;
+						green = Math.min(1, green * green);
+						let blue = Math.min(green, red);
+						e.color = Math.ceil(255 * red) + "," + Math.ceil(255 * green) + "," + Math.ceil(255 * blue) + ",0.8";
 
 					} else e.self = true;
 				}
