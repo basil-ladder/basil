@@ -14,6 +14,7 @@ class Config {
     lateinit var publishBasePath: Path
     var gameResultsHours: Long = 48
     lateinit var dataBasePath: Path
+    lateinit var basilBotSource: Path
 }
 
 @ConfigurationProperties("scbw")

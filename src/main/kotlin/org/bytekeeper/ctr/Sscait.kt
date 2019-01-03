@@ -3,6 +3,7 @@ package org.bytekeeper.ctr
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.bytekeeper.ctr.entity.Race
+import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -17,6 +18,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Service
+@Order(2)
 class SscaitSource : BotSource {
     private val webClient = WebClient.builder().baseUrl("https://sscaitournament.com/").build()
 
