@@ -95,6 +95,7 @@ class BasilSource(private val config: Config,
                 .openConnection()
         c.connectTimeout = 10000
         c.readTimeout = 30000
+        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         c.getInputStream().use {
             val tempFile = Files.createTempFile("bot-binary", ".zip")
             Files.copy(it, tempFile, StandardCopyOption.REPLACE_EXISTING)
