@@ -105,6 +105,7 @@ class BasilSource(private val config: Config,
     }
 
     private fun downloadToCache(botInfo: BotInfo, lastUpdate: Instant?): Path? {
+        log.info("Downloading ${botInfo.name} to cache - last updated on $lastUpdate.")
         val tempFile = Files.createTempFile("bot-binary", ".zip")
         Files.newOutputStream(tempFile)
                 .use { out ->
@@ -124,9 +125,11 @@ class BasilSource(private val config: Config,
                             .block()
                 }
         if (Files.size(tempFile) == 0L) {
+            log.warn("${botInfo.name} returned as empty file, ignoring.")
             Files.delete(tempFile)
             return null
         }
+        log.info("Successfully downloaded ${botInfo.name} to '$tempFile'.")
         lastDownload[botInfo.name] = tempFile
         return tempFile
     }
