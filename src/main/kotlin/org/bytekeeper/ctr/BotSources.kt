@@ -37,3 +37,6 @@ class BotSources(private val botSources: List<BotSource>) {
     fun downloadBinary(botInfo: BotInfo): InputStream = botSources.asSequence().mapNotNull { it.downloadBinary(botInfo) }.first()
     fun botInfoOf(name: String) = botSources.asSequence().mapNotNull { it.botInfoOf(name) }.first()
 }
+
+class FailedToDownloadBot(message: String, e: Throwable? = null) : RuntimeException(message, e)
+class FailedToDownloadBwApi(message: String) : RuntimeException(message)

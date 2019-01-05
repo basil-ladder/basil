@@ -6,10 +6,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.support.io.TempDirectory
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.BDDMockito.given
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import org.springframework.web.reactive.function.client.ClientResponse
+import reactor.core.publisher.toMono
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipInputStream
@@ -25,13 +33,27 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
 
     private val basilBotService: BasilBotService = mock<BasilBotService>()
 
+    private val webClient: RedirectingWebClient = mock<RedirectingWebClient>()
+
     @BeforeEach
     fun setup() {
         val writer = jacksonObjectMapper().writer()
         config.basilBotSource = tempDir.resolve("basilBots.json")
         Files.write(config.basilBotSource, listOf(writer.writeValueAsString(listOf(
                 BasilSource.BotInfo(name = "testBot", botBinary = botZip.toString(), botType = "MIRROR", raceValue = "Terran")))))
-        sut = BasilSource(config, basilBotService)
+        given(basilBotService.update(eq("testBot"), anyString(), any())).willAnswer { it.arguments[2] }
+        given(webClient.get(any())).willAnswer {
+            val uri = it.arguments[0] as URI
+            val clientResponse = mock<ClientResponse>()
+            val buffer = DataBufferUtils.readInputStream({ uri.toURL().openStream() },
+                    DefaultDataBufferFactory(),
+                    4096)
+                    .toMono()
+            given(clientResponse.bodyToMono(any<Class<DataBuffer>>())).willReturn(buffer)
+            clientResponse.toMono()
+        }
+
+        sut = BasilSource(config, basilBotService, webClient)
         sut.refresh()
     }
 

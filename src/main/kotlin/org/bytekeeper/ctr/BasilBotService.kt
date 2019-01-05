@@ -22,4 +22,5 @@ class BasilBotService(private val basilSourceBotRepository: BasilSourceBotReposi
         return basilSourceBot.lastUpdated!!
     }
 
+    fun lastUpdateOf(name: String): Instant? = basilSourceBotRepository.findByName(name)?.lastUpdated
 }

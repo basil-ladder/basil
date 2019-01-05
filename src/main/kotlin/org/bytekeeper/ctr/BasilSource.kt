@@ -7,21 +7,28 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.Race
 import org.springframework.core.annotation.Order
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.ClientResponse
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.io.InputStream
-import java.net.URL
+import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.zip.ZipError
 import kotlin.streams.asSequence
 
 @Service
 @Order(2)
 class BasilSource(private val config: Config,
-                  private val basilBotService: BasilBotService) : BotSource {
+                  private val basilBotService: BasilBotService,
+                  private val webClient: RedirectingWebClient) : BotSource {
     private val HEX_CHARS = "0123456789ABCDEF".toCharArray()
     private val log = LogManager.getLogger()
     private var botCache = emptyMap<String, BotInfo>()
@@ -46,24 +53,27 @@ class BasilSource(private val config: Config,
         lastDownload.clear()
         botCache.values.forEach { botInfo ->
             try {
-                val cachedFile = downloadToCache(botInfo)
-                val md = MessageDigest.getInstance("MD5")
-                Files.newInputStream(cachedFile)
-                        .use {
-                            val buffer = ByteArray(1024 * 1024)
-                            var bytes = it.read(buffer)
-                            while (bytes > 0) {
-                                md.update(buffer, 0, bytes)
-                                bytes = it.read(buffer)
-                            }
+                val lastUpdate = basilBotService.lastUpdateOf(botInfo.name)
+                downloadToCache(botInfo, lastUpdate)
+                        ?.let { cachedFile ->
+                            val md = MessageDigest.getInstance("MD5")
+                            Files.newInputStream(cachedFile)
+                                    .use {
+                                        val buffer = ByteArray(1024 * 1024)
+                                        var bytes = it.read(buffer)
+                                        while (bytes > 0) {
+                                            md.update(buffer, 0, bytes)
+                                            bytes = it.read(buffer)
+                                        }
+                                    }
+                            val updated = basilBotService.update(botInfo.name, md.digest().map { byte ->
+                                val v = byte.toInt()
+                                val a = HEX_CHARS[(v and 0xF0) ushr 4]
+                                val b = HEX_CHARS[v and 0x0F]
+                                "$a$b"
+                            }.joinToString(""), now)
+                            botInfo.lastUpdated = updated
                         }
-                val updated = basilBotService.update(botInfo.name, md.digest().map { byte ->
-                    val v = byte.toInt()
-                    val a = HEX_CHARS[(v and 0xF0) ushr 4]
-                    val b = HEX_CHARS[v and 0x0F]
-                    "$a$b"
-                }.joinToString(""), now)
-                botInfo.lastUpdated = updated
             } catch (e: Exception) {
                 log.error("Couldn't download ${botInfo.name}", e)
             }
@@ -79,29 +89,46 @@ class BasilSource(private val config: Config,
     override fun downloadBwapiDLL(info: org.bytekeeper.ctr.BotInfo): InputStream? {
         if (info !is BotInfo) return null
         val binary = lastDownload[info.name] ?: return null
-        FileSystems.newFileSystem(binary, null)
-                .use {
-                    val bwapi = Files.createTempFile("bwapi", ".dll")
-                    val compressedBwapi = it.rootDirectories.asSequence()
-                            .flatMap { Files.list(it).asSequence() }
-                            .first { it.fileName.toString().equals("bwapi.dll", true) }
-                    Files.copy(compressedBwapi, bwapi, StandardCopyOption.REPLACE_EXISTING)
-                    return Files.newInputStream(bwapi)
-                }
+        try {
+            FileSystems.newFileSystem(binary, null)
+                    .use {
+                        val bwapi = Files.createTempFile("bwapi", ".dll")
+                        val compressedBwapi = it.rootDirectories.asSequence()
+                                .flatMap { Files.list(it).asSequence() }
+                                .first { it.fileName.toString().equals("bwapi.dll", true) }
+                        Files.copy(compressedBwapi, bwapi, StandardCopyOption.REPLACE_EXISTING)
+                        return Files.newInputStream(bwapi)
+                    }
+        } catch (e: ZipError) {
+            throw FailedToDownloadBot("Zip file of ${info.name} was defect", e)
+        }
     }
 
-    private fun downloadToCache(botInfo: BotInfo): Path {
-        val c = URL(botInfo.botBinary)
-                .openConnection()
-        c.connectTimeout = 10000
-        c.readTimeout = 30000
-        c.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
-        c.getInputStream().use {
-            val tempFile = Files.createTempFile("bot-binary", ".zip")
-            Files.copy(it, tempFile, StandardCopyOption.REPLACE_EXISTING)
-            lastDownload[botInfo.name] = tempFile
-            return tempFile
+    private fun downloadToCache(botInfo: BotInfo, lastUpdate: Instant?): Path? {
+        val tempFile = Files.createTempFile("bot-binary", ".zip")
+        Files.newOutputStream(tempFile)
+                .use { out ->
+                    val body = webClient
+                            .get(URI.create(botInfo.botBinary))
+                            .flatMap {
+                                if (lastUpdate != null && !Instant.ofEpochMilli(it.headers().asHttpHeaders().lastModified).isAfter(lastUpdate)) {
+                                    Mono.empty<ClientResponse>()
+                                }
+                                it.toMono()
+                            }
+                            .block()
+                            .bodyToMono(DataBuffer::class.java)
+                    DataBufferUtils.write(body, out)
+                            .map(DataBufferUtils::release)
+                            .then()
+                            .block()
+                }
+        if (Files.size(tempFile) == 0L) {
+            Files.delete(tempFile)
+            return null
         }
+        lastDownload[botInfo.name] = tempFile
+        return tempFile
     }
 
     override fun botInfoOf(name: String): BotInfo? = botCache[name]
