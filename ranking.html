@@ -16,7 +16,7 @@ title: Ranking
 		<td>{{lost}}</td>
 		<td>{{winRate}}</td>
 		<td>{{crashed}}</td>
-		<td>{{lastUpdated}}</td>
+		<td>{{#if enabled}}{{lastUpdated}}{{else}}Disabled:<br><small class="tiny">{{disabledReason}}</small>{{/if}}</td>
 		</tr>
 		{{/each }}
 		{% endraw %}
@@ -58,7 +58,7 @@ title: Ranking
 			// Required for index to work as expected
 			data.sort(function(a,b) { 
 				if (a.enabled != b.enabled) {
-					if (a.enabled) return 1; else return -1;
+					if (a.enabled) return -1; else return 1;
 				}
 				let aPlayed = a.won + a.lost;
 				let bPlayed = b.won + b.lost;
@@ -70,7 +70,7 @@ title: Ranking
 			});
 			let html = template(data);
 			$("#eloTable tbody").append(html);
-			$("#eloTable").tablesorter({ sortList: [[0, 0]] });
+			$("#eloTable").tablesorter();
 			if (location.hash) {
 				let headerHeight = $("thead tr").height();
 				let dest = $("td[name='" + location.hash.substring(1) + "']");
