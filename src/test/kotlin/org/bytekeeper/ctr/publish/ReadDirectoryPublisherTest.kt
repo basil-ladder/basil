@@ -43,7 +43,7 @@ class ReadDirectoryPublisherTest {
 
     private lateinit var sut: ReadDirectoryPublisher
 
-    private val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
+    private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
 
     @Before
     fun setup() {

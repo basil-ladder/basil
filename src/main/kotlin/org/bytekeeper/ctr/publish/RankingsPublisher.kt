@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.bytekeeper.ctr.BotSources
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class RankingsPublisher(private val publisher: Publisher,
-                        private val botRepository: BotRepository) {
+                        private val botRepository: BotRepository,
+                        private val botSources: BotSources) {
 
     @CommandHandler
     fun handle(preparePublish: PreparePublish) {
@@ -20,6 +22,8 @@ class RankingsPublisher(private val publisher: Publisher,
                 .use { out ->
                     writer.writeValue(out, allBots
                             .map {
+                                val lastUpdated = botSources.botInfoOf(it.name)?.lastUpdated ?: it.lastUpdated
+
                                 PublishedBotRanking(
                                         it.name,
                                         it.rating,
@@ -28,8 +32,9 @@ class RankingsPublisher(private val publisher: Publisher,
                                         it.lost,
                                         it.crashed,
                                         it.race?.name,
-                                        it.lastUpdated?.epochSecond,
-                                        it.enabled)
+                                        lastUpdated?.epochSecond,
+                                        it.enabled,
+                                        it.disabledReason)
                             })
                 }
     }
@@ -44,4 +49,5 @@ class PublishedBotRanking(val botName: String,
                           val crashed: Int,
                           val race: String?,
                           val lastUpdated: Long?,
-                          val enabled: Boolean)
+                          val enabled: Boolean,
+                          val disabledReason: String?)

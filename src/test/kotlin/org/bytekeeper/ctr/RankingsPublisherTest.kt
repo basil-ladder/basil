@@ -24,11 +24,14 @@ class RankingsPublisherTest {
     @Mock
     private lateinit var publisher: Publisher
 
+    @Mock
+    private lateinit var botSources: BotSources
+
     private val statsWriter: StringWriter = StringWriter()
 
     @Before
     fun setup() {
-        sut = RankingsPublisher(publisher, botRepository)
+        sut = RankingsPublisher(publisher, botRepository, botSources)
 
         BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(statsWriter))
     }
@@ -36,17 +39,19 @@ class RankingsPublisherTest {
     @Test
     fun shouldPublishAllElos() {
         // GIVEN
-        val botA = Bot(-1, true, "botA", Race.PROTOSS, null, Instant.MIN, false, null, 100, 1000)
-        val botB = Bot(-1, true, "botB", Race.PROTOSS, null, null, false, null, 200, 3000)
-        BDDMockito.given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+        val botA = Bot(-1, true, null, "botA", Race.PROTOSS, null, Instant.MIN, false, null, 100, 1000)
+        val botB = Bot(-1, true, null, "botB", Race.TERRAN, null, null, false, null, 200, 3000)
+        val botC = Bot(-1, false, "I don't like it", "botC", Race.ZERG, null, null, false, null, 300, 4000)
+        BDDMockito.given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB, botC))
 
         // WHEN
         sut.handle(PreparePublish())
 
         // THEN
         Assertions.assertThat(statsWriter.toString()).isEqualTo(
-                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200,\"enabled\":true}," +
-                        "{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":null,\"enabled\":true}]")
+                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200,\"enabled\":true,\"disabledReason\":null}" +
+                        ",{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"TERRAN\",\"lastUpdated\":null,\"enabled\":true,\"disabledReason\":null}" +
+                        ",{\"botName\":\"botC\",\"rating\":4000,\"played\":300,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"ZERG\",\"lastUpdated\":null,\"enabled\":false,\"disabledReason\":\"I don't like it\"}]")
     }
 
 }

@@ -29,6 +29,7 @@ class BotVsBotWonGames(val botA: Bot,
                        val botB: Bot,
                        val won: Long)
 
+class BotStat(val bot: Bot, val won: Long, val lost: Long)
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
@@ -42,4 +43,8 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Query("SELECT new org.bytekeeper.ctr.entity.BotVsBotWonGames(r.winner, r.loser, COUNT(r)) FROM GameResult r GROUP BY r.winner, r.loser")
     fun listBotVsBotWonGames(): List<BotVsBotWonGames>
 
+    @Query("SELECT new org.bytekeeper.ctr.entity.BotStat(bot, SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
+            " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END)) FROM GameResult r, Bot bot WHERE r.time > bot.lastUpdated AND (r.winner = bot OR r.loser = bot) AND bot.enabled = TRUE" +
+            " GROUP BY bot")
+    fun gamesSinceLastUpdate(): List<BotStat>
 }

@@ -29,9 +29,9 @@ class BotVsBotPublisherTest {
     private val jsonWriter: StringWriter = StringWriter()
     private val csvWriter: StringWriter = StringWriter()
 
-    private val botA = Bot(null, true, "botA", null, null, null, false, null, 0, 1000)
-    private val botB = Bot(null, true, "botB", null, null, null, false, null, 0, 2000)
-    private val botC = Bot(null, true, "botC", null, null, null, false, null, 0, 3000)
+    private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
+    private val botB = Bot(null, true, null, "botB", null, null, null, false, null, 0, 2000)
+    private val botC = Bot(null, true, null, "botC", null, null, null, false, null, 0, 3000)
 
     @Before
     fun setup() {

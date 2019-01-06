@@ -124,8 +124,8 @@ class BasilSource(private val config: Config,
                             .then()
                             .block()
                 }
-        if (Files.size(tempFile) == 0L) {
-            log.warn("${botInfo.name} returned as empty file, ignoring.")
+        if (Files.size(tempFile) == 0L || Files.size(tempFile) > 100 * 1024 * 1024) {
+            log.warn("${botInfo.name} returned file of size ${Files.size(tempFile)}, deleting and ignoring.")
             Files.delete(tempFile)
             return null
         }

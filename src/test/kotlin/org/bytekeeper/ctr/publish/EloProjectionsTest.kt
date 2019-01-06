@@ -38,7 +38,7 @@ class EloPublisherTest {
     @Test
     fun shouldPublishBotEloHistory() {
         // GIVEN
-        val testBot = Bot(-1, true, "test", Race.PROTOSS, "MIRROR", null)
+        val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
         given(botEloRepository.findAllByBot(testBot)).willReturn(listOf(
                 BotElo(-1, testBot, Instant.MIN, 0, ""),

@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.rules.WinRatioTooLowRule
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.util.concurrent.Phaser
@@ -14,7 +15,8 @@ class GameRunner(private val gameService: GameService,
                  private val botSources: BotSources,
                  private val commands: Commands,
                  private val botService: BotService,
-                 private val botRepository: BotRepository) : CommandLineRunner {
+                 private val botRepository: BotRepository,
+                 private val winRatioTooLowRule: WinRatioTooLowRule) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
     private var nextPublishTime: Long = System.currentTimeMillis() + config.publishTimer * 60 * 1000
@@ -56,6 +58,8 @@ class GameRunner(private val gameService: GameService,
     private fun isTimeToPublish() = nextPublishTime <= System.currentTimeMillis()
 
     private fun updateBotList() {
+        winRatioTooLowRule.checkRule()
+
         log.info("Retrieving list of bots")
         botSources.refresh()
 

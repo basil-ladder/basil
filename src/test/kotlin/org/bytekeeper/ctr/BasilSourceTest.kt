@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.support.io.TempDirectory
 import org.mockito.ArgumentMatchers.anyString
@@ -14,8 +15,10 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.web.reactive.function.client.ClientResponse
+import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.io.BufferedReader
+import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.net.URI
 import java.nio.file.Files
@@ -28,12 +31,18 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
     private val config: Config = Config()
     private lateinit var sut: BasilSource
 
-
     val botZip = BasilSourceTest::class.java.getResource("/bot.zip")
 
     private val basilBotService: BasilBotService = mock<BasilBotService>()
 
     private val webClient: RedirectingWebClient = mock<RedirectingWebClient>()
+
+    private var bufferProvider: (uri: URI) -> Mono<DataBuffer> = { uri ->
+        DataBufferUtils.readInputStream({ uri.toURL().openStream() },
+                DefaultDataBufferFactory(),
+                4096)
+                .toMono()
+    }
 
     @BeforeEach
     fun setup() {
@@ -45,11 +54,7 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
         given(webClient.get(any())).willAnswer {
             val uri = it.arguments[0] as URI
             val clientResponse = mock<ClientResponse>()
-            val buffer = DataBufferUtils.readInputStream({ uri.toURL().openStream() },
-                    DefaultDataBufferFactory(),
-                    4096)
-                    .toMono()
-            given(clientResponse.bodyToMono(any<Class<DataBuffer>>())).willReturn(buffer)
+            given(clientResponse.bodyToMono(any<Class<DataBuffer>>())).willReturn(bufferProvider(uri))
             clientResponse.toMono()
         }
 
@@ -119,6 +124,43 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
         // THEN
         downloadBinary.use {
             assertThat(it).hasContent("BLUB")
+        }
+    }
+
+    @Test
+    fun `bot binary should be ignored if too large`() {
+        // GIVEN
+        val botInfo = sut.botInfoOf("testBot")!!
+        bufferProvider = {
+            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(200 * 1024 * 1024)) },
+                    DefaultDataBufferFactory(),
+                    200 * 1024 * 1024)
+                    .toMono()
+        }
+        sut.refresh()
+
+        // WHEN
+        val downloadBinary = sut.downloadBwapiDLL(botInfo)
+
+        // THEN
+        assertThat(downloadBinary).isNull()
+    }
+
+    @Test
+    fun `should not throw ZipError`() {
+        // GIVEN
+        val botInfo = sut.botInfoOf("testBot")!!
+        bufferProvider = {
+            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(1)) },
+                    DefaultDataBufferFactory(),
+                    1)
+                    .toMono()
+        }
+        sut.refresh()
+
+        // WHEN, THEN
+        assertThrows<FailedToDownloadBot> {
+            sut.downloadBwapiDLL(botInfo)
         }
     }
 }

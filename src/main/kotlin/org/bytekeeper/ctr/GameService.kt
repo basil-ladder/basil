@@ -38,7 +38,7 @@ class GameService(private val scbw: Scbw,
 
     private fun setupBot(bot: Bot) {
         val botInfo = botSources.botInfoOf(bot.name)
-        if (!botInfo.disabled) {
+        if (botInfo?.disabled == false) {
             scbw.setupOrUpdateBot(botInfo)
         } else if (bot.lastUpdated == null) {
             throw BotDisabledException("${bot.name} is enabled for BASIL but disabled in source and the binary was not yet retrieved.")
