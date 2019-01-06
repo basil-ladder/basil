@@ -17,7 +17,7 @@ class RankingsPublisher(private val publisher: Publisher,
     fun handle(preparePublish: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
-        val allBots = botRepository.findAllByEnabledTrue()
+        val allBots = botRepository.findAll()
         publisher.globalStatsWriter("ranking.json")
                 .use { out ->
                     writer.writeValue(out, allBots
