@@ -62,7 +62,7 @@ class BotServiceTest {
     fun `should enable bot if locally disabled but enabled and updated in source`() {
         // GIVEN
         botA.enabled = false
-        botA.lastUpdated = Instant.MIN
+        botA.lastUpdated = Instant.MAX.minusSeconds(10)
         botAInfo.lastUpdated = Instant.MAX
 
         // WHEN

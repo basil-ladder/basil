@@ -25,7 +25,7 @@ import java.util.zip.ZipError
 import kotlin.streams.asSequence
 
 @Service
-@Order(2)
+@Order(1)
 class BasilSource(private val config: Config,
                   private val basilBotService: BasilBotService,
                   private val webClient: RedirectingWebClient) : BotSource {

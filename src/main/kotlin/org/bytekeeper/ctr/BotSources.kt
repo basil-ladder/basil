@@ -26,7 +26,7 @@ interface BotInfo {
 
 @Service
 class BotSources(private val botSources: List<BotSource>) {
-    fun allBotInfos() = botSources.asReversed()
+    fun allBotInfos() = botSources
             .flatMap { it.allBotInfos() }
             .distinctBy { it.name }
 
