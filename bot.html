@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /elo.html
+permalink: /bot.html
 ---
 <script>
 	$(function() {
@@ -76,9 +76,50 @@ permalink: /elo.html
 				});
 
 			});
+		$.getJSON(statsBaseUrl + botName + "/perMapStats.json")
+			.then(function(data) {
+				let labels = data.map(function(a) { return a.map; });
+				let wonData = data.map(function(a) { return a.won; });
+				let lostData = data.map(function(a) { return a.lost; });
+				new Chart(document.getElementById("perMapWinsChart"), {
+					type: "bar",
+					data: {
+						datasets: [{
+							label: "Won",
+							data: wonData,
+							backgroundColor: "#88AAEB"
+						}, {
+							label: "Lost",
+							data: lostData,
+							backgroundColor: "#EBAAAA"
+						}]
+					},
+					options: {
+						scales: {
+							xAxes: [{
+								stacked: true,
+								type: "category",
+								labels: labels,
+								ticks: {
+									autoSkip: false
+								}
+							}],
+							yAxes: [{
+								stacked: true
+							}]
+						}
+					}
+
+				});
+
+			});
 	});
 </script>
+<h2>ELO</h2>
 <canvas id="eloChart" width="1200" height="600">
+</canvas>
+<h2>Wins Per Map</h2>
+<canvas id="perMapWinsChart" width="1200" height="300">
 </canvas>
 
 </table>
