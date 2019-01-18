@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class Maps {
-    private val mapNamePattern = ("[^/]*/(?:\\(\\d+\\))?(.+?)\\.sc.").toRegex()
+    private val mapNamePattern = ("[^/]*/?(?:\\(\\d+\\))?(.+?)\\.sc.").toRegex()
 
     val maps = listOf(
             "sscai/(4)Empire of the Sun.scm",

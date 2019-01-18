@@ -23,7 +23,7 @@ class PerMapWinRatePublisher(private val botRepository: BotRepository,
             publisher.botStatsWriter(bot.name, "perMapStats.json")
                     .use { out ->
                         writer.writeValue(out, gameResultRepository.botStatsPerMap(bot)
-                                .map { PublishedPerMapStats(it.map, it.won, it.lost) })
+                                .map { PublishedPerMapStats(maps.mapName(it.map) ?: it.map, it.won, it.lost) })
                     }
         }
 

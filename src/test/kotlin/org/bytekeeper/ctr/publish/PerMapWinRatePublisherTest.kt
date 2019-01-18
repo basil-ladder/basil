@@ -45,7 +45,7 @@ internal class PerMapWinRatePublisherTest {
     @Test
     fun `should write map stats for bot`() {
         // GIVEN
-        given(gameResultRepository.botStatsPerMap(botA)).willReturn(listOf(MapStat("a", 1, 2), MapStat("b", 3, 4)))
+        given(gameResultRepository.botStatsPerMap(botA)).willReturn(listOf(MapStat("a.scx", 1, 2), MapStat("b.scm", 3, 4)))
 
         // WHEN
         sut.handle(PreparePublish())
