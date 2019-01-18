@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.1.1.RELEASE"
+    id("org.springframework.boot") version "2.1.2.RELEASE"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("com.github.ben-manes.versions") version "0.20.0"
 }
@@ -43,9 +43,10 @@ dependencies {
 
     testImplementation("com.h2database:h2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0-M1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.4.0-M1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0-M1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.3.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.2")
     testImplementation("org.assertj:assertj-core:3.11.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:2.23.4")
 }
 
 configurations.all {

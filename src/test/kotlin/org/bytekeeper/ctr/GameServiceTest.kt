@@ -2,17 +2,20 @@ package org.bytekeeper.ctr
 
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.BDDMockito.given
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.verify
+import org.mockito.BDDMockito.willReturn
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+@ExtendWith(MockitoExtension::class)
 class GameServiceTest {
     private lateinit var sut: GameService
 
@@ -42,11 +45,11 @@ class GameServiceTest {
     private val botAInfo = TestBotInfo()
     private val botBInfo = TestBotInfo()
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = GameService(scbw, Maps(), botSources)
-        given(botSources.botInfoOf(botA.name)).willReturn(botAInfo)
-        given(botSources.botInfoOf(botB.name)).willReturn(botBInfo)
+        willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
+        willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
     }
 
     @Test

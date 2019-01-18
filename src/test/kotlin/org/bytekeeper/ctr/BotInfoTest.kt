@@ -8,7 +8,7 @@ import org.assertj.core.groups.Tuple
 import org.bytekeeper.ctr.SscaitSource.BotInfo
 import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.BASIL_COMMAND_MATCHER
 import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.commands
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class BotInfoTest {
     @Test

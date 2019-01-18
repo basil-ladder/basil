@@ -3,16 +3,16 @@ package org.bytekeeper.ctr.proj
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.GameResultRepository
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class GameResultsProjectionsTest {
     private lateinit var sut: GameResultsProjections
 
@@ -25,7 +25,7 @@ class GameResultsProjectionsTest {
     private val botA = Bot(name = "A", enabled = true)
     private val botB = Bot(name = "B", enabled = true)
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = GameResultsProjections(gameResultRepository, events)
     }

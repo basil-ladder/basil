@@ -3,16 +3,16 @@ package org.bytekeeper.ctr
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class BotServiceTest {
     private lateinit var sut: BotService
 
@@ -24,7 +24,7 @@ class BotServiceTest {
 
     private val config = Config()
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = BotService(botRepository, config)
         botAInfo.name = botA.name

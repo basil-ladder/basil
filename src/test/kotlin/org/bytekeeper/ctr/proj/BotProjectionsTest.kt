@@ -4,18 +4,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class BotProjectionsTest {
     private lateinit var sut: BotProjections
 
@@ -28,7 +28,7 @@ class BotProjectionsTest {
     private val botA = Bot(id = 1, name = "A", enabled = true)
     private val botB = Bot(id = 2, name = "B", enabled = true)
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = BotProjections(botRepository, events)
         given(botRepository.getById(ArgumentMatchers.anyLong()))

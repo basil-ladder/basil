@@ -29,7 +29,7 @@ class Publisher(config: Config) {
     }
 
     fun botStatsWriter(bot: String, file: String): Writer =
-            Files.newBufferedWriter(botStatsPath(bot).resolve("eloHistory.json"), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
+            Files.newBufferedWriter(botStatsPath(bot).resolve(file), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
 
     fun globalStatsWriter(file: String): BufferedWriter =
             Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)

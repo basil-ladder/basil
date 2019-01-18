@@ -9,21 +9,21 @@ import org.bytekeeper.ctr.Scbw
 import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.support.io.TempDirectory
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class, TempDirectory::class)
 class ReadDirectoryPublisherTest {
     @Mock
     private lateinit var publisher: Publisher
@@ -34,22 +34,20 @@ class ReadDirectoryPublisherTest {
     @Mock
     private lateinit var scbw: Scbw
 
-    @get: Rule
-    val temporaryFolder = TemporaryFolder()
-
-    private lateinit var dataPath: Path
-
-    private lateinit var botReadDir: Path
-
     private lateinit var sut: ReadDirectoryPublisher
 
     private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
 
-    @Before
-    fun setup() {
+    private lateinit var dataPath: Path
+    private lateinit var botReadDir: Path
+
+    @BeforeEach
+    fun setup(@TempDirectory.TempDir base: Path) {
+        dataPath = base.resolve("dataPath")
+        botReadDir = base.resolve("botread")
+        Files.createDirectories(dataPath)
+        Files.createDirectories(botReadDir)
         sut = ReadDirectoryPublisher(botRepository, publisher, scbw)
-        dataPath = temporaryFolder.newFolder().toPath()
-        botReadDir = temporaryFolder.newFolder().toPath()
         given(scbw.readDirectoryOf(any())).willReturn(botReadDir)
         given(publisher.botDataPath(ArgumentMatchers.anyString())).willReturn(dataPath)
         given(botRepository.findAllByEnabledTrueAndPublishReadTrue())
@@ -156,7 +154,7 @@ class ReadDirectoryPublisherTest {
         val compressed = publisher.botDataPath("botA").resolve("read.7z")
         Files.write(testFile, ByteArray(1024 * 1024))
         sut.handle(PreparePublish())
-        Files.write(testFile, ByteArray(0))
+        Files.write(testFile, ByteArray(0), StandardOpenOption.TRUNCATE_EXISTING)
         Files.setLastModifiedTime(compressed, FileTime.from(Instant.MIN))
 
         // WHEN

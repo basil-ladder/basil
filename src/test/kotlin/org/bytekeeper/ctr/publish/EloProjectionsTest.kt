@@ -4,17 +4,17 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.entity.*
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.io.StringWriter
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class EloPublisherTest {
     @Mock
     private lateinit var botEloRepository: BotEloRepository
@@ -28,7 +28,7 @@ class EloPublisherTest {
 
     private val botStatsWriter: StringWriter = StringWriter()
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = EloPublisher(botEloRepository, botRepository, publisher)
 

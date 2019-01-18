@@ -5,17 +5,17 @@ import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotRepository
 import org.bytekeeper.ctr.entity.Race
 import org.bytekeeper.ctr.publish.RankingsPublisher
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.io.BufferedWriter
 import java.io.StringWriter
 import java.time.Instant
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class RankingsPublisherTest {
     @Mock
     private lateinit var botRepository: BotRepository
@@ -29,7 +29,7 @@ class RankingsPublisherTest {
 
     private val statsWriter: StringWriter = StringWriter()
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = RankingsPublisher(publisher, botRepository, botSources)
 

@@ -6,17 +6,17 @@ import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.entity.Bot
 import org.bytekeeper.ctr.entity.BotVsBotWonGames
 import org.bytekeeper.ctr.entity.GameResultRepository
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.BDDMockito
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.io.BufferedWriter
 import java.io.StringWriter
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class BotVsBotPublisherTest {
     private lateinit var sut: BotVsBotPublisher
 
@@ -33,7 +33,7 @@ class BotVsBotPublisherTest {
     private val botB = Bot(null, true, null, "botB", null, null, null, false, null, 0, 2000)
     private val botC = Bot(null, true, null, "botC", null, null, null, false, null, 0, 3000)
 
-    @Before
+    @BeforeEach
     fun setup() {
         sut = BotVsBotPublisher(gameResultRepository, publisher)
 
