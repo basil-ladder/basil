@@ -14,7 +14,7 @@ title: Ranking
 		<th># Won</th>
 		<th># Lost</th>
 		<th>% Win</th>
-		<th># Crashes</th>
+		<th class="tooltip">&Delta; Crashes<span role="tooltip">Crashes since last update. Resetted after the first game after an update.</span></th>
 		<th>Last updated</th>
 	</tr>
 	</thead>
@@ -31,7 +31,7 @@ title: Ranking
 		<td>{{won}}</td>
 		<td>{{lost}}</td>
 		<td>{{winRate}}</td>
-		<td>{{crashed}}</td>
+		<td>{{crashesSinceUpdate}}</td>
 		<td>{{lastUpdated}}</td>
 		</tr>
 		{{/if}}
@@ -67,7 +67,7 @@ title: Ranking
 		<td>{{lost}}</td>
 		<td>{{winRate}}</td>
 		<td>{{crashed}}</td>
-		<td><br><small class="tiny">{{disabledReason}}</small></td>
+		<td><small>{{disabledReason}}</small></td>
 		</tr>
 		{{/if}}
 		{{/each}}

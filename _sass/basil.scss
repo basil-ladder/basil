@@ -156,3 +156,28 @@ hr {
 	margin-top: -15px;
 	margin-bottom: 15px;
 }
+
+.tooltip {
+	span[role=tooltip] {
+		visibility: hidden;
+		width: 15em;
+		background-color: #333;
+		color: #fff;
+		text-align: center;
+		font-size: 0.8em;
+		padding: 0.3em;
+		border-radius: 0.5em;
+		position: absolute;
+		z-index: 1;
+		top: 111%;
+		left: 50%;
+		margin-left: -6em;
+		opacity: 0;
+		transition: opacity 0.3s;
+		white-space: normal;
+	}
+	&:hover span[role=tooltip] {
+		visibility: visible;
+		opacity: 1;
+	}
+}
