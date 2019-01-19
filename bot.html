@@ -2,10 +2,56 @@
 layout: page
 permalink: /bot.html
 ---
+<script id="headerTemplate" type="text/x-handlebars-template">
+	{% raw %}
+	<h1 {{#if race}}class="{{racecol race}}{{/if}}">{{botName}}</h1>
+	<hr>
+	{{#if won}}
+	<div class="row">
+	<div class="col-3 row">
+	<div class="col-1">
+	<i class="fas fa-trophy"></i>
+	{{won}}
+	</div>
+	<div class="col-1">
+	<i class="fas fa-sad-tear"></i>
+	{{lost}}
+	</div>
+	<div class="col-1">
+	<i class="fas fa-car-crash"></i>
+	{{crashed}}
+	</div>
+	</div>
+	</div>
+	<div class="row">
+	<div class="col-1">
+	Last updated:
+	</div>
+	<div class="col-5">
+	{{date lastUpdated}}
+	</div>
+	</div>
+	{{#unless enabled}}
+	<div class="row">
+	<div class="col-1">
+	Disabled:
+	</div>
+	<div class="col-5">
+	{{disabledReason}}
+	</div>
+	</div>
+	{{/unless}}
+	</div>
+	{{/if}}
+	{% endraw %}
+</script>
 <script>
 	$(function() {
 		let statsBaseUrl = "http://basilicum.bytekeeper.org/stats/";
-		let botName = window.location.search.substring(1).split("=")[1];
+		let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
+		let source = $("#headerTemplate").html();
+		let template = Handlebars.compile(source);
+		$("#botName").append(template({botName: botName}));
 		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json")
 			.then(function(data) {
 				data.sort(function(a,b) { 
@@ -21,6 +67,10 @@ permalink: /bot.html
 					topBots[topBots.length - 1] = topBots[myIndex];
 					topBots[myIndex] = tmp;
 				}
+				$("#botName").empty();
+				let myData = data.filter(function(a) { return a.botName === botName; })[0];
+				if (!myData.enabled) myData.disabledReason = myData.disabledReason || "Disabled on SSCAIT/locally";
+				$("#botName").append(template(myData));
 				return $.when.apply($, topBots.map(function(bot) {
 					return $.getJSON(statsBaseUrl + bot + "/eloHistory.json")
 						.then(function(data) { return {name: bot, data: data}; });
@@ -115,6 +165,7 @@ permalink: /bot.html
 			});
 	});
 </script>
+<div id="botName"></div>
 <h2>ELO</h2>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>

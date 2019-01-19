@@ -19,22 +19,6 @@ title: Last 24h
 </script>
 <script>
 	$(function() {
-		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
-		Handlebars.registerHelper("racecol", function(v) { 
-			switch (v) {
-				case "PROTOSS":
-					return "race_protoss";
-				case "ZERG":
-					return "race_zerg";
-				case "TERRAN":
-					return "race_terran";
-				case "RANDOM":
-					return "race_random";
-				default:
-					return "race_unknown";
-			}
-			return parseInt(v) + 1; 
-		});
 		{% raw %}
 		Handlebars.registerPartial("bot", 
 			'<td class="{{racecol race}}">'

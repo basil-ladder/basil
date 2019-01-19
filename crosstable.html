@@ -36,21 +36,6 @@ title: Crosstable
 </script>
 <script>
 	$(function() {
-		Handlebars.registerHelper("racecol", function(v) { 
-			switch (v) {
-				case "PROTOSS":
-					return "race_protoss";
-				case "ZERG":
-					return "race_zerg";
-				case "TERRAN":
-					return "race_terran";
-				case "RANDOM":
-					return "race_random";
-				default:
-					return "race_unknown";
-			}
-			return parseInt(v) + 1; 
-		});
 		let source = $("#crosstable").html();
 		let template = Handlebars.compile(source);
 		$.getJSON("http://basilicum.bytekeeper.org/stats/botVsBot.json", function(recv) {

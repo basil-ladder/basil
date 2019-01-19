@@ -60,7 +60,7 @@ title: Ranking
 		<th>
 		{{inc @index}}
 		</th>
-		<td name="{{anchorName}}" class="{{racecol race}}">{{botName}}<div class="float-right"><a class="normal" href="elo.html?bot={{botName}}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
+		<td name="{{anchorName}}" class="{{racecol race}}">{{botName}}<div class="float-right"><a class="normal" href="bot.html?bot={{botName}}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
 		<td>{{#if rating}}{{rating}}{{else}}<small class="tiny">n/a</small>{{/if}}</td>
 		<td>{{played}}</td>
 		<td>{{won}}</td>
@@ -78,23 +78,6 @@ title: Ranking
 </script>
 <script>
 	$(function() {
-		Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
-
-		Handlebars.registerHelper("racecol", function(v) { 
-			switch (v) {
-				case "PROTOSS":
-					return "race_protoss";
-				case "ZERG":
-					return "race_zerg";
-				case "TERRAN":
-					return "race_terran";
-				case "RANDOM":
-					return "race_random";
-				default:
-					return "race_unknown";
-			}
-			return parseInt(v) + 1; 
-		});
 		let source = $("#tableTemplate").html();
 		let template = Handlebars.compile(source);
 		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
@@ -107,7 +90,7 @@ title: Ranking
 					data[i].winRate = "-";
 				}
 				if (played < 30) data[i].rating = null;
-				if (data[i].lastUpdated) data[i].lastUpdated = moment.unix(data[i].lastUpdated).format("YYYY.MM.DD hh:mm:ss a");
+				if (data[i].lastUpdated) data[i].lastUpdated = basil.formatDate(data[i].lastUpdated);
 				data[i].anchorName = encodeURIComponent(data[i].botName);
 				data[i].showDisabled = !data[i].enabled && (data[i].won > 0 || data[i].lost > 0);
 				data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";
