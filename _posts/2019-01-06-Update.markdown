@@ -17,4 +17,4 @@ Rule changes (Please check the rule page - this is a summary):
 * Bots disabled on SSCAIT will not be disabled on BASIL for another 65 days - this allows tournaments of SSCAIT to not influence BASIL as much.
 * Bots can also be added outside of SSCAIT. Drop me a mail (or pm me in Discord) with the URL to the `zip` file of the bot (bwapi.dll + bot binary) can be downloaded. Be aware this URL will be queried every 6h for updates. (Please note this is automated, URLs with manual interaction like logins won't do. Redirects are fine.)
 * Read directories can now be accessed. You need to have a PGP key on a public server. Check the rules section on how to add the fingerprint information. Bot read directories will be accessible zipped and encrypted in the respective bot directory.
-* Random bots are stilled allowed, but race will be preselected and therefore known to the enemy bot.
+* Random bots are still allowed, but race will be preselected and therefore known to the enemy bot.
