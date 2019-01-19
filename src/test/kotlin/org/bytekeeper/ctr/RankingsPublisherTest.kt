@@ -49,9 +49,9 @@ class RankingsPublisherTest {
 
         // THEN
         Assertions.assertThat(statsWriter.toString()).isEqualTo(
-                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200,\"enabled\":true,\"disabledReason\":null}" +
-                        ",{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"TERRAN\",\"lastUpdated\":null,\"enabled\":true,\"disabledReason\":null}" +
-                        ",{\"botName\":\"botC\",\"rating\":4000,\"played\":300,\"won\":0,\"lost\":0,\"crashed\":0,\"race\":\"ZERG\",\"lastUpdated\":null,\"enabled\":false,\"disabledReason\":\"I don't like it\"}]")
+                "[{\"botName\":\"botA\",\"rating\":1000,\"played\":100,\"won\":0,\"lost\":0,\"crashed\":0,\"crashesSinceUpdate\":0,\"race\":\"PROTOSS\",\"lastUpdated\":-31557014167219200,\"enabled\":true,\"disabledReason\":null}" +
+                        ",{\"botName\":\"botB\",\"rating\":3000,\"played\":200,\"won\":0,\"lost\":0,\"crashed\":0,\"crashesSinceUpdate\":0,\"race\":\"TERRAN\",\"lastUpdated\":null,\"enabled\":true,\"disabledReason\":null}" +
+                        ",{\"botName\":\"botC\",\"rating\":4000,\"played\":300,\"won\":0,\"lost\":0,\"crashed\":0,\"crashesSinceUpdate\":0,\"race\":\"ZERG\",\"lastUpdated\":null,\"enabled\":false,\"disabledReason\":\"I don't like it\"}]")
     }
 
 }

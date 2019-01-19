@@ -66,6 +66,8 @@ class BotProjectionsTest {
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
         assertThat(botB).hasFieldOrPropertyWithValue("crashed", 0)
+        assertThat(botA).hasFieldOrPropertyWithValue("crashesSinceUpdate", 1)
+        assertThat(botB).hasFieldOrPropertyWithValue("crashesSinceUpdate", 0)
         assertThat(botA).hasFieldOrPropertyWithValue("played", 1)
         assertThat(botB).hasFieldOrPropertyWithValue("played", 1)
         assertThat(botA).hasFieldOrPropertyWithValue("won", 0)
@@ -144,5 +146,18 @@ class BotProjectionsTest {
         assertThat(botB).hasFieldOrPropertyWithValue("won", 0)
         assertThat(botA).hasFieldOrPropertyWithValue("lost", 0)
         assertThat(botB).hasFieldOrPropertyWithValue("lost", 1)
+    }
+
+    @Test
+    fun `should handle bot update`() {
+        // GIVEN
+        sut.onGameCrashed(GameCrashed(botA, botB, "", true, false, Instant.now(), 0.0, "", null))
+
+        // WHEN
+        sut.onBotUpdated(BotBinaryUpdated(botA, Instant.now()))
+
+        // THEN
+        assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
+        assertThat(botA).hasFieldOrPropertyWithValue("crashesSinceUpdate", 0)
     }
 }

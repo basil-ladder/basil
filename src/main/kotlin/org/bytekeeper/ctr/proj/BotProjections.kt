@@ -45,8 +45,14 @@ class BotProjections(private val botRepository: BotRepository,
         val (botA, botB) = botRepository.getBotsForUpdate(listOf(event.botA, event.botB))
         botA.played++
         botB.played++
-        if (event.botACrashed) botA.crashed++
-        if (event.botBCrashed) botB.crashed++
+        if (event.botACrashed) {
+            botA.crashed++
+            botA.crashesSinceUpdate++
+        }
+        if (event.botBCrashed) {
+            botB.crashed++
+            botB.crashesSinceUpdate++
+        }
     }
 
     @Transactional
@@ -69,8 +75,9 @@ class BotProjections(private val botRepository: BotRepository,
 
     @Transactional
     @EventHandler
-    fun handle(botUpdated: BotBinaryUpdated) {
+    fun onBotUpdated(botUpdated: BotBinaryUpdated) {
         val bot = botRepository.getById(botUpdated.bot.id!!)
         bot.lastUpdated = botUpdated.timestamp
+        bot.crashesSinceUpdate = 0
     }
 }
