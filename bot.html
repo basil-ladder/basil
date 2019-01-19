@@ -131,6 +131,11 @@ permalink: /bot.html
 			});
 		$.getJSON(statsBaseUrl + botName + "/perMapStats.json")
 			.then(function(data) {
+				data.sort(function(a,b) {
+					if (a.map > b.map) return 1;
+					if (a.map < b.map) return -1;
+					return 0;
+				});
 				let labels = data.map(function(a) { return a.map; });
 				let wonData = data.map(function(a) { return a.won; });
 				let lostData = data.map(function(a) { return a.lost; });
