@@ -40,7 +40,13 @@ class GameRunner(private val gameService: GameService,
                 try {
                     phaser.register()
                     while (true) {
-                        gameService.schedule1on1()
+                        if (gameService.canSchedule()) {
+                            gameService.schedule1on1()
+                        } else {
+                            val timeToWait = nextBotUpdateTime - System.currentTimeMillis() + 1
+                            log.info("Something went wrong, pausing $(timeToWait / 1000) secs.")
+                            Thread.sleep(timeToWait)
+                        }
                         if (isTimeToPublish() || isTimeToUpdateBotList()) {
                             phaser.arriveAndAwaitAdvance()
                         }
@@ -69,12 +75,10 @@ class GameRunner(private val gameService: GameService,
         log.info("Updating database...")
         allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
         log.info("done")
-        gameService.candidates = botRepository.findAllByEnabledTrue()
-        if (gameService.candidates.isEmpty()) {
+        gameService.refresh()
+        if (gameService.canSchedule()) {
             log.error("No bots to send to the arena found!")
-            return
         }
-        log.info("${gameService.candidates.size} bots are enabled for BASIL")
         nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
     }
 

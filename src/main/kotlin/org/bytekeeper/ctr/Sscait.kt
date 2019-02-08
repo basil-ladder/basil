@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.Race
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 import java.io.InputStream
 import java.time.Duration
 import java.time.Instant
@@ -20,6 +22,7 @@ import java.time.format.DateTimeFormatter
 @Service
 @Order(2)
 class SscaitSource : BotSource {
+    private val log = LogManager.getLogger()
     private val webClient = WebClient.builder().baseUrl("https://sscaitournament.com/").build()
 
     private var botCache: Map<String, org.bytekeeper.ctr.BotInfo> = emptyMap()
@@ -29,6 +32,10 @@ class SscaitSource : BotSource {
         botCache = webClient.get().uri("api/bots.php")
                 .retrieve()
                 .bodyToFlux<BotInfo>()
+                .onErrorResume { ex ->
+                    log.error("Could not retrieve list of bots!", ex)
+                    Mono.empty()
+                }
                 .collectList()
                 .block()!!
                 .map { it.name to it }.toMap()

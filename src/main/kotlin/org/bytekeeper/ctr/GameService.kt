@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.entity.Bot
+import org.bytekeeper.ctr.entity.BotRepository
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -9,11 +10,19 @@ import java.util.concurrent.ConcurrentHashMap
 @Component
 class GameService(private val scbw: Scbw,
                   private val maps: Maps,
-                  private val botSources: BotSources) {
+                  private val botSources: BotSources,
+                  private val botRepository: BotRepository) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Bot, Bot>()
-    var candidates: List<Bot> = emptyList()
+    private var candidates: List<Bot> = emptyList()
 
+
+    fun refresh() {
+        candidates = botRepository.findAllByEnabledTrue()
+        log.info("$candidates.size} bots are enabled for BASIL")
+    }
+
+    fun canSchedule() = candidates.isNotEmpty()
 
     fun schedule1on1() {
         withLockedBot { botA ->

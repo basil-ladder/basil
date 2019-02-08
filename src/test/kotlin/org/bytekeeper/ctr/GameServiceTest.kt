@@ -5,8 +5,7 @@ import org.bytekeeper.ctr.entity.BotRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.BDDMockito.verify
-import org.mockito.BDDMockito.willReturn
+import org.mockito.BDDMockito.*
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
@@ -47,15 +46,17 @@ class GameServiceTest {
 
     @BeforeEach
     fun setup() {
-        sut = GameService(scbw, Maps(), botSources)
+        sut = GameService(scbw, Maps(), botSources, botRepository)
         willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
         willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
+
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+        sut.refresh()
     }
 
     @Test
     fun `should not setup source-disabled, never received bot`() {
         // GIVEN
-        sut.candidates = listOf(botA, botB)
         botAInfo.disabled = true
         botBInfo.disabled = true
 
@@ -69,7 +70,6 @@ class GameServiceTest {
     @Test
     fun `should not setup source-disabled, but received bot`() {
         // GIVEN
-        sut.candidates = listOf(botA, botB)
         botA.lastUpdated = Instant.MIN
         botB.lastUpdated = Instant.MIN
         botAInfo.disabled = true
@@ -85,7 +85,6 @@ class GameServiceTest {
     @Test
     fun `should schedule game for source-disabled, but locally enabled and available bot`() {
         // GIVEN
-        sut.candidates = listOf(botA, botB)
         botA.lastUpdated = Instant.MIN
         botB.lastUpdated = Instant.MIN
         botAInfo.disabled = true
@@ -101,7 +100,6 @@ class GameServiceTest {
     @Test
     fun `should not schedule game for source-disabled, locally enabled but unavailable bot`() {
         // GIVEN
-        sut.candidates = listOf(botA, botB)
         botAInfo.disabled = true
         botBInfo.disabled = true
 
