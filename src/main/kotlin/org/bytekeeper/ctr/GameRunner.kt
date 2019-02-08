@@ -76,7 +76,7 @@ class GameRunner(private val gameService: GameService,
         allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
         log.info("done")
         gameService.refresh()
-        if (gameService.canSchedule()) {
+        if (!gameService.canSchedule()) {
             log.error("No bots to send to the arena found!")
         }
         nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000

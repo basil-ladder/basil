@@ -19,7 +19,7 @@ class GameService(private val scbw: Scbw,
 
     fun refresh() {
         candidates = botRepository.findAllByEnabledTrue()
-        log.info("$candidates.size} bots are enabled for BASIL")
+        log.info("${candidates.size} bots are enabled for BASIL")
     }
 
     fun canSchedule() = candidates.isNotEmpty()
