@@ -14,6 +14,7 @@ import java.nio.file.StandardCopyOption
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
+import kotlin.concurrent.thread
 
 const val killTimeout = 20L
 const val LOG_LIMIT = 200 * 1024
@@ -144,9 +145,14 @@ class Scbw(private val botRepository: BotRepository,
 //            cmd += "DEBUG"
             if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                    .redirectErrorStream(true)
                     .start()
+            thread(true) {
+                process.inputStream.bufferedReader().use { reader ->
+                    reader.lineSequence().forEach { log.info("$gameName - $it") }
+                }
+            }
+
             try {
                 updateResourceConstraints()
                 val hardTimeLimit = scbwConfig.realtimeTimeoutSeconds + 30L

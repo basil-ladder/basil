@@ -15,29 +15,34 @@ class BotService(private val botRepository: BotRepository,
 
     @Transactional
     fun registerOrUpdateBot(botInfo: BotInfo) {
-        botRepository.findByName(botInfo.name)
-                ?.also { bot ->
-                    bot.enabled = (!botInfo.disabled && bot.lastUpdated?.isBefore(botInfo.lastUpdated) == true
-                            || bot.enabled && bot.lastUpdated != null
-                            && (!botInfo.disabled || Duration.between(botInfo.lastUpdated, Instant.now()).compareTo(config.disableBotSourceDisabledAfter) < 0))
-                    if (bot.enabled) {
-                        bot.disabledReason = null
-                    }
-                    bot.publishRead = botInfo.publishReadDirectory
-                    bot.authorKeyId = botInfo.authorKey
-                } ?: run {
-            log.info("Bot ${botInfo.name} not yet registered, creating it.")
-            val bot = Bot(null,
-                    !botInfo.disabled,
-                    null,
-                    botInfo.name,
-                    botInfo.race,
-                    botInfo.botType,
-                    null,
-                    botInfo.publishReadDirectory,
-                    botInfo.authorKey)
-            botRepository.save(bot)
+        botRepository.findByName(botInfo.name)?.also { updateBot(it, botInfo) } ?: registerBot(botInfo)
+    }
+
+    private fun registerBot(botInfo: BotInfo) {
+        log.info("Bot ${botInfo.name} not yet registered, creating it.")
+        val bot = Bot(null,
+                !botInfo.disabled,
+                null,
+                botInfo.name,
+                botInfo.race,
+                botInfo.botType,
+                null,
+                botInfo.publishReadDirectory,
+                botInfo.authorKey)
+        botRepository.save(bot)
+    }
+
+    private fun updateBot(bot: Bot, botInfo: BotInfo) {
+        val enabledInSourceAndUpdated = !botInfo.disabled && botInfo.lastUpdated.isAfter(bot.lastUpdated ?: Instant.MIN)
+        val locallyEnabledAndBinaryAvailable = bot.enabled && bot.lastUpdated != null
+        val enabledInSourceOrRecentlyDisabled = !botInfo.disabled || Duration.between(botInfo.lastUpdated, Instant.now()).compareTo(config.disableBotSourceDisabledAfter) < 0
+        bot.enabled = enabledInSourceAndUpdated
+                || locallyEnabledAndBinaryAvailable && enabledInSourceOrRecentlyDisabled
+        if (bot.enabled) {
+            bot.disabledReason = null
         }
+        bot.publishRead = botInfo.publishReadDirectory
+        bot.authorKeyId = botInfo.authorKey
     }
 
     @Transactional

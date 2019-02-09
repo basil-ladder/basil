@@ -51,7 +51,7 @@ class BasilSource(private val config: Config,
             Files.delete(path)
         }
         lastDownload.clear()
-        botCache.values.forEach { botInfo ->
+        botCache.values.parallelStream().forEach { botInfo ->
             try {
                 val lastUpdate = basilBotService.lastUpdateOf(botInfo.name)
                 downloadToCache(botInfo, lastUpdate)
@@ -130,7 +130,9 @@ class BasilSource(private val config: Config,
             return null
         }
         log.info("Successfully downloaded ${botInfo.name} to '$tempFile'.")
-        lastDownload[botInfo.name] = tempFile
+        synchronized(lastDownload) {
+            lastDownload[botInfo.name] = tempFile
+        }
         return tempFile
     }
 

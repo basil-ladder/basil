@@ -74,11 +74,25 @@ class BotServiceTest {
     }
 
     @Test
+    fun `should enable bot if locally disabled and never updated but enabled and updated in source`() {
+        // GIVEN
+        botA.enabled = false
+        botAInfo.lastUpdated = Instant.MAX
+
+        // WHEN
+        sut.registerOrUpdateBot(botAInfo)
+
+        // THEN
+        assertThat(botA).hasFieldOrPropertyWithValue("enabled", true)
+        assertThat(botA).hasFieldOrPropertyWithValue("disabledReason", null)
+    }
+
+    @Test
     fun `should not enable bot if locally disabled and source is enabled but not updated`() {
         // GIVEN
         botA.enabled = false
         botAInfo.lastUpdated = Instant.now()
-        botA.lastUpdated = botA.lastUpdated
+        botA.lastUpdated = botAInfo.lastUpdated
 
         // WHEN
         sut.registerOrUpdateBot(botAInfo)
