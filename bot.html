@@ -8,7 +8,7 @@ permalink: /bot.html
 	<hr>
 	{{#if won}}
 	<div class="row">
-	<div class="col-3 row">
+	<div class="col-6 row">
 	<div class="col-1">
 	<i class="fas fa-trophy"></i>
 	{{won}}
@@ -23,6 +23,9 @@ permalink: /bot.html
 	</div>
 	<div class="col-1">
 	ELO: {{rating}}
+	</div>
+	<div class="col-2">
+	max-ELO: {{maxElo}}
 	</div>
 	</div>
 	</div>
@@ -39,7 +42,7 @@ permalink: /bot.html
 	<div class="col-1">
 	Disabled:
 	</div>
-	<div class="col-5">
+	<div class="col-3">
 	{{disabledReason}}
 	</div>
 	</div>
@@ -54,8 +57,9 @@ permalink: /bot.html
 		let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
 		let source = $("#headerTemplate").html();
 		let template = Handlebars.compile(source);
+		let myData;
 		$("#botName").append(template({botName: botName}));
-		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json")
+		$.getJSON(statsBaseUrl + "ranking.json")
 			.then(function(data) {
 				data.sort(function(a,b) { 
 					if (a.rating !== b.rating) return b.rating - a.rating; 
@@ -71,7 +75,8 @@ permalink: /bot.html
 					topBots[myIndex] = tmp;
 				}
 				$("#botName").empty();
-				let myData = data.filter(function(a) { return a.botName === botName; })[0];
+				myData = data.filter(function(a) { return a.botName === botName; })[0];
+				myData.maxElo = "-";
 				if (!myData.enabled) myData.disabledReason = myData.disabledReason || "Disabled on SSCAIT/locally";
 				$("#botName").append(template(myData));
 				return $.when.apply($, topBots.map(function(bot) {
@@ -89,6 +94,15 @@ permalink: /bot.html
 				];
 				let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)).reverse();
 				let startSeconds = (Date.now() / 1000) - 30 * 86400;
+				let maxElo = 0;
+				let myElos = args[0].data;
+				for (i = 0; i < myElos.length; i++) {
+					maxElo = Math.max(maxElo, myElos[i].rating);
+				}
+
+				$("#botName").empty();
+				myData.maxElo = maxElo;
+				$("#botName").append(template(myData));
 				let datasets = args.map(function(bot, i) {
 					function filter(data) {
 						let chartData = [];
