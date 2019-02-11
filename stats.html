@@ -40,6 +40,7 @@ title: Stats
 	<th>Race</th>
 	<th>Won</th>
 	<th>Lost</th>
+	<th>% Win</th>
 	{{#each this}}
 	<th class="cap race_{{@key}}">{{@key}}</th>
 	{{/each}}
@@ -50,6 +51,7 @@ title: Stats
 	<th class="cap race_{{race}}">{{race}}</th>
 	<td>{{won}}</td>
 	<td>{{lost}}</td>
+	<td>{{winRate}}</td>
 	<td>{{vsrow.terran}}</td>
 	<td>{{vsrow.protoss}}</td>
 	<td>{{vsrow.zerg}}</td>
@@ -66,6 +68,7 @@ title: Stats
 		let crossTableTemplateSource = $("#raceCrossTableTemplate").html();
 		let crossTableTemplate = Handlebars.compile(crossTableTemplateSource);
 		let numberFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigis: 2}).format;
+		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1}).format;
 		Handlebars.registerHelper("time", function(v) { return numberFormat(v); });
 
 		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
@@ -82,6 +85,11 @@ title: Stats
 					if (typeof crossTableData[e] !== "undefined") crossTableData[e].lost += row[e];
 				}
 			}
+			for (let key in crossTableData) {
+				let row = crossTableData[key];
+				row.winRate = (row.won + row.lost) > 0 ? percentFormat(row.won / (row.won + row.lost)) : "-";
+			}
+
 			let crossTable = crossTableTemplate(crossTableData);
 			$("#crossTable").append(crossTable);
 		});
