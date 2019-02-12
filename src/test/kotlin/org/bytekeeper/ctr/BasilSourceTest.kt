@@ -23,6 +23,7 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Instant
 import java.util.zip.ZipInputStream
 import kotlin.streams.asSequence
 
@@ -162,5 +163,18 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
         assertThrows<FailedToDownloadBot> {
             sut.downloadBwapiDLL(botInfo)
         }
+    }
+
+    @Test
+    fun `should not set good lastUpdated on error`() {
+        // GIVEN
+        val botInfo = sut.botInfoOf("testBot")!!
+        bufferProvider = { Mono.error(FailedToDownloadBot("No wai")) }
+
+        // WHEN, THEN
+        sut.refresh()
+        assertThat(sut.botInfoOf("testBot"))
+                .extracting { it?.lastUpdated }
+                .isEqualTo(Instant.MIN)
     }
 }

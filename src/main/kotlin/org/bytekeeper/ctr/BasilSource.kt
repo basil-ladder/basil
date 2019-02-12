@@ -147,7 +147,7 @@ class BasilSource(private val config: Config,
                   val raceValue: String,
                   override val botType: String) : org.bytekeeper.ctr.BotInfo {
         @JsonIgnore
-        override var lastUpdated: Instant = Instant.now()
+        override var lastUpdated: Instant = Instant.MIN
         @JsonIgnore
         override val clearReadDirectory: Boolean = false
 
