@@ -10,7 +10,7 @@ import java.net.URI
 
 @Component
 @Scope("prototype")
-class RedirectingWebClient() {
+class RedirectingWebClient {
     private val webClient = WebClient.create()
     private val MAX_REDIRECTS = 5
 

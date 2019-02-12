@@ -6,9 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties
-class Basil {
-
-}
+class Basil
 
 fun main(args: Array<String>) {
     SpringApplication.run(Basil::class.java, *args)

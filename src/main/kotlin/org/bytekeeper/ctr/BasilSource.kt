@@ -21,6 +21,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.stream.Collectors
 import java.util.zip.ZipError
 import kotlin.streams.asSequence
 
@@ -32,30 +33,29 @@ class BasilSource(private val config: Config,
     private val HEX_CHARS = "0123456789ABCDEF".toCharArray()
     private val log = LogManager.getLogger()
     private var botCache = emptyMap<String, BotInfo>()
-    private val lastDownload = mutableMapOf<String, Path>()
+    private var lastDownload = mapOf<String, Path>()
     private val mapper = jacksonObjectMapper()
 
     override fun allBotInfos(): List<BotInfo> = botCache.values.toList()
 
     override fun refresh() {
-        try {
-            botCache = mapper.readValue<List<BotInfo>>(config.basilBotSource.toFile())
+        botCache = try {
+            mapper.readValue<List<BotInfo>>(config.basilBotSource.toFile())
                     .map { it.name to it }
                     .toMap()
         } catch (e: java.lang.Exception) {
             log.error("Could not update bot cache (File format ok?)", e)
-            botCache = emptyMap()
+            emptyMap()
         }
         val now = Instant.now()
         lastDownload.values.forEach { path ->
             Files.delete(path)
         }
-        lastDownload.clear()
-        botCache.values.parallelStream().forEach { botInfo ->
-            try {
-                val lastUpdate = basilBotService.lastUpdateOf(botInfo.name)
-                downloadToCache(botInfo, lastUpdate)
-                        ?.let { cachedFile ->
+        lastDownload = botCache.values.parallelStream().map { botInfo ->
+            val path = try {
+                val lastUpdated = basilBotService.lastUpdateOf(botInfo.name)
+                downloadToCache(botInfo, lastUpdated)
+                        ?.also { cachedFile ->
                             val md = MessageDigest.getInstance("MD5")
                             Files.newInputStream(cachedFile)
                                     .use {
@@ -66,18 +66,22 @@ class BasilSource(private val config: Config,
                                             bytes = it.read(buffer)
                                         }
                                     }
-                            val updated = basilBotService.update(botInfo.name, md.digest().map { byte ->
+                            val updated = basilBotService.update(botInfo.name, md.digest().joinToString("") { byte ->
                                 val v = byte.toInt()
                                 val a = HEX_CHARS[(v and 0xF0) ushr 4]
                                 val b = HEX_CHARS[v and 0x0F]
                                 "$a$b"
-                            }.joinToString(""), now)
+                            }, now)
                             botInfo.lastUpdated = updated
                         }
             } catch (e: Exception) {
                 log.error("Couldn't download ${botInfo.name}", e)
+                null
             }
-        }
+            if (path == null) null else botInfo.name to path
+        }.collect(Collectors.toList())
+                .filterNotNull()
+                .toMap()
     }
 
     override fun downloadBinary(info: org.bytekeeper.ctr.BotInfo): InputStream? {
@@ -130,9 +134,6 @@ class BasilSource(private val config: Config,
             return null
         }
         log.info("Successfully downloaded ${botInfo.name} to '$tempFile'.")
-        synchronized(lastDownload) {
-            lastDownload[botInfo.name] = tempFile
-        }
         return tempFile
     }
 

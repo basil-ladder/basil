@@ -35,7 +35,7 @@ class BotService(private val botRepository: BotRepository,
     private fun updateBot(bot: Bot, botInfo: BotInfo) {
         val enabledInSourceAndUpdated = !botInfo.disabled && botInfo.lastUpdated.isAfter(bot.lastUpdated ?: Instant.MIN)
         val locallyEnabledAndBinaryAvailable = bot.enabled && bot.lastUpdated != null
-        val enabledInSourceOrRecentlyDisabled = !botInfo.disabled || Duration.between(botInfo.lastUpdated, Instant.now()).compareTo(config.disableBotSourceDisabledAfter) < 0
+        val enabledInSourceOrRecentlyDisabled = !botInfo.disabled || Duration.between(botInfo.lastUpdated, Instant.now()) < config.disableBotSourceDisabledAfter
         bot.enabled = enabledInSourceAndUpdated
                 || locallyEnabledAndBinaryAvailable && enabledInSourceOrRecentlyDisabled
         if (bot.enabled) {
