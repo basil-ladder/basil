@@ -32,6 +32,11 @@ title: Stats
 		<th>Avg. playtime (realtime)</th>
 		<td>{{time averageGameRealtime}} seconds</td>
 		</tr>
+		<tr>
+		<th>Next bot update</th>
+		<td>{{nextUpdateTime}}</td>
+		</tr>
+		<tr>
 		{% endraw %}
 </script>
 <script id="raceCrossTableTemplate" type="text/x-handlebars-template">
@@ -72,6 +77,7 @@ title: Stats
 		Handlebars.registerHelper("time", function(v) { return numberFormat(v); });
 
 		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
+			data.nextUpdateTime = new Date(data.nextUpdateTime).toLocaleString();
 			let rowsHtml = rowTemplate(data);
 			$("#statsTable tbody").append(rowsHtml);
 			let crossTableData = data.raceCrossTable;
