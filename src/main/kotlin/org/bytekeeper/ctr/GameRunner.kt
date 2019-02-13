@@ -20,7 +20,8 @@ class GameRunner(private val gameService: GameService,
     private val log = LogManager.getLogger()
 
     private var nextPublishTime: Long = System.currentTimeMillis() + config.publishTimer * 60 * 1000
-    private var nextBotUpdateTime: Long = 0
+    var nextBotUpdateTime: Long = 0
+        protected set
     private val phaser = object : Phaser() {
         override fun onAdvance(phase: Int, registeredParties: Int): Boolean {
             if (isTimeToPublish()) publish()

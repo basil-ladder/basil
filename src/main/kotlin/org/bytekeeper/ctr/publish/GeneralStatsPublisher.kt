@@ -2,6 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.bytekeeper.ctr.CommandHandler
+import org.bytekeeper.ctr.GameRunner
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.entity.BotRepository
@@ -11,8 +12,9 @@ import org.springframework.stereotype.Component
 
 
 @Component
-class GeneralStatsPublisher(private val gameResultRepository: GameResultRepository,
-                            private val botsRepository: BotRepository,
+class GeneralStatsPublisher(private val gameRunner: GameRunner,
+                            private val gameResultRepository: GameResultRepository,
+                            private val botRepository: BotRepository,
                             private val publisher: Publisher) {
     @CommandHandler
     fun handle(command: PreparePublish) {
@@ -27,11 +29,12 @@ class GeneralStatsPublisher(private val gameResultRepository: GameResultReposito
                             vsRow(Race.RANDOM))
 
                     writer.writeValue(it,
-                            PublishedStats(gameResultRepository.count(),
-                                    botsRepository.countByRace(Race.TERRAN),
-                                    botsRepository.countByRace(Race.ZERG),
-                                    botsRepository.countByRace(Race.PROTOSS),
-                                    botsRepository.countByRace(Race.RANDOM),
+                            PublishedStats(gameRunner.nextBotUpdateTime,
+                                    gameResultRepository.count(),
+                                    botRepository.countByRace(Race.TERRAN),
+                                    botRepository.countByRace(Race.ZERG),
+                                    botRepository.countByRace(Race.PROTOSS),
+                                    botRepository.countByRace(Race.RANDOM),
                                     gameResultRepository.countByBotACrashedIsTrueOrBotBCrashedIsTrue(),
                                     gameResultRepository.averageGameRealtime(),
                                     raceCrossCable
@@ -45,7 +48,8 @@ class GeneralStatsPublisher(private val gameResultRepository: GameResultReposito
                     gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.ZERG),
                     gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.RANDOM))
 
-    class PublishedStats(val gamesPlayed: Long,
+    class PublishedStats(val nextUpdateTime: Long,
+                         val gamesPlayed: Long,
                          val terranBots: Int,
                          val zergBots: Int,
                          val protossBots: Int,
