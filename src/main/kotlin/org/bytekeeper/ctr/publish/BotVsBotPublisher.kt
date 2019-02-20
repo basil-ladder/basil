@@ -21,7 +21,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
         publisher.globalStatsWriter("botVsBot.json")
                 .use { out ->
                     writer.writeValue(out, PublishedBotVsBot(
-                            sortedBotList.map { PublishedBotinfo(it.name, it.race?.name, it.enabled) },
+                            sortedBotList.map { PublishedBotinfo(it.name, it.race?.name, it.rating, it.enabled) },
                             wonGames
                                     .map { PublishedBotVsBotStat(it.botA.name, it.botB.name, it.won) }
                     ))
@@ -30,10 +30,10 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
                 .use { out ->
                     val wonMap = wonGames.map { Coord(it.botA.name, it.botB.name) to it.won }.toMap()
 
-                    out.append((listOf("Bot") + sortedBotList.map { it.name }).joinToString(", "))
+                    out.append((listOf("Bot", "ELO") + sortedBotList.map { it.name }).joinToString(", "))
                     out.newLine()
                     for (botA in sortedBotList) {
-                        val row = (listOf(botA.name) + sortedBotList.map { botB ->
+                        val row = (listOf(botA.name, botA.rating) + sortedBotList.map { botB ->
                             wonMap[Coord(botA.name, botB.name)] ?: "0"
                         })
                                 .joinToString(", ")
@@ -45,7 +45,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
     }
 
     data class Coord(val botA: String, val botB: String)
-    class PublishedBotinfo(val name: String, val race: String?, val enabled: Boolean)
+    class PublishedBotinfo(val name: String, val race: String?, val rating: Int, val enabled: Boolean)
     class PublishedBotVsBotStat(val winner: String, val loser: String, val won: Long)
     class PublishedBotVsBot(val botinfos: List<PublishedBotinfo>, val botVsBotStat: List<PublishedBotVsBotStat>)
 }

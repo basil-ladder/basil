@@ -56,11 +56,30 @@ class BotVsBotPublisherTest {
 
         // THEN
         assertThat(csvWriter.toString()).isEqualTo("""
-            Bot, botC, botB, botA
-            botC, 0, 0, 10
-            botB, 11, 0, 0
-            botA, 0, 12, 0
+            Bot, ELO, botC, botB, botA
+            botC, 3000, 0, 0, 10
+            botB, 2000, 11, 0, 0
+            botA, 1000, 0, 12, 0
 
             """.trimIndent())
+    }
+
+    @Test
+    fun `should publish crosstable info`() {
+        // GIVEN
+        given(gameResultRepository.listBotVsBotWonGames()).willReturn(
+                listOf(
+                        BotVsBotWonGames(botA, botB, 12L),
+                        BotVsBotWonGames(botB, botC, 11L),
+                        BotVsBotWonGames(botC, botA, 10L)
+                )
+        )
+
+        // WHEN
+        sut.handle(PreparePublish())
+
+        // THEN
+        assertThat(jsonWriter.toString()).isEqualTo(
+                """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true},{"name":"botB","race":null,"rating":2000,"enabled":true},{"name":"botA","race":null,"rating":1000,"enabled":true}],"botVsBotStat":[{"winner":"botA","loser":"botB","won":12},{"winner":"botB","loser":"botC","won":11},{"winner":"botC","loser":"botA","won":10}]}""")
     }
 }
