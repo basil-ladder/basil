@@ -7,9 +7,9 @@
         <RollingFile name="Rolling" fileName="log/basil.log" filePattern="log/basil-%i.log.gz">
             <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="1MB"/>
+                <SizeBasedTriggeringPolicy size="5MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="5"/>
+            <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <Async name="Async">
             <AppenderRef ref="Console"/>
