@@ -7,7 +7,9 @@ title: Crosstable
 <table class="tiny crosstable">
 <thead>
 	<tr>
+		<th style="max-width: 1em; min-width: 1em;">#</th>
 		<th style="max-width: 116px; min-width: 116px;">Bot</th>
+		<th style="max-width: 3em; min-width: 3em;">ELO</th>
 		{{#each bots}}
 		<th class="{{racecol race}}">{{ name }}</th>
 		{{/each}}
@@ -16,7 +18,9 @@ title: Crosstable
 <tbody>
 	{{#each bots as |botA|}}
 	<tr class="highlight">
+		<th>{{inc @index}}</th>
 		<th class="{{racecol race}}">{{ name }}</th>
+		<th>{{ rating }}</th>
 		{{#each @root.bots as |botB|}}
 		{{#with (lookup (lookup @root.stats botA.name) botB.name)}}
 		{{#unless self}}
@@ -70,6 +74,11 @@ title: Crosstable
 			}
 
 			let table = {bots: recv.botinfos, stats: stats}
+			table.bots.sort(function(a,b) {
+				if (a.enabled && !b.enabled) return -1;
+				if (!a.enabled && b.enabled) return 1;
+				return b.rating - a.rating; 
+			});
 			let html = template(table);
 			let htmlTable = $("#tablePlaceholder");
 			htmlTable.append(html);
