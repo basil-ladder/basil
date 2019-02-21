@@ -58,7 +58,6 @@ permalink: /bot.html
 		let source = $("#headerTemplate").html();
 		let template = Handlebars.compile(source);
 		let myData;
-		let eloChart;
 		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format
 		$("#botName").append(template({botName: botName}));
 		$.getJSON(statsBaseUrl + "ranking.json")
@@ -95,7 +94,6 @@ permalink: /bot.html
 					"rgba(200, 200, 200, 0.4)",
 				];
 				let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments)).reverse();
-				let startSeconds = (Date.now() / 1000) - 30 * 86400;
 				let maxElo = 0;
 				let myElos = args[0].data;
 				for (i = 0; i < myElos.length; i++) {
@@ -105,29 +103,41 @@ permalink: /bot.html
 				$("#botName").empty();
 				myData.maxElo = maxElo;
 				$("#botName").append(template(myData));
-				let datasets = args.map(function(bot, i) {
-					function filter(data) {
-						let chartData = [];
-						let lastSecond = 0;
-						for (i = 0; i < data.length; i++) {
-							let entry = data[i];
-							if (entry.epochSecond >= startSeconds && entry.epochSecond - lastSecond >= 43200) {
-								chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
-								lastSecond = entry.epochSecond;
-							}
-						}
-						return chartData;
-					}
-					return {
-						label: unescape(bot.name),
-						fill: false,
-						borderColor: colors[i],
-						data: filter(bot.data)
 
-					};
-				});
+				let now = Date.now() / 1000;
+				let selectedRange = { startSecond:  now - 30 * 86400, endSecond: now };
+				function prepareDataSets() {
+					let startSecond = selectedRange.startSecond;
+					let endSecond = selectedRange.endSecond;
+					if (typeof startSecond === "undefined" || typeof endSecond === "undefined" || startSecond >= endSecond)
+						return {label: unescape(bot.name), fill: false, data: []};
+					let secondsToAggregate = (endSecond - startSecond) / 60;
+					return args.map(function(bot, i) {
+						function filter(data) {
+							let chartData = [];
+							let lastSecond = 0;
+							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
+								let entry = data[i];
+								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond && entry.epochSecond - lastSecond >= secondsToAggregate) {
+									chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
+									lastSecond = entry.epochSecond;
+								}
+							}
+							return chartData;
+						}
+						return {
+							label: unescape(bot.name),
+							fill: false,
+							borderColor: colors[i],
+							data: filter(bot.data)
+
+						};
+					});
+				}
+
+				let datasets = prepareDataSets();
 				let ctx = document.getElementById("eloChart");
-				eloChart = new Chart(ctx, {
+				let eloChart = new Chart(ctx, {
 					type: "line",
 					data: {
 						datasets: datasets
@@ -143,7 +153,23 @@ permalink: /bot.html
 						}
 					}
 				});
+				$("#startDate").flatpickr({
+      					defaultDate: new Date(now * 1000 - 30 * 86400),
+					onChange: function(selectedDates) {
+						selectedRange.startSecond = selectedDates[0].getTime() / 1000;
+						eloChart.data.datasets = prepareDataSets();
+						eloChart.update();
+					}
+      				});
+				$("#endDate").flatpickr({
+					defaultDate: new Date(now * 1000),
+					onChange: function(selectedDates) {
+						selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
+						eloChart.data.datasets = prepareDataSets();
+						eloChart.update();
+					}
 
+				});
 			});
 		$.getJSON(statsBaseUrl + botName + "/perMapStats.json")
 			.then(function(data) {
@@ -194,7 +220,6 @@ permalink: /bot.html
 							}
 						}
 					}
-
 				});
 
 			});
@@ -202,6 +227,12 @@ permalink: /bot.html
 </script>
 <div id="botName"></div>
 <h2>ELO</h2>
+<form>
+	<label for="startDate">Start</label>
+	<input id="startDate" type="text" readonly="readonly">
+	<label for="endDate">End</label>
+	<input id="endDate" type="text" readonly="readonly">
+</form>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
 <h2>Wins Per Map</h2>
