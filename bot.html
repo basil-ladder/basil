@@ -228,10 +228,16 @@ permalink: /bot.html
 <div id="botName"></div>
 <h2>ELO</h2>
 <form>
+<div class="row">
+	<div class="col-1">
 	<label for="startDate">Start</label>
-	<input id="startDate" type="text" readonly="readonly">
+	<input style="width: 6em; text-align: right;" id="startDate" type="text" readonly="readonly">
+	</div>
+	<div class="col-1">
 	<label for="endDate">End</label>
-	<input id="endDate" type="text" readonly="readonly">
+	<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
+	</div>
+</div>
 </form>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
