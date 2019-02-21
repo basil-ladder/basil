@@ -58,6 +58,8 @@ permalink: /bot.html
 		let source = $("#headerTemplate").html();
 		let template = Handlebars.compile(source);
 		let myData;
+		let eloChart;
+		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format
 		$("#botName").append(template({botName: botName}));
 		$.getJSON(statsBaseUrl + "ranking.json")
 			.then(function(data) {
@@ -125,7 +127,7 @@ permalink: /bot.html
 					};
 				});
 				let ctx = document.getElementById("eloChart");
-				new Chart(ctx, {
+				eloChart = new Chart(ctx, {
 					type: "line",
 					data: {
 						datasets: datasets
@@ -179,6 +181,17 @@ permalink: /bot.html
 							yAxes: [{
 								stacked: true
 							}]
+						},
+						tooltips: {
+							mode: "index",
+							callbacks: {
+								footer: function(tooltipItems, data) {
+									let wins = tooltipItems[0].yLabel;
+									let losses = tooltipItems[1].yLabel;
+									let wr = wins / Math.max(1, wins + losses);
+									return "WR: " + percentFormat(wr);
+								}
+							}
 						}
 					}
 
