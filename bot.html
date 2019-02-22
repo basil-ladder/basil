@@ -154,7 +154,7 @@ permalink: /bot.html
 					}
 				});
 				$("#startDate").flatpickr({
-      					defaultDate: new Date(now * 1000 - 30 * 86400),
+      					defaultDate: new Date(selectedRange.startSecond * 1000),
 					onChange: function(selectedDates) {
 						selectedRange.startSecond = selectedDates[0].getTime() / 1000;
 						eloChart.data.datasets = prepareDataSets();
@@ -162,7 +162,7 @@ permalink: /bot.html
 					}
       				});
 				$("#endDate").flatpickr({
-					defaultDate: new Date(now * 1000),
+					defaultDate: new Date(selectedRange.endSecond * 1000),
 					onChange: function(selectedDates) {
 						selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
 						eloChart.data.datasets = prepareDataSets();
