@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.Maps
 import org.bytekeeper.ctr.PreparePublish
@@ -15,6 +16,7 @@ class PerMapWinRatePublisher(private val botRepository: BotRepository,
                              private val publisher: Publisher,
                              private val maps: Maps) {
     @CommandHandler
+    @Timed
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 

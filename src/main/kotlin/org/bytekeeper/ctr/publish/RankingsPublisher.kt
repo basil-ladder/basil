@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.BotSources
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
@@ -14,6 +15,7 @@ class RankingsPublisher(private val publisher: Publisher,
                         private val botSources: BotSources) {
 
     @CommandHandler
+    @Timed
     fun handle(preparePublish: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 

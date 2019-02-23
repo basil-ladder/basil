@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
@@ -14,6 +15,7 @@ class EloPublisher(private val botEloRepository: BotEloRepository,
                    private val publisher: Publisher) {
 
     @CommandHandler
+    @Timed
     fun handle(preparePublish: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 

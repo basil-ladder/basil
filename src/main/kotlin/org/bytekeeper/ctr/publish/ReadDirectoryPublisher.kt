@@ -1,5 +1,6 @@
 package org.bytekeeper.ctr.publish
 
+import io.micrometer.core.annotation.Timed
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.Bot
@@ -15,6 +16,7 @@ class ReadDirectoryPublisher(private val botRepository: BotRepository,
     private val log = LogManager.getLogger()
 
     @CommandHandler
+    @Timed
     fun handle(command: PreparePublish) {
         val relevantUpdateTime = Instant.now().minusSeconds(86400)
         botRepository.findAllByEnabledTrueAndPublishReadTrue()

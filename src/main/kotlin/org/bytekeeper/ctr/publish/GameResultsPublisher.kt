@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
@@ -14,6 +15,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                            private val config: Config) {
 
     @CommandHandler
+    @Timed
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
