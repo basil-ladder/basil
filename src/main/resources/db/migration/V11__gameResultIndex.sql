@@ -1,1 +1,0 @@
-CREATE INDEX time_index ON game_result (time);

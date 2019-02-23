@@ -41,7 +41,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
                         val row = (listOf(botA.name, botA.rating) + sortedBotList.map { botB ->
                             wonMap[Coord(botA.name, botB.name)] ?: "0"
                         })
-                                .joinToString(", ")
+                                .joinToString()
                         out.append(row)
                         out.newLine()
                     }
