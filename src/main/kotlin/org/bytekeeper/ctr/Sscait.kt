@@ -3,7 +3,7 @@ package org.bytekeeper.ctr
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Race
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType

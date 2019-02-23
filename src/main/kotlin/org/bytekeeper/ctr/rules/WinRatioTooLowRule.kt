@@ -3,7 +3,7 @@ package org.bytekeeper.ctr.rules
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.BotService
 import org.bytekeeper.ctr.Config
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Service
 import kotlin.math.max
 

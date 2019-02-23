@@ -2,8 +2,8 @@ package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.EloUpdated
 import org.bytekeeper.ctr.EventHandler
-import org.bytekeeper.ctr.entity.BotElo
-import org.bytekeeper.ctr.entity.BotEloRepository
+import org.bytekeeper.ctr.repository.BotElo
+import org.bytekeeper.ctr.repository.BotEloRepository
 import org.springframework.stereotype.Component
 import javax.transaction.Transactional
 

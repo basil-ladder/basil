@@ -3,9 +3,9 @@ package org.bytekeeper.ctr.publish
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotVsBotWonGames
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotVsBotWonGames
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

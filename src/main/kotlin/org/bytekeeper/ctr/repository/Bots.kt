@@ -1,5 +1,6 @@
-package org.bytekeeper.ctr.entity
+package org.bytekeeper.ctr.repository
 
+import io.micrometer.core.annotation.Timed
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
@@ -37,13 +38,20 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var lost: Int = 0)
 
 interface BotRepository : CrudRepository<Bot, Long> {
+    @Timed
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun getById(id: Long): Bot
 
+    @Timed
     fun findByName(name: String): Bot?
 
+    @Timed
     fun findAllByEnabledTrue(): List<Bot>
+
+    @Timed
     fun findAllByEnabledTrueAndPublishReadTrue(): List<Bot>
+
+    @Timed
     fun countByRace(race: Race): Int
 }
 
@@ -59,5 +67,6 @@ fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
 
 
 interface BotEloRepository : CrudRepository<BotElo, Long> {
+    @Timed
     fun findAllByBot(bot: Bot): List<BotElo>
 }

@@ -1,9 +1,9 @@
 package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.GameResult
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.GameResult
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 import javax.transaction.Transactional
 

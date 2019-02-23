@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotRepository
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.Race
 import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.nio.file.Path

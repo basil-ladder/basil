@@ -1,15 +1,18 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 
 @Component
 class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
                         private val publisher: Publisher) {
+    private val log = LogManager.getLogger()
+
     @CommandHandler
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()

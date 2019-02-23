@@ -2,7 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.temporal.ChronoUnit

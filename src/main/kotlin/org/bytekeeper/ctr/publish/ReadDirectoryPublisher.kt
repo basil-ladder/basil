@@ -2,8 +2,8 @@ package org.bytekeeper.ctr.publish
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.time.Instant

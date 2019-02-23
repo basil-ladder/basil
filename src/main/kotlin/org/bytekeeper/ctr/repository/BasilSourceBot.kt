@@ -1,5 +1,6 @@
-package org.bytekeeper.ctr.entity
+package org.bytekeeper.ctr.repository
 
+import io.micrometer.core.annotation.Timed
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import javax.persistence.Entity
@@ -13,5 +14,6 @@ class BasilSourceBot(@Id @GeneratedValue var id: Long? = null,
                      var hash: String)
 
 interface BasilSourceBotRepository : CrudRepository<BasilSourceBot, Long> {
+    @Timed
     fun findByName(name: String): BasilSourceBot?
 }

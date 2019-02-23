@@ -1,8 +1,8 @@
 package org.bytekeeper.ctr
 
 import org.assertj.core.api.Assertions.assertThat
-import org.bytekeeper.ctr.entity.BasilSourceBot
-import org.bytekeeper.ctr.entity.BasilSourceBotRepository
+import org.bytekeeper.ctr.repository.BasilSourceBot
+import org.bytekeeper.ctr.repository.BasilSourceBotRepository
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito.given

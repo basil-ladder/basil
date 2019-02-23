@@ -4,8 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.entity.BotEloRepository
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.BotEloRepository
+import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Component
 
 @Component

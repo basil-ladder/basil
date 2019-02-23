@@ -1,7 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.Bot
+import org.bytekeeper.ctr.repository.Bot
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory

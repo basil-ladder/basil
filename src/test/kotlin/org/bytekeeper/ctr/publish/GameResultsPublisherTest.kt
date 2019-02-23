@@ -2,10 +2,10 @@ package org.bytekeeper.ctr.publish
 
 import org.assertj.core.api.Assertions
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.GameResult
-import org.bytekeeper.ctr.entity.GameResultRepository
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.GameResult
+import org.bytekeeper.ctr.repository.GameResultRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

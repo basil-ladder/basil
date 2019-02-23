@@ -5,7 +5,7 @@ import org.bytekeeper.ctr.BotSources
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Component
 
 @Component

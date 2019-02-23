@@ -1,9 +1,9 @@
 package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.BotRepository
-import org.bytekeeper.ctr.entity.getBotsForUpdate
 import org.bytekeeper.ctr.math.Elo
+import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.getBotsForUpdate
 import org.springframework.stereotype.Component
 import java.time.Instant
 import javax.transaction.Transactional

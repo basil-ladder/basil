@@ -1,6 +1,6 @@
 package org.bytekeeper.ctr
 
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Race
 import org.springframework.stereotype.Service
 import java.io.InputStream
 import java.time.Instant

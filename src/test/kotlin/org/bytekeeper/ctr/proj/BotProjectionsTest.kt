@@ -2,8 +2,8 @@ package org.bytekeeper.ctr.proj
 
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

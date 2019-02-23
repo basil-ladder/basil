@@ -1,8 +1,8 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.Instant

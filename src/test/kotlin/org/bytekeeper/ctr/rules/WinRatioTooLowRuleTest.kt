@@ -2,11 +2,11 @@ package org.bytekeeper.ctr.rules
 
 import org.bytekeeper.ctr.BotService
 import org.bytekeeper.ctr.Config
-import org.bytekeeper.ctr.entity.Bot
-import org.bytekeeper.ctr.entity.BotStat
-import org.bytekeeper.ctr.entity.GameResultRepository
 import org.bytekeeper.ctr.eq
 import org.bytekeeper.ctr.mock
+import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotStat
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.atLeastOnce

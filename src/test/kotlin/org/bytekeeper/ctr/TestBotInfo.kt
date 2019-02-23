@@ -1,6 +1,6 @@
 package org.bytekeeper.ctr
 
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Race
 import java.time.Instant
 
 class TestBotInfo : BotInfo {

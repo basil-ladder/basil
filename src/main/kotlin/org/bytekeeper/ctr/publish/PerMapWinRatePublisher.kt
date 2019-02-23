@@ -5,8 +5,8 @@ import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.Maps
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.entity.BotRepository
-import org.bytekeeper.ctr.entity.GameResultRepository
+import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 
 @Component

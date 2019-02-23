@@ -1,7 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.BotRepository
+import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.rules.WinRatioTooLowRule
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component

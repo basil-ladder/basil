@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.entity.Race
+import org.bytekeeper.ctr.repository.Race
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils

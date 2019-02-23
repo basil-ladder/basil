@@ -33,11 +33,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
     implementation(group = "org.postgresql", name = "postgresql", version = "42.2.5")
     implementation("org.flywaydb:flyway-core")
     implementation("org.apache.commons:commons-compress:1.18")
     implementation("org.tukaani:xz:1.8")
+    implementation("io.micrometer:micrometer-registry-influx")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
