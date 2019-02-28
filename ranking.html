@@ -90,7 +90,7 @@ title: Ranking
 					data[i].winRate = "-";
 				}
 				if (played < 30) data[i].rating = null;
-				if (data[i].lastUpdated) data[i].lastUpdated = basil.formatDate(data[i].lastUpdated);
+				if (data[i].lastUpdated) data[i].lastUpdated = basil.formatDateTime(data[i].lastUpdated);
 				data[i].anchorName = encodeURIComponent(data[i].botName);
 				data[i].showDisabled = !data[i].enabled && (data[i].won > 0 || data[i].lost > 0);
 				data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";

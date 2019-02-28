@@ -35,7 +35,7 @@ title: Last 24h
 			for (i = 0; i < data.length; i++) {
 				let botA = data[i].botA.name;
 				let botB = data[i].botB.name;
-				data[i].time = new Date(data[i].endedAt * 1000).toLocaleString();
+				data[i].time = basil.formatDateTime(data[i].endedAt);
 				data[i].replayUrl = "http://basilicum.bytekeeper.org/bots/" + botA + "/"+  botA + " vs " + botB + " " + data[i].map + " " + data[i].gameHash + ".rep"
 				if (data[i].frameCount) {
 					let secs = Math.round(data[i].frameCount / 24);

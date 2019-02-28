@@ -14,8 +14,11 @@ let basil = function(basil) {
 		}
 	});
 	Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
-	basil.formatDate = function(epochSecond) {
+	basil.formatDateTime = function(epochSecond) {
 		return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm:ss a");
+	};
+	basil.formatDate = function(epochSecond) {
+		return moment.unix(epochSecond).format("YYYY.MM.DD");
 	};
 	Handlebars.registerHelper("date", function(d) { return basil.formatDate(d); });
 };
