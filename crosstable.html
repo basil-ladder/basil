@@ -39,7 +39,7 @@ title: Crosstable
 {% endraw %}
 </script>
 <script>
-	$(function() {
+	function() {
 		let source = $("#crosstable").html();
 		let template = Handlebars.compile(source);
 		$.getJSON("http://basilicum.bytekeeper.org/stats/botVsBot.json", function(recv) {
@@ -90,8 +90,9 @@ title: Crosstable
 				$(this).closest("table").find("td:nth-child(" + ($(this).index() + 1) + ")").removeClass("highlight");
 			});
 		});
-	});
+	}
 </script>
-<div>Download: <a href="http://basilicum.bytekeeper.org/stats/botVsBot.csv">botVsBot.csv</a></div>
-<div id="tablePlaceholder" style="position: absolute; left: 0;">
+<h1>Imagine construction worker image here</h1>
+<!-- <div>Download: <a href="http://basilicum.bytekeeper.org/stats/botVsBot.csv">botVsBot.csv</a></div>
+ <div id="tablePlaceholder" style="position: absolute; left: 0;"> -->
 </div>
