@@ -1,0 +1,20 @@
+---
+layout: post
+title: "BWAPI 4.3.0 support"
+categories: basil bwapi
+---
+BASIL now supports BWAPI 4.3.0. Thanks Hannes Bredberg for the new release!
+
+According to him, it should be a drop-in replacement. Check out the [BWAPI 4.3.0](https://github.com/bwapi/bwapi/releases/tag/v4.3.0) release.
+
+Some people asked me where to get my updated sc-docker or the TM modules I used. It is all open source and mostly forked stuff:
+* My [sc-docker](https://github.com/Bytekeeper/sc-docker) fork.
+* The source of the [tournament module](https://github.com/Bytekeeper/sc-tm) being used.
+* And finally, the ladder code for [BASIL](https://github.com/Bytekeeper/basil) itself.
+
+A small note on Docker issues:
+
+I can't speak for Windows, but for Linux, sc-docker seems relatively stable. I use a recent 18.x.y docker version and upgraded multiple times without encountering any problems. 
+
+The "Readme" in sc-docker refers to a pretty old version used in the initial setup. 
+It works for most people, so if it does for you - do not mind me. But: There should be no problems running on one of the latest versions of docker.
