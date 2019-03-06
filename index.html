@@ -13,7 +13,7 @@ layout: home
 
 <ul style="list-style-type: none; margin: 0; padding: 0;">
 <li each={ bots }>
-{ lastUpdated } <i class="fas fa-caret-right"></i> { botName } <span style="font-size: 1.5em;" if={ won + lost == 0 }>&#x1F195;</span>
+{ lastUpdated } <i class="fas fa-caret-right"></i> { botName } <span if={ won + lost <= 50 }>&#x1F195;</span>
 </li>
 </ul>
 	</updated-list>
@@ -24,7 +24,7 @@ layout: home
 	let botsAfter = Date.now() / 1000 - 86400 * 5;
 	$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
 		updateTable.bots = data.filter(function(x) {
-			return x.lastUpdated >= botsAfter;
+			return x.lastUpdated >= botsAfter && x.enabled;
 		}).sort(function(a, b) { return b.lastUpdated - a.lastUpdated; })
 		.map(function(bot) {
 			bot.lastUpdated = basil.formatDate(bot.lastUpdated);
