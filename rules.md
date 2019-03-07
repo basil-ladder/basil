@@ -26,19 +26,20 @@ Games
 Bots
 ====
 * Generally, the rules of [SSCAIT](https://sscaitournament.com/index.php?action=rules) apply.
-* `bwapi-data/write` will be copied to your `bwapi-data/read` directory. by default, the `read` directory will not be cleared, when a bot is updated!
+* `bwapi-data/write` will be copied to your `bwapi-data/read` directory. By default, the `read` directory will not be cleared, when a bot is updated!
 * Bots are automatically updated every 6 hours.
 * As with [SSCAIT] no other bot author can view or download either the `read` or the `write` folders of your bot.
 * All replays can be downloaded by everyone.
 * Game, bot and crash logs can also be downloaded by everyone.
-* Accessing the internet/network is generally prohibited. (With some noteable exception I won't disclaim)
+* Accessing the internet/network is generally prohibited. (With some notable exception I won't disclaim)
 * Hardware resources: 
   * 1 CPU core of an `AMD Ryzen 7 1700X`.
   * 1 GB of RAM (- memory uses by OS).
-  * Up to 100MB of disk space total for your read + write + ai drectories.
+  * Up to 100MB of disk space total for your `read` + `write` + `ai` directories.
 * Special options (applied by adding `BASIL: <option>[,<option>...]`:
   * *RESET* - Clear the directory on the next update (note: this will only delete the first time the new update is received) 
-  * *PB-KEY-\<KeyId\>* - Publish the read directory compressed and encrypted. This will use the key (given by KeyId - without whitespaces) with the given key id (or fingerprint, or long id), downloaded from a public PGP keyserver (pgp.mit.edu). Using that the read directory will be compressed to `7z` file and then encrypted. Read directories are currently published once a day. For example: PB-KEY-ABCD01234 for the key id `ABCD0124`.
+  * *PB-KEY-\<KeyId\>* - Publish the read directory, compressed and encrypted. This will use the key (given by KeyId - without white space) with the given key id (or fingerprint, or long id), downloaded from a public PGP keyserver (pgp.mit.edu). Using that the read directory will be compressed to `7z` file and then encrypted. Read directories are currently published once a day. For example: PB-KEY-ABCD01234 for the key id `ABCD0124`.
+  * *PUBLISH-READ* - Publish the read directory, compressed but not encrypted. Please note that anyone can download the file and see what your bot wrote/learned.
     
 
 [SSCAIT]: https://sscaitournament.com/
