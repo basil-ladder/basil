@@ -16,9 +16,9 @@ enum class Race {
 @Entity
 class BotElo(@Id @GeneratedValue var id: Long? = null,
              @ManyToOne val bot: Bot,
-             var time: Instant,
-             var rating: Int,
-             var gameHash: String)
+             val time: Instant,
+             val rating: Int,
+             val gameHash: String)
 
 @Entity
 class Bot(@Id @GeneratedValue var id: Long? = null,
@@ -36,6 +36,14 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var crashesSinceUpdate: Int = 0,
           var won: Int = 0,
           var lost: Int = 0)
+
+@Entity
+class BotHistory(@ManyToOne val bot: Bot,
+                 val time: Instant) {
+    @Id
+    @GeneratedValue
+    var id: Long? = null
+}
 
 interface BotRepository : CrudRepository<Bot, Long> {
     @Timed
@@ -70,3 +78,6 @@ interface BotEloRepository : CrudRepository<BotElo, Long> {
     @Timed
     fun findAllByBot(bot: Bot): List<BotElo>
 }
+
+
+interface BotHistoryRepository : CrudRepository<BotHistory, Long>

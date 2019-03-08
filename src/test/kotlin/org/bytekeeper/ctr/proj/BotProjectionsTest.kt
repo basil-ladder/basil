@@ -3,10 +3,13 @@ package org.bytekeeper.ctr.proj
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotHistory
+import org.bytekeeper.ctr.repository.BotHistoryRepository
 import org.bytekeeper.ctr.repository.BotRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
@@ -23,6 +26,9 @@ class BotProjectionsTest {
     private lateinit var botRepository: BotRepository
 
     @Mock
+    private lateinit var botHistoryRepository: BotHistoryRepository
+
+    @Mock
     private lateinit var events: Events
 
     private val botA = Bot(id = 1, name = "A", enabled = true)
@@ -30,7 +36,7 @@ class BotProjectionsTest {
 
     @BeforeEach
     fun setup() {
-        sut = BotProjections(botRepository, events)
+        sut = BotProjections(botRepository, botHistoryRepository, events)
         given(botRepository.getById(ArgumentMatchers.anyLong()))
                 .willAnswer {
                     when (it.arguments[0]) {
@@ -159,5 +165,20 @@ class BotProjectionsTest {
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
         assertThat(botA).hasFieldOrPropertyWithValue("crashesSinceUpdate", 0)
+    }
+
+    @Test
+    fun `should write history entry for bot update`() {
+        // GIVEN
+        val updateTime = Instant.now()
+
+        // WHEN
+        sut.onBotUpdated(BotBinaryUpdated(botA, updateTime))
+
+        // THEN
+        val captor = ArgumentCaptor.forClass(BotHistory::class.java)
+        verify(botHistoryRepository).save(captor.capture())
+        assertThat(captor.value).extracting { it.bot to it.time }
+                .isEqualTo(botA to updateTime)
     }
 }

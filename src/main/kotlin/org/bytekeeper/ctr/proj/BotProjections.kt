@@ -2,6 +2,8 @@ package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.math.Elo
+import org.bytekeeper.ctr.repository.BotHistory
+import org.bytekeeper.ctr.repository.BotHistoryRepository
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.getBotsForUpdate
 import org.springframework.stereotype.Component
@@ -10,6 +12,7 @@ import javax.transaction.Transactional
 
 @Component
 class BotProjections(private val botRepository: BotRepository,
+                     private val botHistoryRepository: BotHistoryRepository,
                      private val events: Events) {
 
     @Transactional
@@ -79,5 +82,7 @@ class BotProjections(private val botRepository: BotRepository,
         val bot = botRepository.getById(botUpdated.bot.id!!)
         bot.lastUpdated = botUpdated.timestamp
         bot.crashesSinceUpdate = 0
+
+        botHistoryRepository.save(BotHistory(bot, botUpdated.timestamp))
     }
 }
