@@ -54,10 +54,14 @@ title: Crosstable
 				if (!stats[a][b]) stats[a][b] = {won: 0, lost: 0};
 				return stats[a][b];
 			}
-			for (i = 0; i < recv.botVsBotStat.length; i++) {
-				let bvb = recv.botVsBotStat[i];
-				entry(bvb.winner, bvb.loser).won = bvb.won;
-				entry(bvb.loser, bvb.winner).lost= bvb.won;
+			for (i = 0; i < recv.botinfos.length; i++) {
+				for (j = 0; j < recv.botinfos.length; j++) {
+					let wonGames = recv.botinfos[i].vsBotIdxWon[j];
+					let winner = recv.botinfos[i].name;
+					let loser = recv.botinfos[j].name;
+					entry(winner, loser).won = wonGames;
+					entry(loser, winner).lost= wonGames;
+				}
 			}
 			let bots = recv.botinfos.map(function(a) {
 				return {
