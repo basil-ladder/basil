@@ -1,6 +1,13 @@
 let basil = function(basil) {
-	Handlebars.registerHelper("racecol", function(v) { 
-		switch (v) {
+	Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+	basil.formatDateTime = function(epochSecond) {
+		return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm:ss a");
+	};
+	basil.formatDate = function(epochSecond) {
+		return moment.unix(epochSecond).format("YYYY.MM.DD");
+	};
+	basil.racecol = function(race) {
+		switch (race) {
 			case "PROTOSS":
 				return "race_protoss";
 			case "ZERG":
@@ -12,15 +19,9 @@ let basil = function(basil) {
 			default:
 				return "race_unknown";
 		}
-	});
-	Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
-	basil.formatDateTime = function(epochSecond) {
-		return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm:ss a");
 	};
-	basil.formatDate = function(epochSecond) {
-		return moment.unix(epochSecond).format("YYYY.MM.DD");
-	};
-	Handlebars.registerHelper("date", function(d) { return basil.formatDate(d); });
+	Handlebars.registerHelper("racecol", basil.racecol);
+	Handlebars.registerHelper("date", basil.formatDate);
 };
 
 $(function() {basil(basil);})
