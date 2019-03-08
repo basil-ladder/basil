@@ -47,9 +47,11 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun averageGameRealtime(): Double
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(r.winner, r.loser, COUNT(r)) FROM GameResult r GROUP BY r.winner, r.loser")
+    @Query("""SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(r.winner, r.loser, COUNT(r))
+        FROM GameResult r WHERE r.time >= ?1
+        GROUP BY r.winner, r.loser""")
     @Timed
-    fun listBotVsBotWonGames(): List<BotVsBotWonGames>
+    fun listBotVsBotWonGames(after: Instant): List<BotVsBotWonGames>
 
     @Query("SELECT new org.bytekeeper.ctr.repository.BotStat(bot, SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
             " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END)) FROM GameResult r, Bot bot WHERE r.time > bot.lastUpdated AND (r.winner = bot OR r.loser = bot) AND bot.enabled = TRUE" +

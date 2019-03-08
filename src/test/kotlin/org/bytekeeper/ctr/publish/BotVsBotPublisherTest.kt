@@ -3,6 +3,7 @@ package org.bytekeeper.ctr.publish
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotVsBotWonGames
 import org.bytekeeper.ctr.repository.GameResultRepository
@@ -37,13 +38,20 @@ class BotVsBotPublisherTest {
     fun setup() {
         sut = BotVsBotPublisher(gameResultRepository, publisher)
 
-        given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+        given(publisher.globalStatsWriter(BDDMockito.anyString()))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
     }
 
     @Test
     fun `should publish a CSV table`() {
         // GIVEN
-        given(gameResultRepository.listBotVsBotWonGames()).willReturn(
+        given(gameResultRepository.listBotVsBotWonGames(any())).willReturn(
                 listOf(
                         BotVsBotWonGames(botA, botB, 12L),
                         BotVsBotWonGames(botB, botC, 11L),
@@ -55,19 +63,41 @@ class BotVsBotPublisherTest {
         sut.handle(PreparePublish())
 
         // THEN
-        assertThat(csvWriter.toString()).isEqualTo("""
-            Bot, ELO, botC, botB, botA
-            botC, 3000, 0, 0, 10
-            botB, 2000, 11, 0, 0
-            botA, 1000, 0, 12, 0
-
-            """.trimIndent())
+        assertThat(csvWriter.toString()).isEqualTo("""Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |Bot, ELO, botC, botB, botA
+            |botC, 3000, 0, 0, 10
+            |botB, 2000, 11, 0, 0
+            |botA, 1000, 0, 12, 0
+            |""".trimMargin())
     }
 
     @Test
     fun `should publish crosstable info`() {
         // GIVEN
-        given(gameResultRepository.listBotVsBotWonGames()).willReturn(
+        given(gameResultRepository.listBotVsBotWonGames(any())).willReturn(
                 listOf(
                         BotVsBotWonGames(botA, botB, 12L),
                         BotVsBotWonGames(botB, botC, 11L),
@@ -80,6 +110,26 @@ class BotVsBotPublisherTest {
 
         // THEN
         assertThat(jsonWriter.toString()).isEqualTo(
-                """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true},{"name":"botB","race":null,"rating":2000,"enabled":true},{"name":"botA","race":null,"rating":1000,"enabled":true}],"botVsBotStat":[{"winner":"botA","loser":"botB","won":12},{"winner":"botB","loser":"botC","won":11},{"winner":"botC","loser":"botA","won":10}]}""")
+                """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
+                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
+                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
+                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}""".trimMargin())
     }
 }
