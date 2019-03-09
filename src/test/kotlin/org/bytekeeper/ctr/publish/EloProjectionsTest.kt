@@ -13,6 +13,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import java.io.StringWriter
 import java.time.Instant
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class EloPublisherTest {
@@ -27,6 +28,16 @@ class EloPublisherTest {
     private lateinit var publisher: Publisher
 
     private val botStatsWriter: StringWriter = StringWriter()
+    val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
+    private val gameResult = GameResult(
+            id = UUID.randomUUID(),
+            gameRealtime = 0.0,
+            time = Instant.now(),
+            map = "",
+            botA = testBot,
+            botB = testBot,
+            gameHash = ""
+    )
 
     @BeforeEach
     fun setup() {
@@ -38,18 +49,17 @@ class EloPublisherTest {
     @Test
     fun shouldPublishBotEloHistory() {
         // GIVEN
-        val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
         given(botEloRepository.findAllByBot(testBot)).willReturn(listOf(
-                BotElo(-1, testBot, Instant.MIN, 0, ""),
-                BotElo(-1, testBot, Instant.MIN, 1, "")
+                BotElo(-1, testBot, Instant.MIN, 0, gameResult),
+                BotElo(-1, testBot, Instant.MIN, 1, gameResult)
         ))
 
         // WHEN
         sut.handle(PreparePublish())
 
         // THEN
-        assertThat(botStatsWriter.toString()).isEqualTo("[{\"epochSecond\":-31557014167219200,\"rating\":0,\"gameHash\":\"\"},{\"epochSecond\":-31557014167219200,\"rating\":1,\"gameHash\":\"\"}]")
+        assertThat(botStatsWriter.toString()).isEqualTo("[{\"epochSecond\":-31557014167219200,\"rating\":0},{\"epochSecond\":-31557014167219200,\"rating\":1}]")
     }
 
 }

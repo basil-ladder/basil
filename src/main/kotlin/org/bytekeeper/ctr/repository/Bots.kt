@@ -18,7 +18,7 @@ class BotElo(@Id @GeneratedValue var id: Long? = null,
              @ManyToOne val bot: Bot,
              val time: Instant,
              val rating: Int,
-             val gameHash: String)
+             @ManyToOne val game: GameResult)
 
 @Entity
 class Bot(@Id @GeneratedValue var id: Long? = null,

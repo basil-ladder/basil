@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.GameResult
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -9,11 +10,13 @@ import org.springframework.core.MethodIntrospector
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 
-class GameEnded(val winner: Bot,
+class GameEnded(val id: UUID,
+                val winner: Bot,
                 val loser: Bot,
                 val map: String,
                 val timestamp: Instant = Instant.now(),
@@ -21,7 +24,8 @@ class GameEnded(val winner: Bot,
                 val gameHash: String,
                 val frameCount: Int?)
 
-class GameCrashed(val botA: Bot,
+class GameCrashed(val id: UUID,
+                  val botA: Bot,
                   val botB: Bot,
                   val map: String,
                   val botACrashed: Boolean,
@@ -31,7 +35,8 @@ class GameCrashed(val botA: Bot,
                   val gameHash: String,
                   val frameCount: Int?)
 
-class GameTimedOut(val botA: Bot,
+class GameTimedOut(val id: UUID,
+                   val botA: Bot,
                    val botB: Bot,
                    val slowerBot: Bot?,
                    val scoreA: Int,
@@ -44,14 +49,18 @@ class GameTimedOut(val botA: Bot,
                    val gameHash: String,
                    val frameCount: Int?)
 
-class GameFailedToStart(val botA: Bot,
+class GameFailedToStart(val id: UUID,
+                        val botA: Bot,
                         val botB: Bot,
                         val map: String,
                         val timestamp: Instant = Instant.now(),
                         val gameHash: String)
 
-data class GameWon(val winner: Bot, val loser: Bot, val gameHash: String)
-class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val gameHash: String)
+data class GameWon(val game: GameResult,
+                   val winner: Bot,
+                   val loser: Bot)
+
+class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val game: GameResult)
 class BotBinaryUpdated(val bot: Bot, val timestamp: Instant)
 
 @Service

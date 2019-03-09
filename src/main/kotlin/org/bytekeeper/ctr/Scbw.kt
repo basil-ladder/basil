@@ -12,6 +12,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import kotlin.concurrent.thread
@@ -262,6 +263,7 @@ class Scbw(private val botRepository: BotRepository,
             }
             val frameCount = botResults.mapNotNull { it.frames?.frameCount }.min()
             val resultFile = gamePath.resolve("result.json").toFile()
+            val gameId = UUID.randomUUID()
             if (resultFile.exists()) {
                 val result = mapper.readValue<ResultJson>(resultFile)
                 if (result.winner != null && result.loser != null) {
@@ -269,7 +271,15 @@ class Scbw(private val botRepository: BotRepository,
                             ?: throw BotNotFoundException("Could not find ${result.winner}")
                     val loserBot = botRepository.findByName(result.loser)
                             ?: throw BotNotFoundException("Could not find ${result.loser}")
-                    events.post(GameEnded(winnerBot, loserBot, gameConfig.map, Instant.now(), result.game_time, gameConfig.gameName, frameCount))
+                    events.post(GameEnded(
+                            gameId,
+                            winnerBot,
+                            loserBot,
+                            gameConfig.map,
+                            Instant.now(),
+                            result.game_time,
+                            gameConfig.gameName,
+                            frameCount))
                 } else {
                     val botA = botRepository.findByName(bots[0])
                             ?: throw BotNotFoundException("Could not find ${bots[0]}")
@@ -278,6 +288,7 @@ class Scbw(private val botRepository: BotRepository,
 
                     if (result.is_crashed) {
                         events.post(GameCrashed(
+                                gameId,
                                 botA,
                                 botB,
                                 gameConfig.map,
@@ -302,6 +313,7 @@ class Scbw(private val botRepository: BotRepository,
                                 }
 
                         events.post(GameTimedOut(
+                                gameId,
                                 botA,
                                 botB,
                                 slowerBot,
@@ -321,7 +333,13 @@ class Scbw(private val botRepository: BotRepository,
                         ?: throw BotNotFoundException("Could not find ${bots[0]}")
                 val botB = botRepository.findByName(bots[1])
                         ?: throw BotNotFoundException("Could not find ${bots[1]}")
-                events.post(GameFailedToStart(botA, botB, gameConfig.map, Instant.now(), gameConfig.gameName))
+                events.post(GameFailedToStart(
+                        gameId,
+                        botA,
+                        botB,
+                        gameConfig.map,
+                        Instant.now(),
+                        gameConfig.gameName))
             }
         }
 

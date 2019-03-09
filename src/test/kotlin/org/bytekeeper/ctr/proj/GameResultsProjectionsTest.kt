@@ -2,15 +2,18 @@ package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.GameResult
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class GameResultsProjectionsTest {
@@ -24,10 +27,16 @@ class GameResultsProjectionsTest {
 
     private val botA = Bot(name = "A", enabled = true)
     private val botB = Bot(name = "B", enabled = true)
+    private lateinit var gameResult: GameResult;
 
     @BeforeEach
     fun setup() {
         sut = GameResultsProjections(gameResultRepository, events)
+        given(gameResultRepository.save(any<GameResult>()))
+                .willAnswer {
+                    gameResult = it.arguments[0] as GameResult
+                    gameResult
+                }
     }
 
     @Test
@@ -35,10 +44,10 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(botA, botB, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, botB, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
 
         // THEN
-        verify(events).post(GameWon(botA, botB, ""))
+        verify(events).post(GameWon(gameResult, botA, botB))
     }
 
     @Test
@@ -46,10 +55,10 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(botA, botB, botA, 1, 0, "", Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, botB, botA, 1, 0, "", Instant.now(), true, false, 0.0, "", null))
 
         // THEN
-        verify(events).post(GameWon(botB, botA, ""))
+        verify(events).post(GameWon(gameResult, botB, botA))
     }
 
     @Test
@@ -57,7 +66,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(botA, botB, null, 0, 0, "", Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, botB, null, 0, 0, "", Instant.now(), true, false, 0.0, "", null))
 
         // THEN
         verify(events, never()).post(any())
@@ -68,10 +77,10 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameCrashed(GameCrashed(botA, botB, "", true, false, Instant.now(), 0.0, "", 0))
+        sut.gameCrashed(GameCrashed(UUID.randomUUID(), botA, botB, "", true, false, Instant.now(), 0.0, "", 0))
 
         // THEN
-        verify(events).post(GameWon(botB, botA, ""))
+        verify(events).post(GameWon(gameResult, botB, botA))
     }
 
     @Test
@@ -79,9 +88,9 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameEnded(GameEnded(botB, botA, "", Instant.now(), 0.0, "", 0))
+        sut.gameEnded(GameEnded(UUID.randomUUID(), botB, botA, "", Instant.now(), 0.0, "", 0))
 
         // THEN
-        verify(events).post(GameWon(botB, botA, ""))
+        verify(events).post(GameWon(gameResult, botB, botA))
     }
 }

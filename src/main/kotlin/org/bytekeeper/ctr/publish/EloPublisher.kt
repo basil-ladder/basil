@@ -24,7 +24,7 @@ class EloPublisher(private val botEloRepository: BotEloRepository,
             publisher.botStatsWriter(bot.name, "eloHistory.json")
                     .use { out ->
                         writer.writeValue(out, botEloRepository.findAllByBot(bot)
-                                .map { PublishedBotEloHistoryEntry(it.time.epochSecond, it.rating, it.gameHash) })
+                                .map { PublishedBotEloHistoryEntry(it.time.epochSecond, it.rating) })
                     }
         }
     }
@@ -32,4 +32,4 @@ class EloPublisher(private val botEloRepository: BotEloRepository,
 }
 
 
-class PublishedBotEloHistoryEntry(val epochSecond: Long, val rating: Int, val gameHash: String)
+class PublishedBotEloHistoryEntry(val epochSecond: Long, val rating: Int)

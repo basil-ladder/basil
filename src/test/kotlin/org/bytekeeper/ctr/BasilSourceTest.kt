@@ -168,7 +168,6 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
     @Test
     fun `should not set good lastUpdated on error`() {
         // GIVEN
-        val botInfo = sut.botInfoOf("testBot")!!
         bufferProvider = { Mono.error(FailedToDownloadBot("No wai")) }
 
         // WHEN, THEN

@@ -2,10 +2,7 @@ package org.bytekeeper.ctr.proj
 
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.repository.Bot
-import org.bytekeeper.ctr.repository.BotHistory
-import org.bytekeeper.ctr.repository.BotHistoryRepository
-import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,6 +14,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class BotProjectionsTest {
@@ -33,6 +31,15 @@ class BotProjectionsTest {
 
     private val botA = Bot(id = 1, name = "A", enabled = true)
     private val botB = Bot(id = 2, name = "B", enabled = true)
+    private val gameResult = GameResult(
+            id = UUID.randomUUID(),
+            gameRealtime = 0.0,
+            time = Instant.now(),
+            map = "",
+            botA = botA,
+            botB = botB,
+            gameHash = ""
+    )
 
     @BeforeEach
     fun setup() {
@@ -53,9 +60,9 @@ class BotProjectionsTest {
         (1..100).map {
             for (i in 1..50) {
                 if (Math.random() < 0.5)
-                    sut.onGameWon(GameWon(botA, botB, ""))
+                    sut.onGameWon(GameWon(gameResult, botA, botB))
                 else
-                    sut.onGameWon(GameWon(botB, botA, ""))
+                    sut.onGameWon(GameWon(gameResult, botB, botA))
             }
         }
 
@@ -67,7 +74,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameCrashed(GameCrashed(botA, botB, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, botB, "", true, false, Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -87,7 +94,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameEnded(GameEnded(botA, botB, "", Instant.now(), 0.0, "", null))
+        sut.onGameEnded(GameEnded(UUID.randomUUID(), botA, botB, "", Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -105,7 +112,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameFailedToStart(GameFailedToStart(botA, botB, "", Instant.now(), ""))
+        sut.onGameFailedToStart(GameFailedToStart(UUID.randomUUID(), botA, botB, "", Instant.now(), ""))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -123,7 +130,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameTimedOut(GameTimedOut(botA, botB, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
+        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, botB, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -141,7 +148,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameWon(GameWon(botA, botB, ""))
+        sut.onGameWon(GameWon(gameResult, botA, botB))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -157,7 +164,7 @@ class BotProjectionsTest {
     @Test
     fun `should handle bot update`() {
         // GIVEN
-        sut.onGameCrashed(GameCrashed(botA, botB, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, botB, "", true, false, Instant.now(), 0.0, "", null))
 
         // WHEN
         sut.onBotUpdated(BotBinaryUpdated(botA, Instant.now()))

@@ -14,10 +14,18 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
     @Transactional
     @EventHandler
     fun gameEnded(gameEnded: GameEnded) {
-        gameResultRepository.save(GameResult(time = gameEnded.timestamp, winner = gameEnded.winner, loser = gameEnded.loser,
-                gameRealtime = gameEnded.gameTime, botA = gameEnded.winner, botB = gameEnded.loser, map = gameEnded.map,
-                gameHash = gameEnded.gameHash, frameCount = gameEnded.frameCount))
-        events.post(GameWon(gameEnded.winner, gameEnded.loser, gameEnded.gameHash))
+        val gameResult = gameResultRepository.save(GameResult(
+                id = gameEnded.id,
+                time = gameEnded.timestamp,
+                winner = gameEnded.winner,
+                loser = gameEnded.loser,
+                gameRealtime = gameEnded.gameTime,
+                botA = gameEnded.winner,
+                botB = gameEnded.loser,
+                map = gameEnded.map,
+                gameHash = gameEnded.gameHash,
+                frameCount = gameEnded.frameCount))
+        events.post(GameWon(gameResult, gameEnded.winner, gameEnded.loser))
     }
 
     @Transactional
@@ -28,7 +36,8 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                     (if (gameCrashed.botBCrashed) gameCrashed.botA else gameCrashed.botB) to
                             (if (gameCrashed.botBCrashed) gameCrashed.botB else gameCrashed.botA)
                 } else null to null
-        gameResultRepository.save(GameResult(
+        val gameResult = gameResultRepository.save(GameResult(
+                id = gameCrashed.id,
                 time = gameCrashed.timestamp,
                 botA = winner ?: gameCrashed.botA,
                 botB = loser ?: gameCrashed.botB,
@@ -41,15 +50,23 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 gameHash = gameCrashed.gameHash,
                 frameCount = gameCrashed.frameCount))
         if (winner != null && loser != null)
-            events.post(GameWon(winner, loser, gameCrashed.gameHash))
+            events.post(GameWon(gameResult, winner, loser))
     }
 
     @Transactional
     @EventHandler
     fun gameFailedToStart(gameFailedToStart: GameFailedToStart) {
-        gameResultRepository.save(GameResult(time = gameFailedToStart.timestamp, realtimeTimeout = false,
-                botA = gameFailedToStart.botA, botB = gameFailedToStart.botB, gameRealtime = 0.0, map = gameFailedToStart.map,
-                botACrashed = true, botBCrashed = true, gameHash = gameFailedToStart.gameHash))
+        gameResultRepository.save(GameResult(
+                id = gameFailedToStart.id,
+                time = gameFailedToStart.timestamp,
+                realtimeTimeout = false,
+                botA = gameFailedToStart.botA,
+                botB = gameFailedToStart.botB,
+                gameRealtime = 0.0,
+                map = gameFailedToStart.map,
+                botACrashed = true,
+                botBCrashed = true,
+                gameHash = gameFailedToStart.gameHash))
     }
 
     @Transactional
@@ -77,9 +94,9 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 loser = gameTimedOut.botB
             }
         }
-        if (winner != null && loser != null) events.post(GameWon(winner, loser, gameTimedOut.gameHash))
 
-        gameResultRepository.save(GameResult(
+        val gameResult = gameResultRepository.save(GameResult(
+                id = gameTimedOut.id,
                 time = gameTimedOut.timestamp,
                 realtimeTimeout = gameTimedOut.realTimedOut,
                 frameTimeout = gameTimedOut.gameTimedOut,
@@ -93,5 +110,6 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 botBCrashed = false,
                 gameHash = gameTimedOut.gameHash,
                 frameCount = gameTimedOut.frameCount))
+        if (winner != null && loser != null) events.post(GameWon(gameResult, winner, loser))
     }
 }

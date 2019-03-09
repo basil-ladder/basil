@@ -13,7 +13,7 @@ class EloProjections(private val botEloRepository: BotEloRepository) {
     @Transactional
     @EventHandler
     fun onEloUpdated(event: EloUpdated) {
-        botEloRepository.save(BotElo(bot = event.bot, time = event.timestamp, rating = event.newRating, gameHash = event.gameHash))
+        botEloRepository.save(BotElo(bot = event.bot, time = event.timestamp, rating = event.newRating, game = event.game))
     }
 
 }

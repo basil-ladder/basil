@@ -38,8 +38,8 @@ class BotProjections(private val botRepository: BotRepository,
         loser.rating = newLoserRating
 
         val time = Instant.now()
-        events.post(EloUpdated(winner, newWinnerRating, time, gameWon.gameHash))
-        events.post(EloUpdated(loser, newLoserRating, time, gameWon.gameHash))
+        events.post(EloUpdated(winner, newWinnerRating, time, gameWon.game))
+        events.post(EloUpdated(loser, newLoserRating, time, gameWon.game))
     }
 
     @Transactional

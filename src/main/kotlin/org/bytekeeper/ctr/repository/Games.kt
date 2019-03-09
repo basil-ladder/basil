@@ -5,13 +5,13 @@ import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
+import java.util.*
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.ManyToOne
 
 @Entity
-class GameResult(@Id @GeneratedValue var id: Long? = null,
+class GameResult(@Id val id: UUID,
                  var time: Instant,
                  var gameRealtime: Double,
                  var realtimeTimeout: Boolean = false,
@@ -43,6 +43,7 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
 
     @Timed
     fun countByBotACrashedIsTrueOrBotBCrashedIsTrue(): Int
+
     @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
     @Timed
     fun averageGameRealtime(): Double

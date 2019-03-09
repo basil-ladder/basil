@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.io.BufferedWriter
 import java.io.StringWriter
 import java.time.Instant
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class GameResultsPublisherTest {
@@ -44,7 +45,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.TERRAN)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -61,7 +62,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, true, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, true, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -78,7 +79,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, true, false, "map", botA, botB, null, null, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, true, false, "map", botA, botB, null, null, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -95,7 +96,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG)
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(-1, Instant.MIN, 1.0, false, true, "map", botA, botB, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, true, "map", botA, botB, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
