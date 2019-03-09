@@ -39,14 +39,10 @@ class BotVsBotPublisherTest {
     fun setup() {
         sut = BotVsBotPublisher(gameResultRepository, publisher)
 
-        given(publisher.globalStatsWriter(BDDMockito.anyString()))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
-                .willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+        var g = given(publisher.globalStatsWriter(BDDMockito.anyString()))
+        repeat(10) {
+            g = g.willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
+        }
     }
 
     @Test
@@ -65,34 +61,42 @@ class BotVsBotPublisherTest {
 
         // THEN
         assertThat(csvWriter.toString()).isEqualTo("""Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |Bot, ELO, botC, botB, botA
-            |botC, 3000, 0, 0, 10
-            |botB, 2000, 11, 0, 0
-            |botA, 1000, 0, 12, 0
-            |""".trimMargin())
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+Bot, ELO, botC, botB, botA
+botC, 3000, 0, 0, 10
+botB, 2000, 11, 0, 0
+botA, 1000, 0, 12, 0
+""")
     }
 
     @Test
@@ -111,26 +115,6 @@ class BotVsBotPublisherTest {
 
         // THEN
         assertThat(jsonWriter.toString()).isEqualTo(
-                """{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
-                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
-                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
-                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}""".trimMargin().replace("\n", ""))
+                """{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}""")
     }
 }

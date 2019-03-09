@@ -25,6 +25,8 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
             publish(writer, daysBeforeNow)
         }
         publish(writer)
+        publish(writer, 7)
+        publish(writer, 14)
     }
 
     private fun publish(writer: ObjectWriter, daysBeforeNow: Long? = null) {
