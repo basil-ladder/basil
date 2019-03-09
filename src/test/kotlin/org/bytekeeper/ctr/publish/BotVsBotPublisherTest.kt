@@ -7,6 +7,7 @@ import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotVsBotWonGames
 import org.bytekeeper.ctr.repository.GameResultRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,9 +31,9 @@ class BotVsBotPublisherTest {
     private val jsonWriter: StringWriter = StringWriter()
     private val csvWriter: StringWriter = StringWriter()
 
-    private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
-    private val botB = Bot(null, true, null, "botB", null, null, null, false, null, 0, 2000)
-    private val botC = Bot(null, true, null, "botC", null, null, null, false, null, 0, 3000)
+    private val botA = Bot(null, true, null, "botA", Race.ZERG, "", null, false, null, 0, 1000)
+    private val botB = Bot(null, true, null, "botB", Race.TERRAN, "", null, false, null, 0, 2000)
+    private val botC = Bot(null, true, null, "botC", Race.PROTOSS, "", null, false, null, 0, 3000)
 
     @BeforeEach
     fun setup() {
@@ -110,26 +111,26 @@ class BotVsBotPublisherTest {
 
         // THEN
         assertThat(jsonWriter.toString()).isEqualTo(
-                """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}"""
-                        + """{"botinfos":[{"name":"botC","race":null,"rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},"""
-                        + """{"name":"botB","race":null,"rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},"""
-                        + """{"name":"botA","race":null,"rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}""".trimMargin())
+                """{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}
+                    |{"botinfos":[{"name":"botC","race":"PROTOSS","rating":3000,"enabled":true,"vsBotIdxWon":[0,0,10]},
+                    |{"name":"botB","race":"TERRAN","rating":2000,"enabled":true,"vsBotIdxWon":[11,0,0]},
+                    |{"name":"botA","race":"ZERG","rating":1000,"enabled":true,"vsBotIdxWon":[0,12,0]}]}""".trimMargin().replace("\n", ""))
     }
 }

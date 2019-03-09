@@ -7,6 +7,7 @@ import org.bytekeeper.ctr.mock
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotStat
 import org.bytekeeper.ctr.repository.GameResultRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.atLeastOnce
@@ -23,7 +24,7 @@ internal class WinRatioTooLowRuleTest {
     private val config = Config()
     private val sut = WinRatioTooLowRule(gameResultRepository, config, botService)
 
-    private val bot = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
+    private val bot = Bot(null, true, null, "botA", Race.TERRAN, "", null, false, null, 0, 1000)
 
     @Test
     fun `should be not be disabled with less than minGames`() {

@@ -40,7 +40,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
                     val botVsBotWinsMap = wonGames.map { (it.botA to it.botB) to it.won }.toMap()
                     writer.writeValue(out, PublishedBotVsBot(
                             sortedBotList.map {
-                                PublishedBotinfo(it.name, it.race?.name, it.rating, it.enabled,
+                                PublishedBotinfo(it.name, it.race.name, it.rating, it.enabled,
                                         sortedBotList.map { enemy -> botVsBotWinsMap[it to enemy] ?: 0 }
                                 )
                             }

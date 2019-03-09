@@ -41,11 +41,11 @@ class GameResultsPublisherTest {
     @Test
     fun shouldRenderGamesWithWinner() {
         // GIVEN
-        val botA = Bot(-1, true, null, "botA", Race.PROTOSS)
-        val botB = Bot(-1, true, null, "botB", Race.TERRAN)
+        val botA = Bot(-1, true, null, "botA", Race.PROTOSS, "")
+        val botB = Bot(-1, true, null, "botB", Race.TERRAN, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, Race.ZERG, botB, Race.TERRAN, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -58,11 +58,11 @@ class GameResultsPublisherTest {
     @Test
     fun shouldRenderGamesWithCrash() {
         // GIVEN
-        val botA = Bot(-1, true, null, "botA", Race.RANDOM)
-        val botB = Bot(-1, true, null, "botB", Race.ZERG)
+        val botA = Bot(-1, true, null, "botA", Race.RANDOM, "")
+        val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, botB, botA, botB, true, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, true, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -75,11 +75,11 @@ class GameResultsPublisherTest {
     @Test
     fun shouldRenderGamesWithRealtimeout() {
         // GIVEN
-        val botA = Bot(-1, true, null, "botA", Race.RANDOM)
-        val botB = Bot(-1, true, null, "botB", Race.ZERG)
+        val botA = Bot(-1, true, null, "botA", Race.RANDOM, "")
+        val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, true, false, "map", botA, botB, null, null, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, true, false, "map", botA, Race.PROTOSS, botB, Race.ZERG, null, null, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -92,11 +92,11 @@ class GameResultsPublisherTest {
     @Test
     fun shouldRenderGamesWithFrametimeout() {
         // GIVEN
-        val botA = Bot(-1, true, null, "botA", Race.RANDOM)
-        val botB = Bot(-1, true, null, "botB", Race.ZERG)
+        val botA = Bot(-1, true, null, "botA", Race.RANDOM, "")
+        val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, true, "map", botA, botB, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, true, "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())

@@ -4,10 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.Maps
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.repository.Bot
-import org.bytekeeper.ctr.repository.BotRepository
-import org.bytekeeper.ctr.repository.GameResultRepository
-import org.bytekeeper.ctr.repository.MapStat
+import org.bytekeeper.ctr.repository.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,8 +27,8 @@ internal class PerMapWinRatePublisherTest {
     @Mock
     private lateinit var publisher: Publisher
 
-    private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
-    private val botB = Bot(null, true, null, "botB", null, null, null, false, null, 0, 2000)
+    private val botA = Bot(null, true, null, "botA", Race.TERRAN, "", null, false, null, 0, 1000)
+    private val botB = Bot(null, true, null, "botB", Race.PROTOSS, "", null, false, null, 0, 2000)
 
     private val writer = StringWriter()
 

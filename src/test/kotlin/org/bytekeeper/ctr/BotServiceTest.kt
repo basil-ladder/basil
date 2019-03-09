@@ -3,6 +3,7 @@ package org.bytekeeper.ctr
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -19,7 +20,7 @@ class BotServiceTest {
     @Mock
     private lateinit var botRepository: BotRepository
 
-    private val botA = Bot(id = 1, name = "A", enabled = true)
+    private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "")
     private val botAInfo = TestBotInfo()
 
     private val config = Config()

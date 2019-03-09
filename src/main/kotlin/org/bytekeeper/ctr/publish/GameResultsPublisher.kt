@@ -27,14 +27,14 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                 val resultB = gameResult.botB
                                 val botA = PublishedBotResult(
                                         resultA.name,
-                                        resultA.race?.name,
+                                        resultA.race.name,
                                         resultA == gameResult.winner,
                                         resultA == gameResult.loser,
                                         gameResult.botACrashed
                                 )
                                 val botB = PublishedBotResult(
                                         resultB.name,
-                                        resultB.race?.name,
+                                        resultB.race.name,
                                         resultB == gameResult.winner,
                                         resultB == gameResult.loser,
                                         gameResult.botBCrashed

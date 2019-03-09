@@ -116,6 +116,14 @@ class Scbw(private val botRepository: BotRepository,
         private val dockerPrefix = "GAME_${gameConfig.gameName}"
         private val bots = gameConfig.bots
         private val gameName = gameConfig.gameName
+        private val selectableRaces = listOf(Race.ZERG, Race.TERRAN, Race.PROTOSS)
+
+        fun Race.toScbw() = when (this) {
+            Race.ZERG -> "Z"
+            Race.TERRAN -> "T"
+            Race.PROTOSS -> "P"
+            Race.RANDOM -> "R"
+        }
 
         fun run() {
             val botsParticipating = "${bots[0]} vs ${bots[1]}"
@@ -131,8 +139,12 @@ class Scbw(private val botRepository: BotRepository,
 
             cmd += "--bots"
 
-            cmd += if (botRepository.findByName(bots[0])?.race == Race.RANDOM) bots[0] + ":" + listOf("Z", "T", "P").random() else bots[0]
-            cmd += if (botRepository.findByName(bots[1])?.race == Race.RANDOM) bots[1] + ":" + listOf("Z", "T", "P").random() else bots[1]
+            val botA = botRepository.findByName(bots[0])!!
+            val botB = botRepository.findByName(bots[1])!!
+            val botARace = if (botA.race == Race.RANDOM) selectableRaces.random() else botA.race
+            val botBRace = if (botB.race == Race.RANDOM) selectableRaces.random() else botB.race
+            cmd += "${bots[0]}:${botARace.toScbw()}"
+            cmd += "${bots[1]}:${botBRace.toScbw()}"
 
             addParameter("--timeout", scbwConfig.realtimeTimeoutSeconds)
             addParameter("--bot_dir", scbwConfig.botsDir)
@@ -176,7 +188,7 @@ class Scbw(private val botRepository: BotRepository,
                 // Wait for a short while to make sure scores and results are written
                 Thread.sleep(2000)
                 // Try to move results
-                moveResult(scbwConfig.gamesDir, gameName, bots)
+                moveResult(scbwConfig.gamesDir, gameName, bots, botA, botARace, botB, botBRace)
                 if (scbwConfig.deleteGamesInGameDir) {
                     deleteDirectory(scbwConfig.gamesDir.resolve("GAME_$gameName"))
                 } else {
@@ -204,7 +216,7 @@ class Scbw(private val botRepository: BotRepository,
             return remaining
         }
 
-        private fun moveResult(gameDir: Path, gameName: String, bots: List<String>) {
+        private fun moveResult(gameDir: Path, gameName: String, bots: List<String>, botA: Bot, botARace: Race, botB: Bot, botBRace: Race) {
             val mapper = jacksonObjectMapper()
             val gamePath = gameDir.resolve("GAME_$gameName")
             val botsPath = config.dataBasePath.resolve("bots")
@@ -274,23 +286,22 @@ class Scbw(private val botRepository: BotRepository,
                     events.post(GameEnded(
                             gameId,
                             winnerBot,
+                            if (winnerBot == botA) botARace else botBRace,
                             loserBot,
+                            if (loserBot == botB) botBRace else botARace,
                             gameConfig.map,
                             Instant.now(),
                             result.game_time,
                             gameConfig.gameName,
                             frameCount))
                 } else {
-                    val botA = botRepository.findByName(bots[0])
-                            ?: throw BotNotFoundException("Could not find ${bots[0]}")
-                    val botB = botRepository.findByName(bots[1])
-                            ?: throw BotNotFoundException("Could not find ${bots[1]}")
-
                     if (result.is_crashed) {
                         events.post(GameCrashed(
                                 gameId,
                                 botA,
+                                botARace,
                                 botB,
+                                botBRace,
                                 gameConfig.map,
                                 botResults[0].scores?.is_crashed != false,
                                 botResults[1].scores?.is_crashed != false,
@@ -315,7 +326,9 @@ class Scbw(private val botRepository: BotRepository,
                         events.post(GameTimedOut(
                                 gameId,
                                 botA,
+                                botARace,
                                 botB,
+                                botBRace,
                                 slowerBot,
                                 botResults[0].scores?.let { it.kill_score + it.razing_score } ?: 0,
                                 botResults[1].scores?.let { it.kill_score + it.razing_score } ?: 0,
@@ -329,14 +342,12 @@ class Scbw(private val botRepository: BotRepository,
                     }
                 }
             } else {
-                val botA = botRepository.findByName(bots[0])
-                        ?: throw BotNotFoundException("Could not find ${bots[0]}")
-                val botB = botRepository.findByName(bots[1])
-                        ?: throw BotNotFoundException("Could not find ${bots[1]}")
                 events.post(GameFailedToStart(
                         gameId,
                         botA,
+                        botARace,
                         botB,
+                        botBRace,
                         gameConfig.map,
                         Instant.now(),
                         gameConfig.gameName))

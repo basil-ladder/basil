@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,8 +40,8 @@ class GameServiceTest {
     @Mock
     private lateinit var botRepository: BotRepository
 
-    private val botA = Bot(id = 1, name = "A", enabled = true)
-    private val botB = Bot(id = 2, name = "B", enabled = true)
+    private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "")
+    private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "")
     private val botAInfo = TestBotInfo()
     private val botBInfo = TestBotInfo()
 

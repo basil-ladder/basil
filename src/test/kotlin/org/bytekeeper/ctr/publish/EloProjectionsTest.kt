@@ -35,7 +35,9 @@ class EloPublisherTest {
             time = Instant.now(),
             map = "",
             botA = testBot,
+            raceA = Race.PROTOSS,
             botB = testBot,
+            raceB = Race.PROTOSS,
             gameHash = ""
     )
 

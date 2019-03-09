@@ -6,25 +6,25 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
 class GameResult(@Id val id: UUID,
-                 var time: Instant,
-                 var gameRealtime: Double,
-                 var realtimeTimeout: Boolean = false,
-                 var frameTimeout: Boolean? = false,
-                 var map: String,
-                 @ManyToOne var botA: Bot,
-                 @ManyToOne var botB: Bot,
-                 @ManyToOne var winner: Bot? = null,
-                 @ManyToOne var loser: Bot? = null,
-                 var botACrashed: Boolean = false,
-                 var botBCrashed: Boolean = false,
-                 var gameHash: String,
-                 var frameCount: Int? = null)
+                 val time: Instant,
+                 val gameRealtime: Double,
+                 val realtimeTimeout: Boolean = false,
+                 val frameTimeout: Boolean? = false,
+                 val map: String,
+                 @ManyToOne val botA: Bot,
+                 @Enumerated(EnumType.STRING) val raceA: Race,
+                 @ManyToOne val botB: Bot,
+                 @Enumerated(EnumType.STRING) val raceB: Race,
+                 @ManyToOne val winner: Bot? = null,
+                 @ManyToOne val loser: Bot? = null,
+                 val botACrashed: Boolean = false,
+                 val botBCrashed: Boolean = false,
+                 val gameHash: String,
+                 val frameCount: Int? = null)
 
 class BotVsBotWonGames(val botA: Bot,
                        val botB: Bot,

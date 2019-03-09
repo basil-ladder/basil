@@ -29,15 +29,17 @@ class BotProjectionsTest {
     @Mock
     private lateinit var events: Events
 
-    private val botA = Bot(id = 1, name = "A", enabled = true)
-    private val botB = Bot(id = 2, name = "B", enabled = true)
+    private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "")
+    private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "")
     private val gameResult = GameResult(
             id = UUID.randomUUID(),
             gameRealtime = 0.0,
             time = Instant.now(),
             map = "",
             botA = botA,
+            raceA = Race.ZERG,
             botB = botB,
+            raceB = Race.TERRAN,
             gameHash = ""
     )
 
@@ -74,7 +76,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, botB, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, "", true, false, Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -94,7 +96,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameEnded(GameEnded(UUID.randomUUID(), botA, botB, "", Instant.now(), 0.0, "", null))
+        sut.onGameEnded(GameEnded(UUID.randomUUID(), botA, Race.ZERG, botB, Race.PROTOSS, "", Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -112,7 +114,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameFailedToStart(GameFailedToStart(UUID.randomUUID(), botA, botB, "", Instant.now(), ""))
+        sut.onGameFailedToStart(GameFailedToStart(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.TERRAN, "", Instant.now(), ""))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -130,7 +132,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, botB, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
+        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -164,7 +166,7 @@ class BotProjectionsTest {
     @Test
     fun `should handle bot update`() {
         // GIVEN
-        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, botB, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, "", true, false, Instant.now(), 0.0, "", null))
 
         // WHEN
         sut.onBotUpdated(BotBinaryUpdated(botA, Instant.now()))

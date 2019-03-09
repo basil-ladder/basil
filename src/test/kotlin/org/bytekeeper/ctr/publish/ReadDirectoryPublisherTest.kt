@@ -9,6 +9,7 @@ import org.bytekeeper.ctr.Scbw
 import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,7 +37,7 @@ class ReadDirectoryPublisherTest {
 
     private lateinit var sut: ReadDirectoryPublisher
 
-    private val botA = Bot(null, true, null, "botA", null, null, null, false, null, 0, 1000)
+    private val botA = Bot(null, true, null, "botA", Race.ZERG, "", null, false, null, 0, 1000)
 
     private lateinit var dataPath: Path
     private lateinit var botReadDir: Path

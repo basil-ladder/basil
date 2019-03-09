@@ -3,6 +3,7 @@ package org.bytekeeper.ctr
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.GameResult
+import org.bytekeeper.ctr.repository.Race
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
@@ -17,7 +18,9 @@ import java.util.concurrent.Executors
 
 class GameEnded(val id: UUID,
                 val winner: Bot,
+                val winnerRace: Race,
                 val loser: Bot,
+                val loserRace: Race,
                 val map: String,
                 val timestamp: Instant = Instant.now(),
                 val gameTime: Double,
@@ -26,7 +29,9 @@ class GameEnded(val id: UUID,
 
 class GameCrashed(val id: UUID,
                   val botA: Bot,
+                  val botARace: Race,
                   val botB: Bot,
+                  val botBRace: Race,
                   val map: String,
                   val botACrashed: Boolean,
                   val botBCrashed: Boolean,
@@ -37,7 +42,9 @@ class GameCrashed(val id: UUID,
 
 class GameTimedOut(val id: UUID,
                    val botA: Bot,
+                   val botARace: Race,
                    val botB: Bot,
+                   val botBRace: Race,
                    val slowerBot: Bot?,
                    val scoreA: Int,
                    val scoreB: Int,
@@ -51,7 +58,9 @@ class GameTimedOut(val id: UUID,
 
 class GameFailedToStart(val id: UUID,
                         val botA: Bot,
+                        val botARace: Race,
                         val botB: Bot,
+                        val botBRace: Race,
                         val map: String,
                         val timestamp: Instant = Instant.now(),
                         val gameHash: String)

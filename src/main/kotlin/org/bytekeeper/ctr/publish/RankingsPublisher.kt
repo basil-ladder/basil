@@ -34,7 +34,7 @@ class RankingsPublisher(private val publisher: Publisher,
                                         it.lost,
                                         it.crashed,
                                         it.crashesSinceUpdate,
-                                        it.race?.name,
+                                        it.race.name,
                                         lastUpdated?.epochSecond,
                                         it.enabled,
                                         it.disabledReason)

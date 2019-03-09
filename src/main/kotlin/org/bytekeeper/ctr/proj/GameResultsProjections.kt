@@ -21,7 +21,9 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 loser = gameEnded.loser,
                 gameRealtime = gameEnded.gameTime,
                 botA = gameEnded.winner,
+                raceA = gameEnded.winnerRace,
                 botB = gameEnded.loser,
+                raceB = gameEnded.loserRace,
                 map = gameEnded.map,
                 gameHash = gameEnded.gameHash,
                 frameCount = gameEnded.frameCount))
@@ -36,17 +38,21 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                     (if (gameCrashed.botBCrashed) gameCrashed.botA else gameCrashed.botB) to
                             (if (gameCrashed.botBCrashed) gameCrashed.botB else gameCrashed.botA)
                 } else null to null
+        val botA = winner ?: gameCrashed.botA
+        val botB = loser ?: gameCrashed.botB
         val gameResult = gameResultRepository.save(GameResult(
                 id = gameCrashed.id,
                 time = gameCrashed.timestamp,
-                botA = winner ?: gameCrashed.botA,
-                botB = loser ?: gameCrashed.botB,
+                botA = botA,
+                raceA = if (botA == gameCrashed.botA) gameCrashed.botARace else gameCrashed.botBRace,
+                botB = botB,
+                raceB = if (botB == gameCrashed.botB) gameCrashed.botBRace else gameCrashed.botARace,
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameCrashed.gameTime,
                 map = gameCrashed.map,
-                botACrashed = if (winner ?: gameCrashed.botA == gameCrashed.botA) gameCrashed.botACrashed else gameCrashed.botBCrashed,
-                botBCrashed = if (loser ?: gameCrashed.botB == gameCrashed.botB) gameCrashed.botBCrashed else gameCrashed.botACrashed,
+                botACrashed = if (botA == gameCrashed.botA) gameCrashed.botACrashed else gameCrashed.botBCrashed,
+                botBCrashed = if (botB == gameCrashed.botB) gameCrashed.botBCrashed else gameCrashed.botACrashed,
                 gameHash = gameCrashed.gameHash,
                 frameCount = gameCrashed.frameCount))
         if (winner != null && loser != null)
@@ -61,7 +67,9 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 time = gameFailedToStart.timestamp,
                 realtimeTimeout = false,
                 botA = gameFailedToStart.botA,
+                raceA = gameFailedToStart.botARace,
                 botB = gameFailedToStart.botB,
+                raceB = gameFailedToStart.botBRace,
                 gameRealtime = 0.0,
                 map = gameFailedToStart.map,
                 botACrashed = true,
@@ -94,14 +102,18 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 loser = gameTimedOut.botB
             }
         }
+        val botA = winner ?: gameTimedOut.botA
+        val botB = loser ?: gameTimedOut.botB
 
         val gameResult = gameResultRepository.save(GameResult(
                 id = gameTimedOut.id,
                 time = gameTimedOut.timestamp,
                 realtimeTimeout = gameTimedOut.realTimedOut,
                 frameTimeout = gameTimedOut.gameTimedOut,
-                botA = winner ?: gameTimedOut.botA,
-                botB = loser ?: gameTimedOut.botB,
+                botA = botA,
+                raceA = if (gameTimedOut.botA == botA) gameTimedOut.botARace else gameTimedOut.botBRace,
+                botB = botB,
+                raceB = if (gameTimedOut.botB == botB) gameTimedOut.botBRace else gameTimedOut.botARace,
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameTimedOut.gameTime,
