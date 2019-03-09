@@ -32,6 +32,7 @@ class BotVsBotWonGames(val botA: Bot,
 
 class BotStat(val bot: Bot, val won: Long, val lost: Long)
 class MapStat(val map: String, val won: Long, val lost: Long)
+class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long)
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
@@ -65,4 +66,14 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
             " GROUP BY map")
     @Timed
     fun botStatsPerMap(bot: Bot): List<MapStat>
+
+    @Query("SELECT new org.bytekeeper.ctr.repository.BotRaceVsRace(bot, " +
+            "CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END," +
+            "CASE WHEN (r.botA = bot) THEN r.raceB else r.raceA END," +
+            " SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
+            " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END))" +
+            " FROM GameResult r, Bot bot where (r.botA = bot OR r.botB = bot) AND bot.enabled = TRUE" +
+            " GROUP by bot, CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END, CASE WHEN (r.botA = bot) THEN r.raceB else r.raceA END")
+    @Timed
+    fun listBotRaceVsRace(): List<BotRaceVsRace>
 }

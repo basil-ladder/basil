@@ -40,7 +40,7 @@ class BotVsBotPublisherTest {
         sut = BotVsBotPublisher(gameResultRepository, publisher)
 
         var g = given(publisher.globalStatsWriter(BDDMockito.anyString()))
-        repeat(10) {
+        repeat(9) {
             g = g.willReturn(BufferedWriter(jsonWriter)).willReturn(BufferedWriter(csvWriter))
         }
     }
