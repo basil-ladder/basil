@@ -8,14 +8,14 @@ title: Crosstable
 <script type="riot/tag">
 	{% raw %}
 	<crosstable>
-	<div>Download: <span each={ days in ["", "_30", "_60", "_90", "_120", "_150", "_180"] } style="margin-left: 0.5em;"><a href="http://basilicum.bytekeeper.org/stats/botVsBot{ days }.csv">botVsBot{ days }.csv</a></div></span>
+	<div>Download: <span each={ days in ranges } style="margin-left: 0.5em;"><a href="http://basilicum.bytekeeper.org/stats/botVsBot{ days == null ? '' : '_' + days }.csv">botVsBot{ days == null ? "" : "_" + days }.csv</a></div></span>
 	<form onsumbit="" style="margin-top: 1em;">
 	<input type="checkbox" id="enabledOnly" name="enabledOnly" onclick= { toggleEnabledOnly } checked={ showEnabledOnly }><label for="enabledOnly"> Show enabled only</label>
 	<label for="minElo" style="margin-left: 0.8em;">Min ELO</label><input style="width: 5em;" type="number" id="minElo" ref="minElo" value={ minElo } min="0" max="5000" onchange={ trigger }>	
 	<label for="maxElo" style="margin-left: 0.8em;">Max ELO</label><input style="width: 5em;" type="number" id="maxElo" ref="maxElo" value={ maxElo } min="0" max="5000" onchange={ trigger }>	
 	<label for="range" style="margin-left: 0.8em;">Range</label>
 	<select id="range" ref="range" onchange={ rerequest }>
-		<option each={ days in [null, 30, 60, 90, 120, 150, 180] } value={ days }>{ days == null ? "everything" : days + " days" }</option>
+		<option each={ days in ranges } value={ days }>{ days == null ? "everything" : days + " days" }</option>
 	</select>
 	</form>
 <div id="tablePlaceholder" style="position: absolute; left: 0;">
@@ -87,6 +87,7 @@ title: Crosstable
 				this.showEnabledOnly = !this.showEnabledOnly	
 				return true
 			};
+			this.ranges = [null, 7, 14, 30, 60, 90, 120, 150, 180];
 			this.trigger = function() {};
 			this.rerequest = function() {
 				let suffix = this.refs.range.value;
