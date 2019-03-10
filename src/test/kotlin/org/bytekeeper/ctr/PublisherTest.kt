@@ -12,11 +12,13 @@ internal class PublisherTest(@TempDirectory.TempDir private val tempDir: Path) {
     private val config = Config()
     private lateinit var sut: Publisher
 
+    private val commands: Commands = mock()
+
     @BeforeEach
     fun setup() {
         config.publishBasePath = tempDir
         config.dataBasePath = tempDir
-        sut = Publisher(config)
+        sut = Publisher(config, commands)
     }
 
     @Test

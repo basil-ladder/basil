@@ -3,7 +3,7 @@ package org.bytekeeper.ctr.publish
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
-import org.bytekeeper.ctr.GameRunner
+import org.bytekeeper.ctr.BotUpdater
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.BotRepository
@@ -32,13 +32,13 @@ class GeneralStatsPublisherTest {
     private lateinit var botRepository: BotRepository
 
     @Mock
-    private lateinit var gameRunner: GameRunner
+    private lateinit var botUpdater: BotUpdater
 
     private val writer: StringWriter = StringWriter()
 
     @BeforeEach
     fun setup() {
-        sut = GeneralStatsPublisher(gameRunner, gameResultRepository, botRepository, publisher)
+        sut = GeneralStatsPublisher(botUpdater, gameResultRepository, botRepository, publisher)
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
                 .willReturn(BufferedWriter(writer))
@@ -47,7 +47,7 @@ class GeneralStatsPublisherTest {
     @Test
     fun `should publish next update time`() {
         // GIVEN
-        given(gameRunner.nextBotUpdateTime).willReturn(1L)
+        given(botUpdater.nextBotUpdateTime).willReturn(1L)
 
         // WHEN
         sut.handle(PreparePublish())

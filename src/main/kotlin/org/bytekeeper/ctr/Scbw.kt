@@ -26,7 +26,7 @@ class Scbw(private val botRepository: BotRepository,
            private val scbwConfig: ScbwConfig,
            private val config: Config,
            private val events: Events,
-           private val commands: Commands,
+           private val publisher: Publisher,
            private val maps: Maps) {
     private val log = LogManager.getLogger()
 
@@ -188,7 +188,9 @@ class Scbw(private val botRepository: BotRepository,
                 Thread.sleep(2000)
                 cleanUpBotContainers()
                 // Try to move results
-                moveResult(scbwConfig.gamesDir, gameName, bots, botA, botARace, botB, botBRace)
+                publisher.preparePublish {
+                    moveResult(scbwConfig.gamesDir, gameName, bots, botA, botARace, botB, botBRace)
+                }
                 if (scbwConfig.deleteGamesInGameDir) {
                     deleteDirectory(scbwConfig.gamesDir.resolve("GAME_$gameName"))
                 } else {

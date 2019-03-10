@@ -13,6 +13,7 @@ class BotService(private val botRepository: BotRepository,
                  private val config: Config) {
     private val log = LogManager.getLogger()
 
+
     @Transactional
     fun registerOrUpdateBot(botInfo: BotInfo) {
         botRepository.findByName(botInfo.name)?.also { updateBot(it, botInfo) } ?: registerBot(botInfo)
@@ -52,4 +53,6 @@ class BotService(private val botRepository: BotRepository,
             disabledReason = reason.take(200)
         }
     }
+
+
 }

@@ -40,6 +40,9 @@ class GameServiceTest {
     @Mock
     private lateinit var botRepository: BotRepository
 
+    @Mock
+    private lateinit var botUpdater: BotUpdater
+
     private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "")
     private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "")
     private val botAInfo = TestBotInfo()
@@ -47,12 +50,13 @@ class GameServiceTest {
 
     @BeforeEach
     fun setup() {
-        sut = GameService(scbw, Maps(), botSources, botRepository)
+        sut = GameService(scbw, Maps(), botSources, botUpdater, botRepository)
         willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
         willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
 
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
-        sut.refresh()
+        given(botUpdater.setupBot(any())).willAnswer { (it.arguments[0] as () -> Unit)() }
+        sut.onBotListUpdate(BotListUpdated())
     }
 
     @Test

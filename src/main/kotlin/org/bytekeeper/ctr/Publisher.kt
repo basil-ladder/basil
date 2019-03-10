@@ -1,16 +1,25 @@
 package org.bytekeeper.ctr
 
+import org.apache.logging.log4j.LogManager
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.io.BufferedWriter
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 @Service
-class Publisher(config: Config) {
-    private final val statsPath = config.publishBasePath.resolve("stats")
-    private final val botsDataPath = config.dataBasePath.resolve("bots")
+class Publisher(private val config: Config,
+                private val commands: Commands) {
+    private val log = LogManager.getLogger()
+    private val statsPath = config.publishBasePath.resolve("stats")
+    private val botsDataPath = config.dataBasePath.resolve("bots")
+    private val publishLock = ReentrantReadWriteLock()
 
     init {
         Files.createDirectories(statsPath)
@@ -33,5 +42,31 @@ class Publisher(config: Config) {
 
     fun globalStatsWriter(file: String): BufferedWriter =
             Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+
+    @Scheduled(fixedDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}", initialDelayString = "#{\${basil.publishTimer} * 60 * 1000}")
+    fun publish() {
+        log.info("Publishing results")
+        commands.handle(PreparePublish())
+
+        // Write because concurrently finished games should wait before copying their state to the publish dir
+        publishLock.write {
+            try {
+                val process = Runtime.getRuntime().exec(arrayOf("/bin/bash", config.publishCommand))
+                val exited = process
+                        .waitFor(5, TimeUnit.MINUTES)
+                if (!exited) {
+                    log.error("Publishing of games still running after 5 minutes, killing it, continuing games...")
+                    process.destroyForcibly()
+                }
+            } catch (e: Exception) {
+                log.error("Failed to publish results", e)
+            }
+        }
+    }
+
+    fun preparePublish(run: () -> Unit) {
+        // Read because: Multiple parallel games can copy their state to the publish directory at the same time
+        publishLock.read(run)
+    }
 
 }

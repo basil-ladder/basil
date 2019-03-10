@@ -2,8 +2,8 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
+import org.bytekeeper.ctr.BotUpdater
 import org.bytekeeper.ctr.CommandHandler
-import org.bytekeeper.ctr.GameRunner
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.BotRepository
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 
 
 @Component
-class GeneralStatsPublisher(private val gameRunner: GameRunner,
+class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             private val gameResultRepository: GameResultRepository,
                             private val botRepository: BotRepository,
                             private val publisher: Publisher) {
@@ -31,7 +31,7 @@ class GeneralStatsPublisher(private val gameRunner: GameRunner,
                             vsRow(Race.RANDOM))
 
                     writer.writeValue(it,
-                            PublishedStats(gameRunner.nextBotUpdateTime,
+                            PublishedStats(botUpdater.nextBotUpdateTime,
                                     gameResultRepository.count(),
                                     botRepository.countByRace(Race.TERRAN),
                                     botRepository.countByRace(Race.ZERG),

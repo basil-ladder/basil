@@ -11,13 +11,14 @@ import java.util.concurrent.ConcurrentHashMap
 class GameService(private val scbw: Scbw,
                   private val maps: Maps,
                   private val botSources: BotSources,
+                  private val botUpdater: BotUpdater,
                   private val botRepository: BotRepository) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Bot, Bot>()
     private var candidates: List<Bot> = emptyList()
 
-
-    fun refresh() {
+    @EventHandler
+    fun onBotListUpdate(event: BotListUpdated) {
         candidates = botRepository.findAllByEnabledTrue()
         log.info("${candidates.size} bots are enabled for BASIL")
     }
@@ -30,8 +31,13 @@ class GameService(private val scbw: Scbw,
                 try {
                     val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).toUpperCase()
 
-                    setupBot(botA)
-                    setupBot(botB)
+                    // It is possible that a bot gets "deleted" between selecting it and setting it up.
+                    // But it should not matter and just result in an exception in setupBot(...)
+
+                    botUpdater.setupBot {
+                        setupBot(botA)
+                        setupBot(botB)
+                    }
 
                     scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), maps.maps.random(), "CTR_$hash"))
                 } catch (e: FailedToLimitResources) {

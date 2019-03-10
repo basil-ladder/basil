@@ -10,7 +10,6 @@ import java.time.Duration
 @Component
 class Config {
     var botUpdateTimer: Long = 6 * 60
-    var publishTimer: Long = 30
     lateinit var publishCommand: String
     lateinit var publishBasePath: Path
     var gameResultsHours: Long = 48
