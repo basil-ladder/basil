@@ -20,6 +20,7 @@ class ReadDirectoryPublisher(private val botRepository: BotRepository,
     fun handle(command: PreparePublish) {
         val relevantUpdateTime = Instant.now().minusSeconds(86400)
         botRepository.findAllByEnabledTrueAndPublishReadTrue()
+                .parallelStream()
                 .forEach { publish(it, relevantUpdateTime) }
     }
 

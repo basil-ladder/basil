@@ -15,10 +15,10 @@ enum class Race {
 
 @Entity
 class BotElo(@Id @GeneratedValue var id: Long? = null,
-             @ManyToOne val bot: Bot,
+             @ManyToOne(fetch = FetchType.LAZY) val bot: Bot,
              val time: Instant,
              val rating: Int,
-             @ManyToOne val game: GameResult)
+             @ManyToOne(fetch = FetchType.LAZY) val game: GameResult)
 
 @Entity
 class Bot(@Id @GeneratedValue var id: Long? = null,
@@ -38,7 +38,7 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var lost: Int = 0)
 
 @Entity
-class BotHistory(@ManyToOne val bot: Bot,
+class BotHistory(@ManyToOne(fetch = FetchType.LAZY) val bot: Bot,
                  val time: Instant) {
     @Id
     @GeneratedValue

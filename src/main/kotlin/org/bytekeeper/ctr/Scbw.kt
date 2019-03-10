@@ -113,9 +113,9 @@ class Scbw(private val botRepository: BotRepository,
 
     private inner class ScbwGameRunner(val gameConfig: GameConfig) {
         private val log = LogManager.getLogger()
-        private val dockerPrefix = "GAME_${gameConfig.gameName}"
         private val bots = gameConfig.bots
         private val gameName = gameConfig.gameName
+        private val dockerPrefix = "GAME_${gameName}"
         private val selectableRaces = listOf(Race.ZERG, Race.TERRAN, Race.PROTOSS)
 
         fun Race.toScbw() = when (this) {
@@ -184,9 +184,9 @@ class Scbw(private val botRepository: BotRepository,
                         throw FailedToKillSCBW("Could not kill scbw.play after $killTimeout seconds")
                     }
                 }
-                cleanUpBotContainers()
                 // Wait for a short while to make sure scores and results are written
                 Thread.sleep(2000)
+                cleanUpBotContainers()
                 // Try to move results
                 moveResult(scbwConfig.gamesDir, gameName, bots, botA, botARace, botB, botBRace)
                 if (scbwConfig.deleteGamesInGameDir) {
@@ -197,23 +197,16 @@ class Scbw(private val botRepository: BotRepository,
             }
         }
 
-        private fun cleanUpBotContainers(): Int {
-            val started = System.currentTimeMillis()
-            var remaining = 2
-            while (System.currentTimeMillis() - started < 10000 && remaining > 0) {
-                Docker.retrieveContainersWithName(dockerPrefix)
-                        .forEach {
-                            log.info("Killing game ${gameConfig.gameName}, bot container $it")
-                            val killed = Docker.killContainer(it)
-                                    .waitFor(killTimeout, TimeUnit.SECONDS)
-                            if (!killed) {
-                                throw FailedToKillContainer("Couldn't kill container $it after $killTimeout seconds")
-                            }
-                            remaining--
+        private fun cleanUpBotContainers() {
+            Docker.retrieveContainersWithName(dockerPrefix)
+                    .forEach {
+                        log.info("Killing game ${gameConfig.gameName}, bot container $it")
+                        val killed = Docker.killContainer(it)
+                                .waitFor(killTimeout, TimeUnit.SECONDS)
+                        if (!killed) {
+                            throw FailedToKillContainer("Couldn't kill container $it after $killTimeout seconds")
                         }
-                Thread.sleep(1000)
-            }
-            return remaining
+                    }
         }
 
         private fun moveResult(gameDir: Path, gameName: String, bots: List<String>, botA: Bot, botARace: Race, botB: Bot, botBRace: Race) {
@@ -366,7 +359,7 @@ class Scbw(private val botRepository: BotRepository,
             val botsParticipating = "${bots[0]} vs ${bots[1]}"
             val started = System.currentTimeMillis()
             while (System.currentTimeMillis() - started < 10000) {
-                val lines = Docker.retrieveContainersWithName("GAME_$gameName")
+                val lines = Docker.retrieveContainersWithName(dockerPrefix)
                 if (lines.size == bots.size) {
                     lines.forEach { id ->
                         log.info("Limiting container $id to 1 CPU and 1G memory")
