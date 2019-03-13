@@ -1,0 +1,8 @@
+---
+layout: post
+title: "BWAPI 4.3.0 is dead, long live BWAPI 4.4.0"
+categories: basil bwapi
+---
+BASIL no longer supports BWAPI 4.3.0. But: BASIL now supports BWAPI 4.4.0. Thanks again Hannes Bredberg for the new release!
+
+I believe more thorough testing went into this one. Please checkout the list of changes on [https://github.com/bwapi/bwapi/releases/tag/v4.4.0](https://github.com/bwapi/bwapi/releases/tag/v4.4.0). 
