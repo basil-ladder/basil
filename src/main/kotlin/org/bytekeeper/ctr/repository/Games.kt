@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.repository
 
 import io.micrometer.core.annotation.Timed
+import org.hibernate.Hibernate
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -28,11 +29,24 @@ class GameResult(@Id val id: UUID,
 
 class BotVsBotWonGames(val botA: Bot,
                        val botB: Bot,
-                       val won: Long)
+                       val won: Long) {
+    init {
+        Hibernate.initialize(botA)
+        Hibernate.initialize(botB)
+    }
+}
 
-class BotStat(val bot: Bot, val won: Long, val lost: Long)
+class BotStat(val bot: Bot, val won: Long, val lost: Long) {
+    init {
+        Hibernate.initialize(bot)
+    }
+}
 class MapStat(val map: String, val won: Long, val lost: Long)
-class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long)
+class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
+    init {
+        Hibernate.initialize(bot)
+    }
+}
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
@@ -49,9 +63,12 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun averageGameRealtime(): Double
 
-    @Query("""SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(r.winner, r.loser, COUNT(r))
-        FROM GameResult r WHERE r.time >= ?1
-        GROUP BY r.winner, r.loser""")
+    @Query("""SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(winner, loser, COUNT(r))
+        FROM GameResult r
+        JOIN r.winner winner
+        JOIN r.loser loser
+        WHERE r.time >= ?1
+        GROUP BY winner, loser""")
     @Timed
     fun listBotVsBotWonGames(after: Instant): List<BotVsBotWonGames>
 

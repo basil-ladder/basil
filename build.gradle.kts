@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.1.2.RELEASE"
+    id("org.springframework.boot") version "2.1.3.RELEASE"
     id("io.spring.dependency-management") version "1.0.6.RELEASE"
     id("com.github.ben-manes.versions") version "0.20.0"
 }
@@ -68,3 +68,8 @@ tasks.withType<Test> {
 val compileKotlin: KotlinCompile by tasks
 
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
+
+
+allOpen {
+    annotation("javax.persistence.Entity")
+}
