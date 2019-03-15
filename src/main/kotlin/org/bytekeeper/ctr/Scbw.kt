@@ -374,6 +374,9 @@ class Scbw(private val botRepository: BotRepository,
                 }
                 return events.map(CSV::parseLine)
                         .map(::toUnitEvent)
+                        .filter {
+                            it.ownedByBot && it.event != UnitEventType.UNIT_RENEGADE
+                        }
             }
             unitEventRepository.saveAll(preprocess(botA, botAEvents))
             unitEventRepository.saveAll(preprocess(botB, botBEvents))
