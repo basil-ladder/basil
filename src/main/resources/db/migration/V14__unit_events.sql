@@ -1,0 +1,1 @@
+create table unit_event(id int8 not null, frame int4 not null, event varchar(20) not null, game_id UUID not null, bot_id int8 not null, owned_by_bot boolean not null, unit_id int4 not null, unit_type varchar(40) not null, posX int4 not null, posY int4 not null, primary key (id));

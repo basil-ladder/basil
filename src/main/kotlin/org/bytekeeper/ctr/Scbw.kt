@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
-import org.bytekeeper.ctr.repository.Bot
-import org.bytekeeper.ctr.repository.BotRepository
-import org.bytekeeper.ctr.repository.Race
+import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,6 +13,7 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
+import javax.persistence.EntityManager
 import kotlin.concurrent.thread
 
 const val killTimeout = 20L
@@ -22,6 +21,8 @@ const val LOG_LIMIT = 200 * 1024
 
 @Service
 class Scbw(private val botRepository: BotRepository,
+           private val unitEventRepository: UnitEventsRepository,
+           private val entityManager: EntityManager,
            private val botSources: BotSources,
            private val scbwConfig: ScbwConfig,
            private val config: Config,
@@ -255,6 +256,13 @@ class Scbw(private val botRepository: BotRepository,
                     } else null
                 }
 
+                val unitEvents = logDir.resolve("unit_events.csv").let { unitEventFile ->
+                    if (unitEventFile.toFile().exists()) {
+                        Files.newBufferedReader(unitEventFile)
+                                .readLines().drop(1);
+                    } else emptyList()
+                }
+
                 val scores = logDir.resolve("scores.json").let { scoresFile ->
                     if (scoresFile.toFile().exists()) {
                         val scores = mapper.readValue<ScoresJson>(scoresFile.toFile())
@@ -266,11 +274,12 @@ class Scbw(private val botRepository: BotRepository,
                     } else null
                 }
 
-                return@mapIndexed BotResult(scores, frameCount)
+                return@mapIndexed BotResult(scores, frameCount, unitEvents)
             }
             val frameCount = botResults.mapNotNull { it.frames?.frameCount }.min()
             val resultFile = gamePath.resolve("result.json").toFile()
             val gameId = UUID.randomUUID()
+            persistUnitEvents(gameId, botA, botResults[0].unitEvents, botB, botResults[1].unitEvents)
             if (resultFile.exists()) {
                 val result = mapper.readValue<ResultJson>(resultFile)
                 if (result.winner != null && result.loser != null) {
@@ -349,6 +358,27 @@ class Scbw(private val botRepository: BotRepository,
             }
         }
 
+        private fun persistUnitEvents(gameId: UUID, botA: Bot, botAEvents: List<String>, botB: Bot, botBEvents: List<String>) {
+            val game = entityManager.getReference(GameResult::class.java, gameId)
+            fun preprocess(bot: Bot, events: List<String>): List<UnitEvent> {
+                fun toUnitEvent(fld: List<String>): UnitEvent {
+                    val pos = fld[5].split('(', ')', ',')
+                    return UnitEvent(fld[0].toInt(),
+                            UnitEventType.fromLogEvent(fld[1]),
+                            game,
+                            bot,
+                            fld[2].toBoolean(),
+                            fld[3].toInt(),
+                            fld[4].replace(' ', '_'),
+                            pos[1].toInt(), pos[2].toInt())
+                }
+                return events.map(CSV::parseLine)
+                        .map(::toUnitEvent)
+            }
+            unitEventRepository.saveAll(preprocess(botA, botAEvents))
+            unitEventRepository.saveAll(preprocess(botB, botBEvents))
+        }
+
         private fun moveLog(source: Path, dest: Path) {
             if (Files.size(source) > LOG_LIMIT) {
                 dest.toFile().writeText("Log file exceeds limit of $LOG_LIMIT bytes!")
@@ -405,7 +435,7 @@ class ScoresJson(
 )
 
 class FrameResult(val frameCount: Int, val sumFrameTime: Double)
-class BotResult(val scores: ScoresJson?, val frames: FrameResult?)
+class BotResult(val scores: ScoresJson?, val frames: FrameResult?, val unitEvents: List<String>)
 
 class FailedToLimitResources(message: String) : RuntimeException(message)
 class FailedToKillContainer(message: String) : RuntimeException(message)
