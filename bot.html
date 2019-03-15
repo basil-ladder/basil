@@ -62,11 +62,12 @@ permalink: /bot.html
 		$("#botName").append(template({botName: botName}));
 		$.getJSON(statsBaseUrl + "ranking.json")
 			.then(function(data) {
-				data.sort(function(a,b) { 
-					if (a.rating !== b.rating) return b.rating - a.rating; 
-					if (a.winRate !== b.winRate) return b.winRate - a.winRate;
-					return b.won - a.won;
-				})
+				data = data.filter(function(b) { return b.enabled; })
+					.sort(function(a,b) { 
+						if (a.rating !== b.rating) return b.rating - a.rating; 
+						if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+						return b.won - a.won;
+					});
 				let topBots = data.slice(0,5).map(function(bot) { return bot.botName; });
 				let myIndex = topBots.indexOf(botName);
 				if (myIndex === -1) topBots.push(botName); 
