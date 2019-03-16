@@ -6,9 +6,7 @@ import org.bytekeeper.ctr.BotUpdater
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.repository.BotRepository
-import org.bytekeeper.ctr.repository.GameResultRepository
-import org.bytekeeper.ctr.repository.Race
+import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
 
 
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Component
 class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             private val gameResultRepository: GameResultRepository,
                             private val botRepository: BotRepository,
+                            private val unitEventsRepository: UnitEventsRepository,
                             private val publisher: Publisher) {
     @CommandHandler
     @Timed
@@ -24,12 +23,24 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
 
         publisher.globalStatsWriter("stats.json")
                 .use {
-                    val raceCrossCable = RaceCrossTable(
+                    val raceCrossTable = RaceCrossTable(
                             vsRow(Race.TERRAN),
                             vsRow(Race.PROTOSS),
                             vsRow(Race.ZERG),
                             vsRow(Race.RANDOM))
 
+                    val unitStats = unitEventsRepository.globalUnitStats().asSequence()
+                            .filter { it.name != "Terran_Siege_Tank_Siege_Mode" && !it.name.startsWith("Spell") }
+                            .groupBy(UnitStats::name).entries
+                            .map { (name, stats) ->
+                                val name = if (name == "Terran_Siege_Tank_Tank_Mode") "Terran Siege Tank"
+                                else name.replace('_', ' ')
+                                val stats = stats.groupBy(UnitStats::event)
+                                val created = (stats[UnitEventType.UNIT_CREATE]
+                                        ?: stats[UnitEventType.UNIT_MORPH])?.get(0)?.amount ?: -1
+                                PublishedUnitStats(name, created, stats[UnitEventType.UNIT_DESTROY]?.get(0)?.amount
+                                        ?: 0)
+                            }.sortedBy { it.name }
                     writer.writeValue(it,
                             PublishedStats(botUpdater.nextBotUpdateTime,
                                     gameResultRepository.count(),
@@ -39,7 +50,10 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                                     botRepository.countByRace(Race.RANDOM),
                                     gameResultRepository.countByBotACrashedIsTrueOrBotBCrashedIsTrue(),
                                     gameResultRepository.averageGameRealtime(),
-                                    raceCrossCable
+                                    raceCrossTable,
+                                    unitStats
+
+
                             ))
                 }
     }
@@ -50,18 +64,20 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                     gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.ZERG),
                     gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.RANDOM))
 
-    class PublishedStats(val nextUpdateTime: Long,
-                         val gamesPlayed: Long,
-                         val terranBots: Int,
-                         val zergBots: Int,
-                         val protossBots: Int,
-                         val randomBots: Int,
-                         val crashes: Int,
-                         val averageGameRealtime: Double,
-                         val raceCrossTable: RaceCrossTable
-    )
+    data class PublishedStats(val nextUpdateTime: Long,
+                              val gamesPlayed: Long,
+                              val terranBots: Int,
+                              val zergBots: Int,
+                              val protossBots: Int,
+                              val randomBots: Int,
+                              val crashes: Int,
+                              val averageGameRealtime: Double,
+                              val raceCrossTable: RaceCrossTable,
+                              val unitStats: List<PublishedUnitStats>)
 
-    class RaceCrossTable(val terran: VsRow, val protoss: VsRow, val zerg: VsRow, val random: VsRow)
+    data class PublishedUnitStats(val name: String, val created: Long, val destroyed: Long)
 
-    class VsRow(val terran: Int, val protoss: Int, val zerg: Int, val random: Int)
+    data class RaceCrossTable(val terran: VsRow, val protoss: VsRow, val zerg: VsRow, val random: VsRow)
+
+    data class VsRow(val terran: Int, val protoss: Int, val zerg: Int, val random: Int)
 }

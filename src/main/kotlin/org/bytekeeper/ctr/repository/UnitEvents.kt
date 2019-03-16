@@ -1,5 +1,7 @@
 package org.bytekeeper.ctr.repository
 
+import io.micrometer.core.annotation.Timed
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import javax.persistence.*
 
@@ -43,4 +45,12 @@ class UnitEvent(val frame: Int,
     var id: Long? = null
 }
 
-interface UnitEventsRepository : CrudRepository<UnitEvent, Long>
+data class UnitStats(val name: String, val event: UnitEventType, val amount: Long)
+
+interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
+    @Query("SELECT new org.bytekeeper.ctr.repository.UnitStats(unitType, event, count(*))" +
+            " FROM UnitEvent GROUP BY unitType, event")
+    @Timed
+    fun globalUnitStats(): List<UnitStats>
+
+}
