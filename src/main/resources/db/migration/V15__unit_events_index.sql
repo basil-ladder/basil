@@ -1,0 +1,1 @@
+create index unit_events_game_multi_index on unit_event (game_id, bot_id, unit_id);

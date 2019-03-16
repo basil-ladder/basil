@@ -8,6 +8,7 @@ import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
+import javax.persistence.EntityManager
 
 
 @Component
@@ -15,7 +16,8 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             private val gameResultRepository: GameResultRepository,
                             private val botRepository: BotRepository,
                             private val unitEventsRepository: UnitEventsRepository,
-                            private val publisher: Publisher) {
+                            private val publisher: Publisher,
+                            private val entityManager: EntityManager) {
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
@@ -36,8 +38,9 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                                 val name = if (name == "Terran_Siege_Tank_Tank_Mode") "Terran Siege Tank"
                                 else name.replace('_', ' ')
                                 val stats = stats.groupBy(UnitStats::event)
-                                val created = (stats[UnitEventType.UNIT_CREATE]
-                                        ?: stats[UnitEventType.UNIT_MORPH])?.get(0)?.amount ?: -1
+                                val morphs = (if (name != "Terran Siege Tank") stats[UnitEventType.UNIT_MORPH]?.get(0)?.amount
+                                        ?: 0 else 0);
+                                val created = (stats[UnitEventType.UNIT_CREATE]?.get(0)?.amount ?: 0) + morphs;
                                 PublishedUnitStats(name, created, stats[UnitEventType.UNIT_DESTROY]?.get(0)?.amount
                                         ?: 0)
                             }.sortedBy { it.name }

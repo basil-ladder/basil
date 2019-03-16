@@ -46,6 +46,7 @@ class UnitEvent(val frame: Int,
 }
 
 data class UnitStats(val name: String, val event: UnitEventType, val amount: Long)
+data class Nuke(val frame: Int, val posX: Int, val posY: Int)
 
 interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     @Query("SELECT new org.bytekeeper.ctr.repository.UnitStats(unitType, event, count(*))" +
@@ -53,4 +54,19 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     @Timed
     fun globalUnitStats(): List<UnitStats>
 
+    @Query("SELECT new org.bytekeeper.ctr.repository.Nuke(e2.frame, e2.posX, e2.posY)" +
+            " FROM UnitEvent e1 join UnitEvent e2 on e1.game = e2.game and e1.bot = e2.bot and e1.unitId = e2.unitId" +
+            " WHERE e1.unitType = 'Terran_Nuclear_Missile' and e2.event = 'UNIT_DESTROY' and e1.event = 'UNIT_CREATE'" +
+            " AND e1.posX <> e2.posX" +
+            " ORDER BY e2.frame")
+    @Timed
+    fun allNukes(): List<Nuke>
+
+    @Query("SELECT new org.bytekeeper.ctr.repository.Nuke(e2.frame, e2.posX, e2.posY)" +
+            " FROM UnitEvent e1 join UnitEvent e2 on e1.game = e2.game and e1.bot = e2.bot and e1.unitId = e2.unitId" +
+            " WHERE e1.unitType = 'Terran_Nuclear_Missile' and e2.event = 'UNIT_DESTROY' and e1.event = 'UNIT_CREATE'" +
+            " AND e1.posX <> e2.posX AND e1.game = ?1" +
+            " ORDER BY e2.frame")
+    @Timed
+    fun findNukes(game: GameResult): List<Nuke>
 }
