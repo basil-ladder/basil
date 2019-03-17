@@ -1,0 +1,1 @@
+create index game_results_winlose_index on game_result (winner_id, loser_id);

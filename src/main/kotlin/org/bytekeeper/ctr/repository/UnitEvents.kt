@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.repository
 
 import io.micrometer.core.annotation.Timed
+import org.bytekeeper.ctr.UnitType
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import javax.persistence.*
@@ -32,21 +33,20 @@ enum class UnitEventType {
 
 @Entity
 class UnitEvent(val frame: Int,
-                @Enumerated(EnumType.STRING) val event: UnitEventType,
+                val event: UnitEventType,
                 @ManyToOne(fetch = FetchType.LAZY) val game: GameResult,
                 @ManyToOne(fetch = FetchType.LAZY) val bot: Bot,
-                val ownedByBot: Boolean,
-                val unitId: Int,
-                val unitType: String,
-                val posX: Int,
-                val posY: Int) {
+                val unitId: Short,
+                val unitType: UnitType,
+                val posX: Short,
+                val posY: Short) {
     @Id
     @GeneratedValue
     var id: Long? = null
 }
 
-data class UnitStats(val name: String, val event: UnitEventType, val amount: Long)
-data class Nuke(val frame: Int, val posX: Int, val posY: Int)
+data class UnitStats(val type: UnitType, val event: UnitEventType, val amount: Long)
+data class Nuke(val frame: Int, val posX: Short, val posY: Short)
 
 interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     @Query("SELECT new org.bytekeeper.ctr.repository.UnitStats(unitType, event, count(*))" +

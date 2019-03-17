@@ -21,6 +21,7 @@ class PerMapWinRatePublisher(private val botRepository: BotRepository,
         val writer = jacksonObjectMapper().writer()
 
         val allBots = botRepository.findAllByEnabledTrue()
+
         allBots.forEach { bot ->
             publisher.botStatsWriter(bot.name, "perMapStats.json")
                     .use { out ->

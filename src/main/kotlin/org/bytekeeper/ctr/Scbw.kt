@@ -259,7 +259,7 @@ class Scbw(private val botRepository: BotRepository,
                 val unitEvents = logDir.resolve("unit_events.csv").let { unitEventFile ->
                     if (unitEventFile.toFile().exists()) {
                         Files.newBufferedReader(unitEventFile)
-                                .readLines().drop(1);
+                                .readLines().drop(1)
                     } else emptyList()
                 }
 
@@ -361,21 +361,21 @@ class Scbw(private val botRepository: BotRepository,
         private fun persistUnitEvents(gameId: UUID, botA: Bot, botAEvents: List<String>, botB: Bot, botBEvents: List<String>) {
             val game = entityManager.getReference(GameResult::class.java, gameId)
             fun preprocess(bot: Bot, events: List<String>): List<UnitEvent> {
-                fun toUnitEvent(fld: List<String>): UnitEvent {
+                fun toUnitEvent(fld: List<String>): UnitEvent? {
+                    if (!fld[2].toBoolean()) return null
                     val pos = fld[5].split('(', ')', ',')
                     return UnitEvent(fld[0].toInt(),
                             UnitEventType.fromLogEvent(fld[1]),
                             game,
                             bot,
-                            fld[2].toBoolean(),
-                            fld[3].toInt(),
-                            fld[4].replace(' ', '_'),
-                            pos[1].toInt(), pos[2].toInt())
+                            fld[3].toShort(),
+                            UnitType.fromLogEvent(fld[4].replace(' ', '_')),
+                            pos[1].toShort(), pos[2].toShort())
                 }
                 return events.map(CSV::parseLine)
-                        .map(::toUnitEvent)
+                        .mapNotNull(::toUnitEvent)
                         .filter {
-                            it.ownedByBot && it.event != UnitEventType.UNIT_RENEGADE
+                            it.event != UnitEventType.UNIT_RENEGADE
                         }
             }
             unitEventRepository.saveAll(preprocess(botA, botAEvents))

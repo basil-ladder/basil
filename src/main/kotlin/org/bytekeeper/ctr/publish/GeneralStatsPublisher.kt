@@ -2,10 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
-import org.bytekeeper.ctr.BotUpdater
-import org.bytekeeper.ctr.CommandHandler
-import org.bytekeeper.ctr.PreparePublish
-import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
 import javax.persistence.EntityManager
@@ -32,16 +29,16 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             vsRow(Race.RANDOM))
 
                     val unitStats = unitEventsRepository.globalUnitStats().asSequence()
-                            .filter { it.name != "Terran_Siege_Tank_Siege_Mode" && !it.name.startsWith("Spell") }
-                            .groupBy(UnitStats::name).entries
-                            .map { (name, stats) ->
-                                val name = if (name == "Terran_Siege_Tank_Tank_Mode") "Terran Siege Tank"
-                                else name.replace('_', ' ')
-                                val stats = stats.groupBy(UnitStats::event)
-                                val morphs = (if (name != "Terran Siege Tank") stats[UnitEventType.UNIT_MORPH]?.get(0)?.amount
-                                        ?: 0 else 0);
-                                val created = (stats[UnitEventType.UNIT_CREATE]?.get(0)?.amount ?: 0) + morphs;
-                                PublishedUnitStats(name, created, stats[UnitEventType.UNIT_DESTROY]?.get(0)?.amount
+                            .filter { it.type != UnitType.TERRAN_SIEGE_TANK_SIEGE_MODE && !it.type.name.startsWith("Spell") }
+                            .groupBy(UnitStats::type).entries
+                            .map { (type, stats) ->
+                                val name = if (type == UnitType.TERRAN_SIEGE_TANK_TANK_MODE) "Terran Siege Tank"
+                                else type.name.replace('_', ' ')
+                                val statsByType = stats.groupBy(UnitStats::event)
+                                val morphs = (if (type != UnitType.TERRAN_SIEGE_TANK_TANK_MODE) statsByType[UnitEventType.UNIT_MORPH]?.get(0)?.amount
+                                        ?: 0 else 0)
+                                val created = (statsByType[UnitEventType.UNIT_CREATE]?.get(0)?.amount ?: 0) + morphs
+                                PublishedUnitStats(name, created, statsByType[UnitEventType.UNIT_DESTROY]?.get(0)?.amount
                                         ?: 0)
                             }.sortedBy { it.name }
                     writer.writeValue(it,

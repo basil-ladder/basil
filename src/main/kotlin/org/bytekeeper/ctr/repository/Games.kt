@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import java.util.*
+import java.util.stream.Stream
 import javax.persistence.*
 
 @Entity
@@ -41,12 +42,21 @@ class BotStat(val bot: Bot, val won: Long, val lost: Long) {
         Hibernate.initialize(bot)
     }
 }
+
 class MapStat(val map: String, val won: Long, val lost: Long)
 class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
     init {
         Hibernate.initialize(bot)
     }
 }
+
+data class BotGameResult(val time: Instant,
+                         val bot: String,
+                         val botRace: Race,
+                         val enemy: String,
+                         val enemyRace: Race,
+                         val won: Boolean,
+                         val map: String)
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
@@ -93,4 +103,11 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
             " GROUP by bot, CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END, CASE WHEN (r.botA = bot) THEN r.raceB else r.raceA END")
     @Timed
     fun listBotRaceVsRace(): List<BotRaceVsRace>
+
+    @Query("SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time," +
+            " b.name, b.race, CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
+            " CASE WHEN b = r.winner THEN r.loser.race else r.winner.race END, b = r.winner, r.map)" +
+            " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b")
+    @Timed
+    fun findAllGamesSummarized(): Stream<BotGameResult>
 }

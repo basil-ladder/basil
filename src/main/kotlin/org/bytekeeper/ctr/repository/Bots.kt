@@ -6,11 +6,11 @@ import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import javax.persistence.*
 
-enum class Race {
-    ZERG,
-    TERRAN,
-    PROTOSS,
-    RANDOM
+enum class Race(val short: String) {
+    ZERG("Z"),
+    TERRAN("T"),
+    PROTOSS("P"),
+    RANDOM("R");
 }
 
 @Entity
