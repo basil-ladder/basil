@@ -311,11 +311,89 @@ permalink: /bot.html
       			updateChart();
 			updaters.push(updateChart);
 		}
+		function setupMatchupChart(data) {
+			let chart = new Chart(document.getElementById("perRaceWinsChart"), {
+				type: "bar",
+				options: {
+					tooltips: {
+						mode: "index",
+						callbacks: {
+							footer: function(tooltipItems, data) {
+								let wins = tooltipItems[0].yLabel;
+								let losses = tooltipItems[1].yLabel;
+								let wr = wins / Math.max(1, wins + losses);
+								return "WR: " + percentFormat(wr);
+							}
+						}
+					}
+				}
+			});
+      			function updateChart() {
+			        let rvr = {};
+      				let races = ["T", "P", "Z", "R"];
+			        let raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg" };
+      				races.forEach(function(a) {
+					races.forEach(function(b) {
+						rvr[a + b] = {label: raceLabel[a] + " vs " + raceLabel[b], won: 0, lost: 0};
+					});
+				});
+				data.results.forEach(function(x) {
+					let epochSecond = parseInt(x.t, 16) * 3600;
+					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
+						let stat = rvr[x.r + x.er];
+						if (x.w === 1) stat.won++; else stat.lost++;
+					}
+				}, {});
+      				let rvrList = [];
+      				races.forEach(function(a) {
+					races.forEach(function(b) {
+					        rvrList.push(rvr[a + b]);
+					});
+			        });
+      				rvrList = rvrList.filter(function(x) { return x.won + x.lost > 0; });
+				rvrList.sort(function(a,b) {
+					let dWR = a.won / (a.won + a.lost) - b.won / (b.won + b.lost);
+					if (dWR != 0) return dWR;
+					if (a.lost > b.lost) return -1;
+					if (a.lost < b.lost) return 1;
+					return 0;
+				});
+				let wonData = rvrList.map(function(a) { return a.won; });
+				let lostData = rvrList.map(function(a) { return a.lost; });
+			        let labels = rvrList.map(function(x) { return x.label; });
+				chart.data.datasets = [{
+					label: "Won",
+					data: wonData,
+					backgroundColor: "#88AAEB"
+				}, {
+					label: "Lost",
+					data: lostData,
+					backgroundColor: "#EBAAAA"
+				}];
+      				chart.options.scales = {
+					xAxes: [{
+						stacked: true,
+						type: "category",
+						labels: labels,
+						ticks: {
+							autoSkip: false
+						}
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				};
+				chart.update();
+       			}
+      			updateChart();
+			updaters.push(updateChart);
+	        }
 		$.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
 			.then(function(_data) {
 				let data = eval('(' + _data + ')');
 				setupPerMapWinsChart(data);
 				setupVsChart(data);
+				setupMatchupChart(data);
 			});
 	});
 </script>
@@ -342,5 +420,8 @@ permalink: /bot.html
 <p>Top 30 contenders, sorted by WR, ties broken by #losses:</p>
 <canvas id="vsChart" width="1200" height="300">
 </canvas>
-
+<h2>Wins Per Race</h2>
+<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small>
+<canvas id="perRaceWinsChart" width="1200" height="300">
+</canvas>
 </table>
