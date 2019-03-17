@@ -60,6 +60,24 @@ permalink: /bot.html
 		let myData;
 		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format
 		$("#botName").append(template({botName: botName}));
+		let now = Date.now() / 1000;
+		let selectedRange = { startSecond:  now - 30 * 86400, endSecond: now };
+		let updaters = [];
+		$("#startDate").flatpickr({
+			defaultDate: new Date(selectedRange.startSecond * 1000),
+			onChange: function(selectedDates) {
+				selectedRange.startSecond = selectedDates[0].getTime() / 1000;
+				updaters.forEach(function(x) {x.apply();});
+			}
+		});
+		$("#endDate").flatpickr({
+			defaultDate: new Date(selectedRange.endSecond * 1000),
+			onChange: function(selectedDates) {
+				selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
+				updaters.forEach(function(x) {x.apply();});
+			}
+
+		});
 		$.getJSON(statsBaseUrl + "ranking.json")
 			.then(function(data) {
 				data = data.filter(function(b) { return b.enabled; })
@@ -105,8 +123,6 @@ permalink: /bot.html
 				myData.maxElo = maxElo;
 				$("#botName").append(template(myData));
 
-				let now = Date.now() / 1000;
-				let selectedRange = { startSecond:  now - 30 * 86400, endSecond: now };
 				function prepareDataSets() {
 					let startSecond = selectedRange.startSecond;
 					let endSecond = selectedRange.endSecond;
@@ -155,46 +171,48 @@ permalink: /bot.html
 						}
 					}
 				});
-				$("#startDate").flatpickr({
-      					defaultDate: new Date(selectedRange.startSecond * 1000),
-					onChange: function(selectedDates) {
-						selectedRange.startSecond = selectedDates[0].getTime() / 1000;
-						eloChart.data.datasets = prepareDataSets();
-						eloChart.update();
-					}
-      				});
-				$("#endDate").flatpickr({
-					defaultDate: new Date(selectedRange.endSecond * 1000),
-					onChange: function(selectedDates) {
-						selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
-						eloChart.data.datasets = prepareDataSets();
-						eloChart.update();
-					}
-
+				updaters.push(function() {
+					eloChart.data.datasets = prepareDataSets();
+					eloChart.update();
 				});
 			});
-		$.getJSON(statsBaseUrl + botName + "/perMapStats.json")
-			.then(function(data) {
-				data.sort(function(a,b) {
-					if (a.map > b.map) return 1;
-					if (a.map < b.map) return -1;
-					return 0;
-				});
-				let labels = data.map(function(a) { return a.map; });
-				let wonData = data.map(function(a) { return a.won; });
-				let lostData = data.map(function(a) { return a.lost; });
-				new Chart(document.getElementById("perMapWinsChart"), {
+		$.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
+			.then(function(_data) {
+				let data = eval('(' + _data + ')');
+				let labels = data.maps.sort();
+				function prepareDataSets() {
+					let map = data.maps.map(function(x) {
+						return {won: 0, lost: 0, map: x};
+					});
+					data.results.forEach(function(x) {
+						let epochSecond = parseInt(x.t, 16) * 3600;
+						if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
+							let stat = map[x.m];
+							if (x.w === 1) stat.won++; else stat.lost++;
+						}
+					}, {});
+					map.sort(function(a,b) {
+						if (a.map > b.map) return 1;
+						if (a.map < b.map) return -1;
+						return 0;
+					});
+					let wonData = map.map(function(a) { return a.won; });
+					let lostData = map.map(function(a) { return a.lost; });
+					return [{
+						label: "Won",
+						data: wonData,
+						backgroundColor: "#88AAEB"
+					}, {
+						label: "Lost",
+						data: lostData,
+						backgroundColor: "#EBAAAA"
+					}];
+				}
+				let datasets = prepareDataSets();
+				let winCharts = new Chart(document.getElementById("perMapWinsChart"), {
 					type: "bar",
 					data: {
-						datasets: [{
-							label: "Won",
-							data: wonData,
-							backgroundColor: "#88AAEB"
-						}, {
-							label: "Lost",
-							data: lostData,
-							backgroundColor: "#EBAAAA"
-						}]
+						datasets: datasets
 					},
 					options: {
 						scales: {
@@ -223,6 +241,11 @@ permalink: /bot.html
 						}
 					}
 				});
+     				updaters.push(function() {
+					winCharts.data.datasets = prepareDataSets();
+					winCharts.update();
+				});
+
 
 			});
 	});
