@@ -176,77 +176,146 @@ permalink: /bot.html
 					eloChart.update();
 				});
 			});
-		$.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
-			.then(function(_data) {
-				let data = eval('(' + _data + ')');
-				let labels = data.maps.sort();
-				function prepareDataSets() {
-					let map = data.maps.map(function(x) {
-						return {won: 0, lost: 0, map: x};
-					});
-					data.results.forEach(function(x) {
-						let epochSecond = parseInt(x.t, 16) * 3600;
-						if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
-							let stat = map[x.m];
-							if (x.w === 1) stat.won++; else stat.lost++;
-						}
-					}, {});
-					map.sort(function(a,b) {
-						if (a.map > b.map) return 1;
-						if (a.map < b.map) return -1;
-						return 0;
-					});
-					let wonData = map.map(function(a) { return a.won; });
-					let lostData = map.map(function(a) { return a.lost; });
-					return [{
-						label: "Won",
-						data: wonData,
-						backgroundColor: "#88AAEB"
-					}, {
-						label: "Lost",
-						data: lostData,
-						backgroundColor: "#EBAAAA"
-					}];
-				}
-				let datasets = prepareDataSets();
-				let winCharts = new Chart(document.getElementById("perMapWinsChart"), {
-					type: "bar",
-					data: {
-						datasets: datasets
+		function setupPerMapWinsChart(data) {
+			let labels = data.maps.sort();
+			function prepareDataSets() {
+				let map = data.maps.map(function(x) {
+					return {won: 0, lost: 0, map: x};
+				});
+				data.results.forEach(function(x) {
+					let epochSecond = parseInt(x.t, 16) * 3600;
+					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
+						let stat = map[x.m];
+						if (x.w === 1) stat.won++; else stat.lost++;
+					}
+				}, {});
+				map.sort(function(a,b) {
+					if (a.map > b.map) return 1;
+					if (a.map < b.map) return -1;
+					return 0;
+				});
+				let wonData = map.map(function(a) { return a.won; });
+				let lostData = map.map(function(a) { return a.lost; });
+				return [{
+					label: "Won",
+					data: wonData,
+					backgroundColor: "#88AAEB"
+				}, {
+					label: "Lost",
+					data: lostData,
+					backgroundColor: "#EBAAAA"
+				}];
+			}
+			let datasets = prepareDataSets();
+			let winCharts = new Chart(document.getElementById("perMapWinsChart"), {
+				type: "bar",
+				data: {
+					datasets: datasets
+				},
+				options: {
+					scales: {
+						xAxes: [{
+							stacked: true,
+							type: "category",
+							labels: labels,
+							ticks: {
+								autoSkip: false
+							}
+						}],
+						yAxes: [{
+							stacked: true
+						}]
 					},
-					options: {
-						scales: {
-							xAxes: [{
-								stacked: true,
-								type: "category",
-								labels: labels,
-								ticks: {
-									autoSkip: false
-								}
-							}],
-							yAxes: [{
-								stacked: true
-							}]
-						},
-						tooltips: {
-							mode: "index",
-							callbacks: {
-								footer: function(tooltipItems, data) {
-									let wins = tooltipItems[0].yLabel;
-									let losses = tooltipItems[1].yLabel;
-									let wr = wins / Math.max(1, wins + losses);
-									return "WR: " + percentFormat(wr);
-								}
+					tooltips: {
+						mode: "index",
+						callbacks: {
+							footer: function(tooltipItems, data) {
+								let wins = tooltipItems[0].yLabel;
+								let losses = tooltipItems[1].yLabel;
+								let wr = wins / Math.max(1, wins + losses);
+								return "WR: " + percentFormat(wr);
 							}
 						}
 					}
-				});
-     				updaters.push(function() {
-					winCharts.data.datasets = prepareDataSets();
-					winCharts.update();
-				});
+				}
+			});
+			updaters.push(function() {
+				winCharts.data.datasets = prepareDataSets();
+				winCharts.update();
+			});
 
-
+		}
+      		function setupVsChart(data) {
+			let vsChart = new Chart(document.getElementById("vsChart"), {
+				type: "bar",
+				options: {
+					tooltips: {
+						mode: "index",
+						callbacks: {
+							footer: function(tooltipItems, data) {
+								let wins = tooltipItems[0].yLabel;
+								let losses = tooltipItems[1].yLabel;
+								let wr = wins / Math.max(1, wins + losses);
+								return "WR: " + percentFormat(wr);
+							}
+						}
+					}
+				}
+			});
+      			function updateChart() {
+				let bots = data.bots.map(function(x) {
+					return {won: 0, lost: 0, bot: x};
+				});
+				data.results.forEach(function(x) {
+					let epochSecond = parseInt(x.t, 16) * 3600;
+					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
+						let stat = bots[x.e - 1];
+						if (x.w === 1) stat.won++; else stat.lost++;
+					}
+				}, {});
+      				bots = bots.filter(function(x) { return x.won + x.lost > 0; });
+				bots.sort(function(a,b) {
+					let dWR = a.won / (a.won + a.lost) - b.won / (b.won + b.lost);
+					if (dWR != 0) return dWR;
+					if (a.lost > b.lost) return -1;
+					if (a.lost < b.lost) return 1;
+					return 0;
+				}).slice(0, 30);
+				let wonData = bots.map(function(a) { return a.won; });
+				let lostData = bots.map(function(a) { return a.lost; });
+			        let labels = bots.map(function(x) { return x.bot; });
+				vsChart.data.datasets = [{
+					label: "Won",
+					data: wonData,
+					backgroundColor: "#88AAEB"
+				}, {
+					label: "Lost",
+					data: lostData,
+					backgroundColor: "#EBAAAA"
+				}];
+      				vsChart.options.scales = {
+					xAxes: [{
+						stacked: true,
+						type: "category",
+						labels: labels,
+						ticks: {
+							autoSkip: false
+						}
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				};
+				vsChart.update();
+       			}
+      			updateChart();
+			updaters.push(updateChart);
+		}
+		$.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
+			.then(function(_data) {
+				let data = eval('(' + _data + ')');
+				setupPerMapWinsChart(data);
+				setupVsChart(data);
 			});
 	});
 </script>
@@ -268,6 +337,10 @@ permalink: /bot.html
 </canvas>
 <h2>Wins Per Map</h2>
 <canvas id="perMapWinsChart" width="1200" height="300">
+</canvas>
+<h2>Vs</h2>
+<p>Top 30 contenders, sorted by WR, ties broken by #losses:</p>
+<canvas id="vsChart" width="1200" height="300">
 </canvas>
 
 </table>
