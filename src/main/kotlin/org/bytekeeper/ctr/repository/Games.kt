@@ -43,7 +43,6 @@ class BotStat(val bot: Bot, val won: Long, val lost: Long) {
     }
 }
 
-class MapStat(val map: String, val won: Long, val lost: Long)
 class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
     init {
         Hibernate.initialize(bot)
@@ -87,12 +86,6 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
             " GROUP BY bot")
     @Timed
     fun gamesSinceLastUpdate(): List<BotStat>
-
-    @Query("SELECT new org.bytekeeper.ctr.repository.MapStat(r.map, SUM(CASE WHEN (r.winner = ?1) THEN 1 ELSE 0 END)," +
-            " SUM(CASE WHEN (r.loser = ?1) THEN 1 else 0 END)) FROM GameResult r WHERE r.winner = ?1 OR r.loser = ?1" +
-            " GROUP BY map")
-    @Timed
-    fun botStatsPerMap(bot: Bot): List<MapStat>
 
     @Query("SELECT new org.bytekeeper.ctr.repository.BotRaceVsRace(bot, " +
             "CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END," +

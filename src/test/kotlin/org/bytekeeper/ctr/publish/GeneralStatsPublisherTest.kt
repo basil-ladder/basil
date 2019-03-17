@@ -8,6 +8,7 @@ import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.GameResultRepository
+import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,11 +35,14 @@ class GeneralStatsPublisherTest {
     @Mock
     private lateinit var botUpdater: BotUpdater
 
+    @Mock
+    private lateinit var unitEventsRepository: UnitEventsRepository
+
     private val writer: StringWriter = StringWriter()
 
     @BeforeEach
     fun setup() {
-        sut = GeneralStatsPublisher(botUpdater, gameResultRepository, botRepository, publisher)
+        sut = GeneralStatsPublisher(botUpdater, gameResultRepository, botRepository, unitEventsRepository, publisher)
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
                 .willReturn(BufferedWriter(writer))

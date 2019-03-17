@@ -5,7 +5,6 @@ import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
-import javax.persistence.EntityManager
 
 
 @Component
@@ -13,8 +12,7 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             private val gameResultRepository: GameResultRepository,
                             private val botRepository: BotRepository,
                             private val unitEventsRepository: UnitEventsRepository,
-                            private val publisher: Publisher,
-                            private val entityManager: EntityManager) {
+                            private val publisher: Publisher) {
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
