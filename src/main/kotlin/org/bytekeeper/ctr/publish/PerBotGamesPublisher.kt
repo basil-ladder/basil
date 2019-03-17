@@ -48,7 +48,9 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
     private fun publish(bot: String?, writer: ObjectWriter, aggregate: List<PublishedBotGameResult>, botToIndex: Map<String, Int>) {
         bot?.let {
             publisher.botStatsWriter(it, "allGameResults.json").use { out ->
-                writer.writeValue(out, PublishedBotGameResults(maps.maps, botToIndex.entries.sortedBy { it.value }.map { it.key }, aggregate))
+                writer.writeValue(out, PublishedBotGameResults(maps.maps.map {
+                    maps.mapName(it) ?: it
+                }, botToIndex.entries.sortedBy { it.value }.map { it.key }, aggregate))
             }
         }
     }
