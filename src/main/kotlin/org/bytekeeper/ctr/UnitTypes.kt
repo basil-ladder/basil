@@ -238,7 +238,7 @@ enum class UnitType(val identifier: String) {
     UNKNOWN("Unknown");
 
     companion object {
-        private val typeMap = enumValues<UnitType>().map { it.name to it }.toMap()
+        private val typeMap = enumValues<UnitType>().map { it.identifier to it }.toMap()
 
         fun fromLogEvent(unitType: String): UnitType = typeMap[unitType] ?: UNKNOWN
     }

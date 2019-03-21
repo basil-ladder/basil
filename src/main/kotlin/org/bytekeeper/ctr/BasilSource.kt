@@ -142,10 +142,10 @@ class BasilSource(private val config: Config,
     class BotInfo(override val name: String,
                   override val authorKey: String? = null,
                   override var disabled: Boolean = false,
-                  val botBinary: String,
+                  val botBinary: String = "",
                   @JsonProperty("race")
                   val raceValue: String,
-                  override val botType: String) : org.bytekeeper.ctr.BotInfo {
+                  override val botType: String = "") : org.bytekeeper.ctr.BotInfo {
         @JsonIgnore
         override var lastUpdated: Instant = Instant.MIN
         @JsonIgnore

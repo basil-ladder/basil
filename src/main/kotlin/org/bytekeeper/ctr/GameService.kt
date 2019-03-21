@@ -58,6 +58,7 @@ class GameService(private val scbw: Scbw,
         } else if (bot.lastUpdated == null) {
             throw BotDisabledException("${bot.name} is enabled for BASIL but disabled in source and the binary was not yet retrieved.")
         }
+        scbw.checkBotDirectory(bot)
     }
 
     private fun withLockedBot(block: (Bot) -> Unit) {

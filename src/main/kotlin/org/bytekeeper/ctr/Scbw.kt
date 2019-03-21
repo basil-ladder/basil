@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
 import javax.persistence.EntityManager
 import kotlin.concurrent.thread
+import kotlin.streams.asSequence
 
 const val killTimeout = 20L
 const val LOG_LIMIT = 200 * 1024
@@ -28,11 +29,45 @@ class Scbw(private val botRepository: BotRepository,
            private val config: Config,
            private val events: Events,
            private val publisher: Publisher,
-           private val maps: Maps) {
+           private val maps: Maps,
+           private val botService: BotService) {
     private val log = LogManager.getLogger()
+    private val botExecutableExtensions = arrayOf("dll", "exe", "jar")
+
+    fun checkBotDirectory(bot: Bot) {
+        val name = bot.name
+        val botDir = scbwConfig.botsDir.resolve(name)
+        val aiDir = botDir.resolve("AI")
+        val readDir = botDir.resolve("read")
+        val writeDir = botDir.resolve("write")
+        val botJsonDef = botDir.resolve("bot.json")
+        val bwapiDll = botDir.resolve("BWAPI.dll")
+
+        val missingFiles = arrayOf(botDir, aiDir, readDir, writeDir, botJsonDef, bwapiDll).filter { !it.toFile().exists() }
+        val aiFiles = if (aiDir.toFile().exists()) Files.list(aiDir).use {
+            it.asSequence().groupingBy {
+                it.toString().substringAfterLast(".")
+            }.eachCount().filter { (key, _) -> key.toLowerCase() in botExecutableExtensions }
+        } else emptyMap()
+        if (missingFiles.isNotEmpty() || aiFiles.isEmpty() || aiFiles.entries.any { (_, v) -> v > 1 }) {
+            botService.disableBot(bot, "Invalid file structure!")
+            throw BotFolderInvalid("Bot $name has an invalid data dir, the following files are missing: ${missingFiles.joinToString()} and/or AI dir is empty.")
+        }
+    }
+
 
     fun setupOrUpdateBot(botInfo: org.bytekeeper.ctr.BotInfo) {
+        check(!botInfo.disabled)
+
         val name = botInfo.name
+
+        val botDir = scbwConfig.botsDir.resolve(name)
+        val aiDir = botDir.resolve("AI")
+        val readDir = botDir.resolve("read")
+        val writeDir = botDir.resolve("write")
+        val additionalReadPath = botDir.resolve("additionalRead")
+        val botJsonDef = botDir.resolve("bot.json")
+        val bwapiDll = botDir.resolve("BWAPI.dll")
 
         log.info("Checking $name for updates...")
         val bot = botRepository.findByName(name)!!
@@ -42,14 +77,6 @@ class Scbw(private val botRepository: BotRepository,
             return
         }
 
-        check(!botInfo.disabled)
-
-        val botDir = scbwConfig.botsDir.resolve(name)
-        val aiDir = botDir.resolve("AI")
-        val readDir = botDir.resolve("read")
-        val writeDir = botDir.resolve("write")
-        val additionalReadPath = botDir.resolve("additionalRead")
-        val botJsonDef = botDir.resolve("bot.json")
 
         log.info("Bot $name was updated ${botInfo.lastUpdated}${if (bot.lastUpdated != null) ", local version is from " + bot.lastUpdated else ""}, deleting AI dir")
 
@@ -69,7 +96,7 @@ class Scbw(private val botRepository: BotRepository,
 
         log.info("Downloading $name's BWAPI.dll")
         botSources.downloadBwapiDLL(botInfo).use {
-            Files.copy(it, botDir.resolve("BWAPI.dll"), StandardCopyOption.REPLACE_EXISTING)
+            Files.copy(it, bwapiDll, StandardCopyOption.REPLACE_EXISTING)
         }
         log.info("Downloading $name's binary")
         ZipInputStream(botSources.downloadBinary(botInfo))
@@ -364,12 +391,16 @@ class Scbw(private val botRepository: BotRepository,
                 fun toUnitEvent(fld: List<String>): UnitEvent? {
                     if (!fld[2].toBoolean()) return null
                     val pos = fld[5].split('(', ')', ',')
+                    val unitTypeString = fld[4].replace(' ', '_')
+                    val unitType = UnitType.fromLogEvent(unitTypeString)
+                    if (unitType == UnitType.UNKNOWN)
+                        log.error("Could not found unit type for $unitTypeString!")
                     return UnitEvent(fld[0].toInt(),
                             UnitEventType.fromLogEvent(fld[1]),
                             game,
                             bot,
                             fld[3].toShort(),
-                            UnitType.fromLogEvent(fld[4].replace(' ', '_')),
+                            unitType,
                             pos[1].toShort(), pos[2].toShort())
                 }
                 return events.map(CSV::parseLine)
@@ -409,7 +440,6 @@ class Scbw(private val botRepository: BotRepository,
     }
 }
 
-
 class BotJson(
         val name: String,
         val race: String,
@@ -440,6 +470,7 @@ class ScoresJson(
 class FrameResult(val frameCount: Int, val sumFrameTime: Double)
 class BotResult(val scores: ScoresJson?, val frames: FrameResult?, val unitEvents: List<String>)
 
+class BotFolderInvalid(message: String) : java.lang.RuntimeException(message)
 class FailedToLimitResources(message: String) : RuntimeException(message)
 class FailedToKillContainer(message: String) : RuntimeException(message)
 class FailedToKillSCBW(message: String) : RuntimeException(message)
