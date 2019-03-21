@@ -32,7 +32,6 @@ class Scbw(private val botRepository: BotRepository,
            private val maps: Maps,
            private val botService: BotService) {
     private val log = LogManager.getLogger()
-    private val botExecutableExtensions = arrayOf("dll", "exe", "jar")
 
     fun checkBotDirectory(bot: Bot) {
         val name = bot.name
@@ -43,13 +42,16 @@ class Scbw(private val botRepository: BotRepository,
         val botJsonDef = botDir.resolve("bot.json")
         val bwapiDll = botDir.resolve("BWAPI.dll")
 
+        val extension = BotType.valueOf(bot.botType).extension
         val missingFiles = arrayOf(botDir, aiDir, readDir, writeDir, botJsonDef, bwapiDll).filter { !it.toFile().exists() }
         val aiFiles = if (aiDir.toFile().exists()) Files.list(aiDir).use {
-            it.asSequence().groupingBy {
-                it.toString().substringAfterLast(".")
-            }.eachCount().filter { (key, _) -> key.toLowerCase() in botExecutableExtensions }
-        } else emptyMap()
-        if (missingFiles.isNotEmpty() || aiFiles.isEmpty() || aiFiles.entries.any { (_, v) -> v > 1 }) {
+            it.asSequence().map {
+                it.toString()
+            }.filter {
+                !it.contains("bwapi", true)
+            }.count { it.endsWith(".$extension", true) }
+        } else 0
+        if (missingFiles.isNotEmpty() || aiFiles == 0 || aiFiles > 1) {
             botService.disableBot(bot, "Invalid file structure!")
             throw BotFolderInvalid("Bot $name has an invalid data dir, the following files are missing: ${missingFiles.joinToString()} and/or AI dir is empty.")
         }
