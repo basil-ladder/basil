@@ -51,7 +51,9 @@ class BasilSource(private val config: Config,
         lastDownload.values.forEach { path ->
             Files.delete(path)
         }
-        lastDownload = botCache.values.parallelStream().map { botInfo ->
+        lastDownload = botCache.values
+                .filter { !it.disabled }
+                .parallelStream().map { botInfo ->
             val path = try {
                 val lastUpdated = basilBotService.lastUpdateOf(botInfo.name)
                 downloadToCache(botInfo, lastUpdated)
