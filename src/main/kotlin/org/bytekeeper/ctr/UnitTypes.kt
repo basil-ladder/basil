@@ -237,6 +237,8 @@ enum class UnitType(val identifier: String) {
     FACTORIES("Factories"),
     UNKNOWN("Unknown");
 
+    override fun toString() = identifier.replace('_', ' ')
+
     companion object {
         private val typeMap = enumValues<UnitType>().map { it.identifier to it }.toMap()
 

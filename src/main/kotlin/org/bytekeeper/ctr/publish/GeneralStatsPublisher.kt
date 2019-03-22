@@ -31,7 +31,7 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             .groupBy(UnitStats::type).entries
                             .map { (type, stats) ->
                                 val name = if (type == UnitType.TERRAN_SIEGE_TANK_TANK_MODE) "Terran Siege Tank"
-                                else type.name.replace('_', ' ')
+                                else type.toString()
                                 val statsByType = stats.groupBy(UnitStats::event)
                                 val morphs = (if (type != UnitType.TERRAN_SIEGE_TANK_TANK_MODE) statsByType[UnitEventType.UNIT_MORPH]?.get(0)?.amount
                                         ?: 0 else 0)

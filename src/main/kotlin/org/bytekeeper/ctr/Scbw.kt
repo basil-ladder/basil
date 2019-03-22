@@ -53,7 +53,7 @@ class Scbw(private val botRepository: BotRepository,
         } else 0
         if (missingFiles.isNotEmpty() || aiFiles == 0 || aiFiles > 1) {
             botService.disableBot(bot, "Invalid file structure!")
-            throw BotFolderInvalid("Bot $name has an invalid data dir, the following files are missing: ${missingFiles.joinToString()} and/or AI dir is empty.")
+            throw BotFolderInvalid("Bot $name has an invalid data dir, the following files are missing: ${missingFiles.joinToString()}; number of AI files: $aiFiles.")
         }
     }
 
