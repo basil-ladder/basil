@@ -5,11 +5,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.Scbw
 import org.bytekeeper.ctr.any
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.Race
+import org.bytekeeper.ctr.scbw.Scbw
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

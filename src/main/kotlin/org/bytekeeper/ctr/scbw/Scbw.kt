@@ -1,9 +1,10 @@
-package org.bytekeeper.ctr
+package org.bytekeeper.ctr.scbw
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Service
 import java.nio.file.Files
@@ -13,6 +14,7 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
+import javax.annotation.PreDestroy
 import javax.persistence.EntityManager
 import kotlin.concurrent.thread
 import kotlin.streams.asSequence
@@ -32,6 +34,18 @@ class Scbw(private val botRepository: BotRepository,
            private val maps: Maps,
            private val botService: BotService) {
     private val log = LogManager.getLogger()
+    @Volatile
+    private var shuttingDown: Boolean = false
+
+
+    @PreDestroy
+    fun killContainers() {
+        log.info("Killing remaining containers...")
+        shuttingDown = true
+        Docker.retrieveContainersWithName("GAME_CTR")
+                .parallelStream()
+                .forEach { Docker.killContainer(it) }
+    }
 
     fun checkBotDirectory(bot: Bot) {
         val name = bot.name
@@ -58,7 +72,7 @@ class Scbw(private val botRepository: BotRepository,
     }
 
 
-    fun setupOrUpdateBot(botInfo: org.bytekeeper.ctr.BotInfo) {
+    fun setupOrUpdateBot(botInfo: BotInfo) {
         check(!botInfo.disabled)
 
         val name = botInfo.name
@@ -204,6 +218,9 @@ class Scbw(private val botRepository: BotRepository,
                     log.error("Timeout - killing game $gameName, $botsParticipating")
                     return
                 }
+                if (shuttingDown) {
+                    throw InterruptedException()
+                }
                 log.info("Successfully completed game $botsParticipating")
 
             } finally {
@@ -287,8 +304,7 @@ class Scbw(private val botRepository: BotRepository,
 
                 val unitEvents = logDir.resolve("unit_events.csv").let { unitEventFile ->
                     if (unitEventFile.toFile().exists()) {
-                        Files.newBufferedReader(unitEventFile)
-                                .readLines().drop(1)
+                        Files.readAllLines(unitEventFile).drop(1)
                     } else emptyList()
                 }
 

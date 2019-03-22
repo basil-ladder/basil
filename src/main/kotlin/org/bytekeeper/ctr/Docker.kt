@@ -1,5 +1,6 @@
 package org.bytekeeper.ctr
 
+import org.bytekeeper.ctr.scbw.FailedToLimitResources
 import java.util.concurrent.TimeUnit
 
 object Docker {

@@ -3,6 +3,8 @@ package org.bytekeeper.ctr
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.scbw.FailedToLimitResources
+import org.bytekeeper.ctr.scbw.Scbw
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

@@ -3,6 +3,7 @@ package org.bytekeeper.ctr
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.Race
+import org.bytekeeper.ctr.scbw.Scbw
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
