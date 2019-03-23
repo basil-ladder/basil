@@ -54,34 +54,34 @@ class BasilSource(private val config: Config,
         lastDownload = botCache.values
                 .filter { !it.disabled }
                 .parallelStream().map { botInfo ->
-            val path = try {
-                val lastUpdated = basilBotService.lastUpdateOf(botInfo.name)
-                downloadToCache(botInfo, lastUpdated)
-                        ?.also { cachedFile ->
-                            val md = MessageDigest.getInstance("MD5")
-                            Files.newInputStream(cachedFile)
-                                    .use {
-                                        val buffer = ByteArray(1024 * 1024)
-                                        var bytes = it.read(buffer)
-                                        while (bytes > 0) {
-                                            md.update(buffer, 0, bytes)
-                                            bytes = it.read(buffer)
-                                        }
-                                    }
-                            val updated = basilBotService.update(botInfo.name, md.digest().joinToString("") { byte ->
-                                val v = byte.toInt()
-                                val a = HEX_CHARS[(v and 0xF0) ushr 4]
-                                val b = HEX_CHARS[v and 0x0F]
-                                "$a$b"
-                            }, now)
-                            botInfo.lastUpdated = updated
-                        }
-            } catch (e: Exception) {
-                log.error("Couldn't download ${botInfo.name}", e)
-                null
-            }
-            if (path == null) null else botInfo.name to path
-        }.collect(Collectors.toList())
+                    val path = try {
+                        val lastUpdated = basilBotService.lastUpdateOf(botInfo.name)
+                        downloadToCache(botInfo, lastUpdated)
+                                ?.also { cachedFile ->
+                                    val md = MessageDigest.getInstance("MD5")
+                                    Files.newInputStream(cachedFile)
+                                            .use {
+                                                val buffer = ByteArray(1024 * 1024)
+                                                var bytes = it.read(buffer)
+                                                while (bytes > 0) {
+                                                    md.update(buffer, 0, bytes)
+                                                    bytes = it.read(buffer)
+                                                }
+                                            }
+                                    val updated = basilBotService.update(botInfo.name, md.digest().joinToString("") { byte ->
+                                        val v = byte.toInt()
+                                        val a = HEX_CHARS[(v and 0xF0) ushr 4]
+                                        val b = HEX_CHARS[v and 0x0F]
+                                        "$a$b"
+                                    }, now)
+                                    botInfo.lastUpdated = updated
+                                }
+                    } catch (e: Exception) {
+                        log.error("Couldn't download ${botInfo.name}", e)
+                        null
+                    }
+                    if (path == null) null else botInfo.name to path
+                }.collect(Collectors.toList())
                 .filterNotNull()
                 .toMap()
     }
@@ -99,9 +99,9 @@ class BasilSource(private val config: Config,
             FileSystems.newFileSystem(binary, null)
                     .use {
                         val bwapi = Files.createTempFile("bwapi", ".dll")
-                        val compressedBwapi = it.rootDirectories.asSequence()
-                                .flatMap { Files.list(it).asSequence() }
-                                .first { it.fileName.toString().equals("bwapi.dll", true) }
+                        val compressedBwapi = Files.walk(bwapi).use {
+                            it.asSequence().first { it.fileName.toString().equals("bwapi.dll", true) }
+                        }
                         Files.copy(compressedBwapi, bwapi, StandardCopyOption.REPLACE_EXISTING)
                         return Files.newInputStream(bwapi)
                     }

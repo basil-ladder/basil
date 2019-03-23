@@ -135,10 +135,11 @@ class Scbw(private val botRepository: BotRepository,
                 }, botInfo.botType))
         if (additionalReadPath.toFile().exists() && Files.isDirectory(additionalReadPath)) {
             log.info("There are additional 'read' files that will be copied to the read directory")
-            Files.list(additionalReadPath)
-                    .forEach {
-                        Files.copy(it, readDir.resolve(it.fileName), StandardCopyOption.REPLACE_EXISTING)
-                    }
+            Files.newDirectoryStream(additionalReadPath).use {
+                it.forEach {
+                    Files.copy(it, readDir.resolve(it.fileName), StandardCopyOption.REPLACE_EXISTING)
+                }
+            }
         }
         log.info("Successfully setup $name")
         events.post(BotBinaryUpdated(bot, botInfo.lastUpdated))
@@ -277,10 +278,11 @@ class Scbw(private val botRepository: BotRepository,
                 Files.createDirectories(targetLogsPath)
                 val crashLogSourceDir = gamePath.resolve("crashes_$index")
                 if (crashLogSourceDir.toFile().exists() && Files.isDirectory(crashLogSourceDir)) {
-                    Files.list(crashLogSourceDir)
-                            .forEach { crashLog ->
-                                moveLog(crashLog, targetLogsPath.resolve("${gameName}_${crashLog.fileName}"))
-                            }
+                    Files.newDirectoryStream(crashLogSourceDir).use {
+                        it.forEach { crashLog ->
+                            moveLog(crashLog, targetLogsPath.resolve("${gameName}_${crashLog.fileName}"))
+                        }
+                    }
                 }
                 val logDir = gamePath.resolve("logs_$index")
                 val frameCount = logDir.resolve("frames.csv").let { frameFile ->
@@ -289,7 +291,7 @@ class Scbw(private val botRepository: BotRepository,
                             var lastLine = ""
                             var sumFrameTime: Double? = null
                             for (line in lines) {
-                                lastLine = line
+                                lastLine = if (line.isNotBlank()) line else lastLine
                                 if (sumFrameTime == null)
                                     sumFrameTime = 0.0
                                 else sumFrameTime += line.split(',')[1].toDouble()
