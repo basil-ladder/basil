@@ -58,15 +58,16 @@ permalink: /bot.html
 		let source = $("#headerTemplate").html();
 		let template = Handlebars.compile(source);
 		let myData;
-		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format
 		$("#botName").append(template({botName: botName}));
 		let now = Date.now() / 1000;
 		let selectedRange = { startSecond:  now - 30 * 86400, endSecond: now };
+		let secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
 		let updaters = [];
 		$("#startDate").flatpickr({
 			defaultDate: new Date(selectedRange.startSecond * 1000),
 			onChange: function(selectedDates) {
 				selectedRange.startSecond = selectedDates[0].getTime() / 1000;
+				secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
 				updaters.forEach(function(x) {x.apply();});
 			}
 		});
@@ -74,6 +75,7 @@ permalink: /bot.html
 			defaultDate: new Date(selectedRange.endSecond * 1000),
 			onChange: function(selectedDates) {
 				selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
+				secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
 				updaters.forEach(function(x) {x.apply();});
 			}
 
@@ -128,7 +130,6 @@ permalink: /bot.html
 					let endSecond = selectedRange.endSecond;
 					if (typeof startSecond === "undefined" || typeof endSecond === "undefined" || startSecond >= endSecond)
 						return {label: unescape(bot.name), fill: false, data: []};
-					let secondsToAggregate = (endSecond - startSecond) / 60;
 					return args.map(function(bot, i) {
 						function filter(data) {
 							data.sort(function(a,b) { return a.epochSecond - b.epochSecond; });
@@ -177,8 +178,34 @@ permalink: /bot.html
 				});
 			});
 		function setupPerMapWinsChart(data) {
-			let labels = data.maps.sort();
-			function prepareDataSets() {
+			let winCharts = new Chart(document.getElementById("perMapWinsChart"), {
+				type: "bar",
+				plugins: [ChartDataLabels],
+				options: {
+					plugins: {
+						datalabels: {
+							formatter: function(value, context) {
+								let wins = context.chart.data.datasets[0].data[context.dataIndex];
+								let losses = context.chart.data.datasets[1].data[context.dataIndex];
+								let wr = wins / Math.max(1, wins + losses);
+								return basil.percentFormat(wr, 1);
+							}
+						}
+					},
+					tooltips: {
+						mode: "index",
+						callbacks: {
+							footer: function(tooltipItems, data) {
+								let wins = tooltipItems[0].yLabel;
+								let losses = tooltipItems[1].yLabel;
+								let wr = wins / Math.max(1, wins + losses);
+								return "WR: " + basil.percentFormat(wr);
+							}
+						}
+					}
+				}
+			});
+      			function updateChart() {
 				let map = data.maps.map(function(x) {
 					return {won: 0, lost: 0, map: x};
 				});
@@ -190,62 +217,47 @@ permalink: /bot.html
 					}
 				}, {});
 				map.sort(function(a,b) {
-					if (a.map > b.map) return 1;
-					if (a.map < b.map) return -1;
+      					let dWR = a.won / Math.max(1, a.won + a.lost) - b.won / Math.max(1, b.won + b.lost);
+					if (dWR != 0) return dWR;
+					if (a.lost > b.lost) return -1;
+					if (a.lost < b.lost) return 1;
 					return 0;
 				});
 				let wonData = map.map(function(a) { return a.won; });
 				let lostData = map.map(function(a) { return a.lost; });
-				return [{
+			        let labels = map.map(function(a) { return a.map; });
+				winCharts.data.datasets = [{
 					label: "Won",
 					data: wonData,
 					backgroundColor: "#88AAEB"
 				}, {
 					label: "Lost",
 					data: lostData,
-					backgroundColor: "#EBAAAA"
-				}];
-			}
-			let datasets = prepareDataSets();
-			let winCharts = new Chart(document.getElementById("perMapWinsChart"), {
-				type: "bar",
-				data: {
-					datasets: datasets
-				},
-				options: {
-					scales: {
-						xAxes: [{
-							stacked: true,
-							type: "category",
-							labels: labels,
-							ticks: {
-								autoSkip: false
-							}
-						}],
-						yAxes: [{
-							stacked: true
-						}]
-					},
-					tooltips: {
-						mode: "index",
-						callbacks: {
-							footer: function(tooltipItems, data) {
-								let wins = tooltipItems[0].yLabel;
-								let losses = tooltipItems[1].yLabel;
-								let wr = wins / Math.max(1, wins + losses);
-								return "WR: " + percentFormat(wr);
-							}
-						}
+					backgroundColor: "#EBAAAA",
+					datalabels: {
+						display: false
 					}
-				}
-			});
-			updaters.push(function() {
-				winCharts.data.datasets = prepareDataSets();
-				winCharts.update();
-			});
+				}];
+				winCharts.options.scales = {
+					xAxes: [{
+						stacked: true,
+						type: "category",
+						labels: labels,
+						ticks: {
+							autoSkip: false
+						}
+					}],
+					yAxes: [{
+						stacked: true
+					}]
+				};
 
+				winCharts.update();
+			}
+			updateChart();
+			updaters.push(updateChart);
 		}
-      		function setupVsChart(data) {
+		function setupVsChart(data) {
 			let vsChart = new Chart(document.getElementById("vsChart"), {
 				type: "bar",
 				options: {

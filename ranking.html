@@ -80,12 +80,11 @@ title: Ranking
 	$(function() {
 		let source = $("#tableTemplate").html();
 		let template = Handlebars.compile(source);
-		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
 		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
 			for (i = 0; i < data.length; i++) {
 				let played = data[i].won + data[i].lost;
 				if (played > 0 && typeof data[i].won !== "undefined") {
-					data[i].winRate = numberFormat(data[i].won / played);
+					data[i].winRate = basil.percentFormat(data[i].won / played);
 				} else {
 					data[i].winRate = "-";
 				}

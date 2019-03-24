@@ -30,7 +30,6 @@ title: Last 24h
 		{% endraw %}
 		let source = $("#tableTemplate").html();
 		let template = Handlebars.compile(source);
-		let numberFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 2}).format;
 		$.getJSON("http://basilicum.bytekeeper.org/stats/game_results.json", function(data) {
 			for (i = 0; i < data.length; i++) {
 				let botA = data[i].botA.name;

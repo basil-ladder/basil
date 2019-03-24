@@ -20,8 +20,13 @@ let basil = function(basil) {
 				return "race_unknown";
 		}
 	};
+	basil.percentFormat = function(value, digits) {
+		return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2}).format(value);
+	};
 	Handlebars.registerHelper("racecol", basil.racecol);
 	Handlebars.registerHelper("date", basil.formatDate);
+
+	Chart.plugins.unregister(ChartDataLabels);
 };
 
 $(function() {basil(basil);})
