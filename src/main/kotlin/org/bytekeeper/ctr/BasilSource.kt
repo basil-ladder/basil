@@ -97,11 +97,17 @@ class BasilSource(private val config: Config,
         val binary = lastDownload[info.name] ?: return null
         try {
             FileSystems.newFileSystem(binary, null)
-                    .use {
+                    .use { zipFile ->
                         val bwapi = Files.createTempFile("bwapi", ".dll")
-                        val compressedBwapi = Files.walk(bwapi).use {
-                            it.asSequence().first { it.fileName.toString().equals("bwapi.dll", true) }
-                        }
+                        val compressedBwapi = zipFile.rootDirectories.asSequence()
+                                .map { Files.walk(it) }
+                                .mapNotNull {
+                                    it.use {
+                                        it.asSequence().firstOrNull {
+                                            it.fileName?.toString()?.equals("bwapi.dll", true) ?: false
+                                        }
+                                    }
+                                }.first()
                         Files.copy(compressedBwapi, bwapi, StandardCopyOption.REPLACE_EXISTING)
                         return Files.newInputStream(bwapi)
                     }
