@@ -199,6 +199,8 @@ class Scbw(private val botRepository: BotRepository,
             addParameter("--game_name", gameName)
             addParameter("--docker_image", scbwConfig.dockerImage)
             addParameter("--timeout_at_frame", scbwConfig.frameTimeout)
+            addParameter("--nano_cpus", 1000000000)
+            addParameter("--mem_limit", "1G")
 //            cmd += "--log_level"
 //            cmd += "DEBUG"
             if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
@@ -212,9 +214,9 @@ class Scbw(private val botRepository: BotRepository,
             }
 
             try {
-                updateResourceConstraints()
                 val hardTimeLimit = scbwConfig.realtimeTimeoutSeconds + 30L
                 val exited = process.waitFor(hardTimeLimit, TimeUnit.SECONDS)
+
                 if (!exited) {
                     log.error("Timeout - killing game $gameName, $botsParticipating")
                     return
@@ -438,24 +440,6 @@ class Scbw(private val botRepository: BotRepository,
                 dest.toFile().writeText("Log file exceeds limit of $LOG_LIMIT bytes!")
             } else
                 Files.move(source, dest)
-        }
-
-
-        private fun updateResourceConstraints() {
-            val botsParticipating = "${bots[0]} vs ${bots[1]}"
-            val started = System.currentTimeMillis()
-            while (System.currentTimeMillis() - started < 10000) {
-                val lines = Docker.retrieveContainersWithName(dockerPrefix)
-                if (lines.size == bots.size) {
-                    lines.forEach { id ->
-                        log.info("Limiting container $id to 1 CPU and 1G memory")
-                        Docker.updateResourceConstraints(id)
-                    }
-                    return
-                }
-                Thread.sleep(1000)
-            }
-            throw FailedToLimitResources("Failed to limit resources for $botsParticipating")
         }
     }
 }
