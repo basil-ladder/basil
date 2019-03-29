@@ -94,4 +94,18 @@ class GameResultsProjectionsTest {
         // THEN
         verify(events).post(GameWon(gameResult, botB, botA))
     }
+
+    @Test
+    fun `should save correct race`() {
+        // GIVEN
+        val id = UUID.randomUUID()
+        val timestamp = Instant.now()
+
+        // WHEN
+        sut.gameEnded(GameEnded(id, botB, Race.ZERG, botA, Race.TERRAN, "", timestamp, 0.0, "", 0))
+
+        // THEN
+        verify(gameResultRepository).save(eq(GameResult(id, timestamp, 0.0, false, false, "", botB, Race.ZERG,
+                botA, Race.TERRAN, botB, botA, false, false, "", 0)))
+    }
 }

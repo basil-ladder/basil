@@ -10,5 +10,5 @@ object Docker {
                     .useLines { it.toList() }
 
     fun killContainer(nameOrId: String): Process =
-            Runtime.getRuntime().exec(arrayOf("docker", "rm", "vf", nameOrId))
+            Runtime.getRuntime().exec(arrayOf("docker", "rm", "-vf", nameOrId))
 }

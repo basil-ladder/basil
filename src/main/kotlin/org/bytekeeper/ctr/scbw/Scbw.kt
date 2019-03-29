@@ -332,10 +332,8 @@ class Scbw(private val botRepository: BotRepository,
             if (resultFile.exists()) {
                 val result = mapper.readValue<ResultJson>(resultFile)
                 if (result.winner != null && result.loser != null) {
-                    val winnerBot = botRepository.findByName(result.winner)
-                            ?: throw BotNotFoundException("Could not find ${result.winner}")
-                    val loserBot = botRepository.findByName(result.loser)
-                            ?: throw BotNotFoundException("Could not find ${result.loser}")
+                    val winnerBot = if (result.winner == botA.name) botA else botB
+                    val loserBot = if (result.winner == botA.name) botB else botA
                     events.post(GameEnded(
                             gameId,
                             winnerBot,

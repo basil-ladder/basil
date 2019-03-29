@@ -11,22 +11,22 @@ import java.util.stream.Stream
 import javax.persistence.*
 
 @Entity
-class GameResult(@Id val id: UUID,
-                 val time: Instant,
-                 val gameRealtime: Double,
-                 val realtimeTimeout: Boolean = false,
-                 val frameTimeout: Boolean? = false,
-                 val map: String,
-                 @ManyToOne(fetch = FetchType.LAZY) val botA: Bot,
-                 @Enumerated(EnumType.STRING) val raceA: Race,
-                 @ManyToOne(fetch = FetchType.LAZY) val botB: Bot,
-                 @Enumerated(EnumType.STRING) val raceB: Race,
-                 @ManyToOne(fetch = FetchType.LAZY) val winner: Bot? = null,
-                 @ManyToOne(fetch = FetchType.LAZY) val loser: Bot? = null,
-                 val botACrashed: Boolean = false,
-                 val botBCrashed: Boolean = false,
-                 val gameHash: String,
-                 val frameCount: Int? = null)
+data class GameResult(@Id val id: UUID,
+                      val time: Instant,
+                      val gameRealtime: Double,
+                      val realtimeTimeout: Boolean = false,
+                      val frameTimeout: Boolean? = false,
+                      val map: String,
+                      @ManyToOne(fetch = FetchType.LAZY) val botA: Bot,
+                      @Enumerated(EnumType.STRING) val raceA: Race,
+                      @ManyToOne(fetch = FetchType.LAZY) val botB: Bot,
+                      @Enumerated(EnumType.STRING) val raceB: Race,
+                      @ManyToOne(fetch = FetchType.LAZY) val winner: Bot? = null,
+                      @ManyToOne(fetch = FetchType.LAZY) val loser: Bot? = null,
+                      val botACrashed: Boolean = false,
+                      val botBCrashed: Boolean = false,
+                      val gameHash: String,
+                      val frameCount: Int? = null)
 
 class BotVsBotWonGames(val botA: Bot,
                        val botB: Bot,
@@ -97,9 +97,10 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun listBotRaceVsRace(): List<BotRaceVsRace>
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time," +
-            " b.name, b.race, CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
-            " CASE WHEN b = r.winner THEN r.loser.race else r.winner.race END, b = r.winner, r.map)" +
+    @Query("SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, b.name," +
+            " CASE WHEN b = r.winner THEN r.raceA else r.raceB END," +
+            " CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
+            " CASE WHEN b = r.winner THEN r.raceB else r.raceA END, b = r.winner, r.map)" +
             " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b")
     @Timed
     fun findAllGamesSummarized(): Stream<BotGameResult>
