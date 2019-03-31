@@ -60,7 +60,7 @@ data class BotGameResult(val time: Instant,
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
     @Timed
-    fun findByTimeGreaterThan(time: Instant): MutableIterable<GameResult>
+    fun findByTimeGreaterThan(time: Instant): List<GameResult>
 
     @Timed
     fun countByWinnerRaceAndLoserRace(winner: Race, loser: Race): Int

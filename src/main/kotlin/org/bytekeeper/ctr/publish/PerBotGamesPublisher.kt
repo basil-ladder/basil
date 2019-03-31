@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.ObjectWriter
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -9,6 +10,7 @@ import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.Maps
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.Publisher.Companion.bool2Short
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -40,7 +42,7 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
                 maxBotIndex
             }
             aggregate += PublishedBotGameResult(result.botRace.short, botIndex, result.enemyRace.short, maptoIndex[result.map]
-                    ?: 0, (result.time.epochSecond / 3600).toString(16), if (result.won) 1 else null)
+                    ?: 0, (result.time.epochSecond / 3600).toString(16), bool2Short(result.won))
         }
         publish(lastBot, writer, aggregate, botToIndex)
     }
@@ -55,6 +57,14 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
         }
     }
 
-    data class PublishedBotGameResults(val maps: List<String>, val bots: List<String>, val results: List<PublishedBotGameResult>)
-    data class PublishedBotGameResult(val r: String, val e: Int, val eR: String, val m: Int, val t: String, @JsonInclude(JsonInclude.Include.NON_NULL) val w: Short?)
+    data class PublishedBotGameResults(val maps: List<String>,
+                                       val bots: List<String>,
+                                       val results: List<PublishedBotGameResult>)
+
+    data class PublishedBotGameResult(@JsonProperty("r") val race: String,
+                                      @JsonProperty("e") val enemyIndex: Int,
+                                      @JsonProperty("eR") val enemyRace: String,
+                                      @JsonProperty("m") val map: Int,
+                                      @JsonProperty("t") val epochHours: String,
+                                      @JsonProperty("w") @JsonInclude(JsonInclude.Include.NON_NULL) val won: Short?)
 }

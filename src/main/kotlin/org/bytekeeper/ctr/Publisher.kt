@@ -43,6 +43,7 @@ class Publisher(private val config: Config,
     fun globalStatsWriter(file: String): BufferedWriter =
             Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 
+
     @Scheduled(fixedDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}", initialDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}")
     fun publish() {
         log.info("Publishing results")
@@ -69,4 +70,7 @@ class Publisher(private val config: Config,
         publishLock.read(run)
     }
 
+    companion object {
+        fun bool2Short(condition: Boolean?): Short? = if (condition == true) 1 else null
+    }
 }
