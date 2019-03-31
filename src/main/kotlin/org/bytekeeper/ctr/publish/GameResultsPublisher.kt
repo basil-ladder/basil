@@ -63,7 +63,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                         val gameEvents = relevantGameEvents[gameResult.id]
                                                 ?.filter {
                                                     when (it.unitType) {
-                                                        UnitType.TERRAN_BUNKER,
+                                                        UnitType.TERRAN_BUNKER, UnitType.PROTOSS_DARK_ARCHON,
                                                         UnitType.TERRAN_NUCLEAR_MISSILE, UnitType.TERRAN_BATTLECRUISER,
                                                         UnitType.ZERG_GUARDIAN, UnitType.ZERG_QUEEN, UnitType.ZERG_DEFILER,
                                                         UnitType.PROTOSS_ARBITER, UnitType.PROTOSS_CARRIER -> it.amount >= 10
@@ -71,7 +71,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                                         UnitType.ZERG_HATCHERY, UnitType.ZERG_LAIR, UnitType.ZERG_HIVE,
                                                         UnitType.PROTOSS_PHOTON_CANNON, UnitType.ZERG_SUNKEN_COLONY, UnitType.ZERG_SPORE_COLONY,
                                                         UnitType.TERRAN_BARRACKS, UnitType.TERRAN_MISSILE_TURRET, UnitType.PROTOSS_PYLON,
-                                                        UnitType.PROTOSS_GATEWAY -> it.amount >= 30
+                                                        UnitType.PROTOSS_GATEWAY, UnitType.PROTOSS_ARCHON -> it.amount >= 30
                                                         UnitType.TERRAN_SIEGE_TANK_SIEGE_MODE,
                                                         UnitType.ZERG_LARVA, UnitType.ZERG_EGG, UnitType.ZERG_LURKER_EGG -> false
                                                         else -> it.amount >= 110
@@ -88,7 +88,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                                 playedMaps[gameResult.map] ?: -1,
                                                 gameResult.gameHash,
                                                 gameResult.frameCount,
-                                                gameEvents)
+                                                if (gameEvents.isNotEmpty()) gameEvents else null)
                                     }
                             )
                     )
@@ -114,7 +114,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                               @JsonProperty("m") val map: Int,
                               @JsonProperty("h") val gameHash: String,
                               @JsonProperty("fc") val frameCount: Int?,
-                              @JsonProperty("ev") val gameEvents: List<PublishedGameEvent>)
+                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("ev") val gameEvents: List<PublishedGameEvent>?)
 
     data class PublishedGameEvent(@JsonProperty("u") val unit: Int,
                                   @JsonProperty("e") val event: Int,

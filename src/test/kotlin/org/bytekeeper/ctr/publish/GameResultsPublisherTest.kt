@@ -52,7 +52,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"P"},{name:"botB",race:"T"}],maps:["map"],results:[{a:{b:0,r:"Z",w:1},b:{b:1,l:1},e:"-1de5954fe5500",m:0,h:"",fc:0,ev:[]}]}""")
+                .isEqualTo("""{bots:[{name:"botA",race:"P"},{name:"botB",race:"T"}],maps:["map"],results:[{a:{b:0,r:"Z",w:1},b:{b:1,l:1},e:"-1de5954fe5500",m:0,h:"",fc:0}]}""")
     }
 
     @Test
@@ -69,7 +69,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"T",w:1,c:1},b:{b:1,r:"P",l:1},e:"-1de5954fe5500",m:0,h:"",fc:0,ev:[]}]}""")
+                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"T",w:1,c:1},b:{b:1,r:"P",l:1},e:"-1de5954fe5500",m:0,h:"",fc:0}]}""".trimMargin())
     }
 
     @Test
@@ -86,7 +86,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"P"},b:{b:1},iv:1,to:1,e:"-1de5954fe5500",m:0,h:"",fc:0,ev:[]}]}""")
+                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"P"},b:{b:1},iv:1,to:1,e:"-1de5954fe5500",m:0,h:"",fc:0}]}""")
     }
 
     @Test
@@ -103,7 +103,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"T",w:1},b:{b:1,r:"P",l:1},fo:1,e:"-1de5954fe5500",m:0,h:"",fc:0,ev:[]}]}""")
+                .isEqualTo("""{bots:[{name:"botA",race:"R"},{name:"botB",race:"Z"}],maps:["map"],results:[{a:{b:0,r:"T",w:1},b:{b:1,r:"P",l:1},fo:1,e:"-1de5954fe5500",m:0,h:"",fc:0}]}""")
     }
 
     @Test
