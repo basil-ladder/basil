@@ -65,7 +65,7 @@ title: Last 24h
 					let m = acc[e.u] = (acc[e.u] || {});
 					m[e.e] = e.c;
 					return acc;
-				}, {});
+				}, {}) || {};
 
 				games.push({
 					botA: botA,
