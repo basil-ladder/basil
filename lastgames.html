@@ -59,6 +59,7 @@ title: Last 24h
 					botA: botA,
 					botB: botB,
 					time: basil.formatDateTime(parseInt(g[i].e, 16) * 60),
+					timestamp: parseInt(g[i].e, 16),
 					replayUrl: "http://basilicum.bytekeeper.org/bots/" + botA.name + "/"+  botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
 					gameTime: gameTime,
 					notPlayed: !g[i].fc,
@@ -70,7 +71,7 @@ title: Last 24h
 			}
 			// Required for index to work as expected
 			games.sort(function(a,b) { 
-				return b.endedAt - a.endedAt;
+				return b.timestamp- a.timestamp;
 			});
 			$("#gamesTable tbody").append(tableTemplate(games));
 			$("#gamesTable").tablesorter({
