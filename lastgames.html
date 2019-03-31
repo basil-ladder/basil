@@ -20,7 +20,14 @@ title: Last 24h
 			$${bot(game.botB)}
 			<td>${game.map}</td>
 			<td>${game.time}</td>
-			<td>$${ html`$${game.notPlayed ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : "" }$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}</td>
+			<td class="overlayed">$${ html`$${game.notPlayed ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : "" }$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}<div class="overlay">
+			$${ game.nukes > 1 ? html`<i class="tooltip fas fa-radiation"><span role="tooltip">${game.nukes} nukes</span></i>` : "" }
+			$${ game.mm >= 400  ? html`<i class="tooltip fas fa-biohazard"><span role="tooltip">${game.mm} M&M</span></i>` : "" }
+			$${ game.cruisercarrier >= 20 ? html`<i class="tooltip fas fa-fighter-jet"><span role="tooltip">${game.cruisercarrier} BC + Carrier</span></i>` : "" }
+			$${ game.arbiter >= 10  ? html`<i class="tooltip fas fa-user-secret"><span role="tooltip">${game.arbiter} Arbiter</span></i>` : "" }
+			$${ game.lurkers >= 100  ? html`<i class="tooltip fas fa-spider"><span role="tooltip">${game.lurkers} Lurkers</span></i>` : "" }
+			$${ game.queens >= 80 ? html`<i class="tooltip fas fa-chess-queen"><span role="tooltip">${game.queens} Queens</span></i>` : "" }
+			</div></td>
 			<td>$${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
 			<td>$${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
 			</tr>
@@ -54,6 +61,11 @@ title: Last 24h
 					};
 				});
 				let map = maps[g[i].m];
+				let events = g[i].ev.reduce((acc, e) => {
+					let m = acc[e.u] = (acc[e.u] || {});
+					m[e.e] = e.c;
+					return acc;
+				}, {});
 
 				games.push({
 					botA: botA,
@@ -66,7 +78,13 @@ title: Last 24h
 					validGame: g[i].iv !== 1,
 					realTimeout: g[i].to === 1,
 					frameTimeout: g[i].fo === 1,
-					map: map
+					map: map,
+					nukes: events[14] && events[14][6],
+					mm: (events[0] ? events[0][1] : 0) + (events[34] ? events[34][1] : 0),
+					cruisercarrier: (events[72] ? events[72][1] : 0) + (events[12] ? events[12][1] : 0),
+					arbiter: events[71] && events[71][1],
+					lurkers: events[103] && events[103][7],
+					queens: events[45] && events[45][7]
 				});
 			}
 			// Required for index to work as expected

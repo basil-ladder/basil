@@ -110,6 +110,7 @@ thead tr {
 	th {
 		position: sticky;
 		top: 0;
+		z-index: 1;
 	}
 }
 
@@ -178,5 +179,16 @@ hr {
 	&:hover span[role=tooltip] {
 		visibility: visible;
 		opacity: 1;
+	}
+}
+
+.overlayed {
+	position: relative;
+
+	.overlay {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		font-size: 0.9em;
 	}
 }
