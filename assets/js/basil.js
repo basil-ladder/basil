@@ -12,12 +12,16 @@ window.basil = function(basil) {
 	basil.racecol = function(race) {
 		switch (race) {
 			case "PROTOSS":
+			case "P":
 				return "race_protoss";
 			case "ZERG":
+			case "Z":
 				return "race_zerg";
 			case "TERRAN":
+			case "T":
 				return "race_terran";
 			case "RANDOM":
+			case "R":
 				return "race_random";
 			default:
 				return "race_unknown";

@@ -7,7 +7,7 @@ title: Last 24h
 	function tableTemplate(games) {
 		function bot(bot) {
 			return html`
-				<td class='${basil.racecol(bot.race)}'>$${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}$${bot.crashed ? html`<i class="fas fa-car-crash"></i>` 
+				<td class='${basil.racecol(bot.race) + (bot.randomBot ? "_random" : "")}'>$${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}$${bot.crashed ? html`<i class="fas fa-car-crash"></i>` 
 						: bot.loser ? html`<i class="fas fa-sad-tear"></i>` : ""} ${bot.name}
 				<a class="float-right normal" href="ranking.html#${bot.name}"><i class="fas fa-align-left"></i></a>
 				</td>
@@ -20,7 +20,7 @@ title: Last 24h
 			$${bot(game.botB)}
 			<td>${game.map}</td>
 			<td>${game.time}</td>
-			<td>$${ html`$${!game.frameCount ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : "" }$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}</td>
+			<td>$${ html`$${game.notPlayed ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : "" }$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}</td>
 			<td>$${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
 			<td>$${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
 			</tr>
@@ -28,23 +28,51 @@ title: Last 24h
 		`;
 	}
 	$(function() {
-		$.getJSON("http://basilicum.bytekeeper.org/stats/game_results.json", function(data) {
-			for (i = 0; i < data.length; i++) {
-				let botA = data[i].botA.name;
-				let botB = data[i].botB.name;
-				data[i].time = basil.formatDateTime(data[i].endedAt);
-				data[i].replayUrl = "http://basilicum.bytekeeper.org/bots/" + botA + "/"+  botA + " vs " + botB + " " + data[i].map + " " + data[i].gameHash + ".rep"
-				if (data[i].frameCount) {
-					let secs = Math.round(data[i].frameCount / 24);
-					if (secs > 59) 	data[i].gameTime = Math.floor(secs / 60) + "m "; else data[i].gameTime = "";
-					data[i].gameTime += Math.ceil(secs % 60) + "s";
+		$.get("http://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
+			.then(function(_data) {
+			let data = eval('(' + _data + ')');
+			let g = data.results;
+			let maps = data.maps;
+			let bots = data.bots;
+			let games = [];
+			for (i = 0; i < g.length; i++) {
+				let gameTime = undefined;
+				if (g[i].fc) {
+					let secs = Math.round(g[i].fc / 24);
+					if (secs > 59) 	gameTime = Math.floor(secs / 60) + "m "; else gameTime = "";
+					gameTime += Math.ceil(secs % 60) + "s";
 				}
+				let [botA, botB] = [g[i].a, g[i].b].map(desc => {
+					let bot = bots[desc.b];
+					return {
+						name: bot.name,
+						winner: desc.w === 1,
+						loser: desc.l === 1,
+						crashed: desc.c === 1,
+						race: desc.r || bot.race,
+						randomBot: desc.r && desc.r !== bot.race
+					};
+				});
+				let map = maps[g[i].m];
+
+				games.push({
+					botA: botA,
+					botB: botB,
+					time: basil.formatDateTime(parseInt(g[i].e) * 60),
+					replayUrl: "http://basilicum.bytekeeper.org/bots/" + botA.name + "/"+  botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
+					gameTime: gameTime,
+					notPlayed: !g[i].fc,
+					validGame: g[i].iv !== 1,
+					realTimeout: g[i].to === 1,
+					frameTimeout: g[i].fo === 1,
+					map: map
+				});
 			}
 			// Required for index to work as expected
-			data.sort(function(a,b) { 
+			games.sort(function(a,b) { 
 				return b.endedAt - a.endedAt;
 			});
-			$("#gamesTable tbody").append(tableTemplate(data));
+			$("#gamesTable tbody").append(tableTemplate(games));
 			$("#gamesTable").tablesorter({
 				widgets: ["filter"],
 				widgetOptions: {
@@ -53,7 +81,6 @@ title: Last 24h
 		});
 	});
 </script>
-<h1>!!! Currently being changed, new results will appear soonish !!!</h1>
 <small><a href="#Legend">What do the symbols mean?</a></small>
 <table id="gamesTable">
 	<thead>

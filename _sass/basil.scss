@@ -1,26 +1,25 @@
 @charset "utf-8";
 
+$protoss-color: #f1c232;
+$terran-color: #6fa8dc;
+$zerg-color: #c27ba0;
+$random-color: #cccccc;
+
 .race_unknown {
 	background-color: #ff4444;
 }
 
-.race_protoss {
-	background-color: #f1c232;
+@each $race, $color in (protoss: $protoss-color, terran: $terran-color, zerg: $zerg-color, random: $random-color) {
+	.race_#{$race} {
+		background-color: $color;
+	}
+
+	@if $race != random {
+		.race_#{$race}_random {
+			background: linear-gradient(150deg, $random-color 30%, $color 30%);
+		}
+	}
 }
-
-
-.race_terran {
-	background-color: #6fa8dc;
-}
-
-.race_zerg {
-	background-color: #c27ba0;
-}
-
-.race_random {
-	background-color: #cccccc;
-}
-
 
 .tablesorter-header {
 	background-position: center right;
