@@ -4,34 +4,34 @@
 
 layout: home
 ---
-<updated-list>
-</updated-list>
-
-<script type="riot/tag">
-	<updated-list>
-<h2>Recent Bot Updates</h2>
-
-<ul style="list-style-type: none; margin: 0; padding: 0;">
-<li each={ bots }>
-{ lastUpdated } <i class="fas fa-caret-right"></i> { botName } <span if={ won + lost <= 50 }>&#x1F195;</span>
-</li>
-</ul>
-	</updated-list>
-</script>
+<div id="lastUpdated">
+</div>
 
 <script>
+	function lastUpdatedTemplate(bots) {
+		return html`
+			<h2>Recent Bot Updates</h2>
+
+			<ul style="list-style-type: none; margin: 0; padding: 0;">
+			${bots.map(bot => html`
+				<li>
+				${bot.lastUpdated} <i class="fas fa-caret-right"></i> ${bot.botName}${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` :""}
+				</li>
+				`)}
+			</ul>
+			`;
+	}
 	$(function() {
-		let updateTable = riot.mount('*')[0];
 		let botsAfter = Date.now() / 1000 - 86400 * 5;
 		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
-			updateTable.bots = data.filter(function(x) {
+			let bots = data.filter(function(x) {
 				return x.lastUpdated >= botsAfter && x.enabled;
 			}).sort(function(a, b) { return b.lastUpdated - a.lastUpdated; })
 				.map(function(bot) {
 					bot.lastUpdated = basil.formatDate(bot.lastUpdated);
 					return bot;
 				});
-			updateTable.update();
+			$("#lastUpdated").append(lastUpdatedTemplate(bots));
 		});
 	});
 </script>

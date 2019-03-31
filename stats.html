@@ -2,127 +2,121 @@
 layout: page
 title: Stats
 ---
-<script id="rowTemplate" type="text/x-handlebars-template">
 	{% raw %}
-		<tr>
-		<th>Games played</th>
-		<td>{{gamesPlayed}}</td>
-		</tr>
-		<tr>
-		<th class="race_terran">Terran bots</th>
-		<td>{{terranBots}}</td>
-		</tr>
-		<tr>
-		<th class="race_protoss">Protoss bots</th>
-		<td>{{protossBots}}</td>
-		</tr>
-		<tr>
-		<th class="race_zerg">Zerg bots</th>
-		<td>{{zergBots}}</td>
-		</tr>
-		<tr>
-		<th class="race_random">Random bots</th>
-		<td>{{randomBots}}</td>
-		</tr>
-		<tr>
-		<th>Crashes</th>
-		<td>{{crashes}}</td>
-		</tr>
-		<tr>
-		<th>Avg. playtime (realtime)</th>
-		<td>{{time averageGameRealtime}} seconds</td>
-		</tr>
-		<tr>
-		<th>Next bot update</th>
-		<td>{{nextUpdateTime}}</td>
-		</tr>
-		<tr>
-		{% endraw %}
-</script>
-<script id="raceCrossTableTemplate" type="text/x-handlebars-template">
-	{% raw %}
-	<thead>
-	<th>Race</th>
-	<th>Won</th>
-	<th>Lost</th>
-	<th>% Win</th>
-	{{#each this}}
-	<th class="cap race_{{@key}}">{{@key}}</th>
-	{{/each}}
-	</thead>
-	<tbody>
-	{{#each this as |vsrow race|}}
-	<tr>
-	<th class="cap race_{{race}}">{{race}}</th>
-	<td>{{won}}</td>
-	<td>{{lost}}</td>
-	<td>{{winRate}}</td>
-	<td>{{vsrow.terran}}</td>
-	<td>{{vsrow.protoss}}</td>
-	<td>{{vsrow.zerg}}</td>
-	<td>{{vsrow.random}}</td>
-	</tr>
-	{{/each}}
-	</tbody>
-	{% endraw %}
-</script>
-<script type="riot/tag">
-<unit-stats-table>
-	{% raw %}
-<table>
-	<thead>
-	<th>Unit</th>
-	<th>Created</th>
-	<th>Destroyed</th>
-</thead>
-<tbody>
-	<tr each={unitStats}>
-		<td>{name}</td>
-		<td>{created}</td>
-		<td>{destroyed}</td>
-	</tr>
-</tbody>
-</table>	
-	{% endraw %}
-</unit-stats-table>
-</script>
 <script>
+	let numberFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigis: 2}).format;
+	function rowTemplate(row) {
+		return html`
+			<tr>
+			<th>Games played</th>
+			<td>${row.gamesPlayed}</td>
+			</tr>
+			<tr>
+			<th class="race_terran">Terran bots</th>
+			<td>${row.terranBots}</td>
+			</tr>
+			<tr>
+			<th class="race_protoss">Protoss bots</th>
+			<td>${row.protossBots}</td>
+			</tr>
+			<tr>
+			<th class="race_zerg">Zerg bots</th>
+			<td>${row.zergBots}</td>
+			</tr>
+			<tr>
+			<th class="race_random">Random bots</th>
+			<td>${row.randomBots}</td>
+			</tr>
+			<tr>
+			<th>Crashes</th>
+			<td>${row.crashes}</td>
+			</tr>
+			<tr>
+			<th>Avg. playtime (realtime)</th>
+			<td>${numberFormat(row.averageGameRealtime)} seconds</td>
+			</tr>
+			<tr>
+			<th>Next bot update</th>
+			<td>${row.nextUpdateTime}</td>
+			</tr>
+			<tr>
+			`;
+	}
+	function crossTableTemplate(x) {
+		return html`
+			<thead>
+			<th>Race</th>
+			<th>Won</th>
+			<th>Lost</th>
+			<th>% Win</th>
+			${Object.keys(x).map((key) => html`
+			<th class="cap race_${key}">${key}</th>
+				`)}
+			</thead>
+			<tbody>
+			${Object.entries(x).map(([key, vsrow]) => html`
+			<tr>
+			<th class="cap race_${key}">${key}</th>
+			<td>${vsrow.won}</td>
+			<td>${vsrow.lost}</td>
+			<td>${vsrow.winRate}</td>
+			<td>${vsrow.terran}</td>
+			<td>${vsrow.protoss}</td>
+			<td>${vsrow.zerg}</td>
+			<td>${vsrow.random}</td>
+			</tr>
+				`)}
+			</tbody>
+			`;
+	}
+	function unitStatsTableTemplate(stats) {
+		return html`
+		<table id="unitStatsTable">
+		<thead>
+		<th>Unit</th>
+		<th>Created</th>
+		<th>Destroyed</th>
+		</thead>
+		<tbody>
+			${stats.map(unit =>  html`
+		<tr each=${unit.unitStats}>
+		<td>${unit.name}</td>
+		<td>${unit.created}</td>
+		<td>${unit.destroyed}</td>
+		</tr>
+				`)}
+		</tbody>
+		</table>	
+	`;
+	}
 	$(function() {
-		let rowTemplateSource = $("#rowTemplate").html();
-		let rowTemplate = Handlebars.compile(rowTemplateSource);
-		let crossTableTemplateSource = $("#raceCrossTableTemplate").html();
-		let crossTableTemplate = Handlebars.compile(crossTableTemplateSource);
-		let numberFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigis: 2}).format;
-		let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1}).format;
-		Handlebars.registerHelper("time", function(v) { return numberFormat(v); });
-		let unitStatsTable = riot.mount('*')[0];
+	let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1}).format;
 
-		$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
-			data.nextUpdateTime = new Date(data.nextUpdateTime).toLocaleString([], {hour: "numeric"}) + " - " + new Date(data.nextUpdateTime + 60 * 60 * 1000).toLocaleString([], {hour: "numeric"}); 
-			let rowsHtml = rowTemplate(data);
-			$("#statsTable tbody").append(rowsHtml);
-			let crossTableData = data.raceCrossTable;
-			for (let key in crossTableData) {
-				crossTableData[key].lost = 0;
+	$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
+		data.nextUpdateTime = new Date(data.nextUpdateTime).toLocaleString([], {hour: "numeric"}) + " - " + new Date(data.nextUpdateTime + 60 * 60 * 1000).toLocaleString([], {hour: "numeric"}); 
+		let rowsHtml = rowTemplate(data);
+		$("#statsTable tbody").append(rowsHtml);
+		let crossTableData = data.raceCrossTable;
+		for (let key in crossTableData) {
+			crossTableData[key].lost = 0;
+		}
+		for (let key in crossTableData) {
+			let row = crossTableData[key];
+			row.won = row.terran + row.protoss + row.zerg + row.random;
+			for (let e in row) {
+				if (typeof crossTableData[e] !== "undefined") crossTableData[e].lost += row[e];
 			}
-			for (let key in crossTableData) {
-				let row = crossTableData[key];
-				row.won = row.terran + row.protoss + row.zerg + row.random;
-				for (let e in row) {
-					if (typeof crossTableData[e] !== "undefined") crossTableData[e].lost += row[e];
-				}
-			}
-			for (let key in crossTableData) {
-				let row = crossTableData[key];
-				row.winRate = (row.won + row.lost) > 0 ? percentFormat(row.won / (row.won + row.lost)) : "-";
-			}
+		}
+		for (let key in crossTableData) {
+			let row = crossTableData[key];
+			row.winRate = (row.won + row.lost) > 0 ? percentFormat(row.won / (row.won + row.lost)) : "-";
+		}
 
-			let crossTable = crossTableTemplate(crossTableData);
-			$("#crossTable").append(crossTable);
-			unitStatsTable.update(data);
-			$(unitStatsTable.root.childNodes[0]).tablesorter();
-		});
+		$("#crossTable").append(crossTableTemplate(crossTableData));
+		$("#unitStats").append(unitStatsTableTemplate(data.unitStats));
+		$('#unitStatsTable').tablesorter();
 	});
+});
 </script>
 <div class="row">
 	<div class="col-2">
@@ -144,7 +138,8 @@ title: Stats
 </div>
 <h4>Data since ~2019.03.15:</h4>
 <div class="row">
-	<unit-stats-table>
-	</unit-stats-table>
+<div id="unitStats">
+</div>
 </div>
 <small>Source: <a href="http://basilicum.bytekeeper.org/stats/stats.json">http://basilicum.bytekeeper.org/stats/stats.json</a></small>
+{% endraw %}

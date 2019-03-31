@@ -1,7 +1,10 @@
-let basil = function(basil) {
-	Handlebars.registerHelper("inc", function(v) { return parseInt(v) + 1; });
+import html from "../lib/html-template-tag.js"
+
+window.html = html;
+
+window.basil = function(basil) {
 	basil.formatDateTime = function(epochSecond) {
-		return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm:ss a");
+		return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm a");
 	};
 	basil.formatDate = function(epochSecond) {
 		return moment.unix(epochSecond).format("YYYY.MM.DD");
@@ -23,10 +26,8 @@ let basil = function(basil) {
 	basil.percentFormat = function(value, digits) {
 		return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2}).format(value);
 	};
-	Handlebars.registerHelper("racecol", basil.racecol);
-	Handlebars.registerHelper("date", basil.formatDate);
 
 	Chart.plugins.unregister(ChartDataLabels);
 };
 
-$(function() {basil(basil);})
+$(function() {window.basil(window.basil);})

@@ -2,34 +2,32 @@
 layout: page
 title: Last 24h
 ---
-<script id="tableTemplate" type="text/x-handlebars-template">
 	{% raw %}
-		{{#each this}}
-		<tr>
-		{{> bot botA}}
-		{{> bot botB}}
-		<td>{{map}}</td>
-		<td>{{time}}</td>
-		<td>{{#unless frameCount}}<i class="fas fa-poo-storm"></i> {{/unless}}{{#if realTimeout}}<i class="fas fa-fish"></i> {{/if}}{{#if frameTimeout}}<i class="fas fa-stopwatch"></i> {{/if}}{{gameTime}}</td>
-		<td>{{#if validGame}}<a href="{{replayUrl}}"><i class="fas fa-download"></i></a>{{/if}}</td>
-		<td>{{#if validGame}}<a href="http://www.openbw.com/replay-viewer/?rep={{replayUrl}}" target="_blank">OpenBW</a>{{/if}}</td>
-		</tr>
-		{{/each }}
-		{% endraw %}
-</script>
 <script>
+	function tableTemplate(games) {
+		function bot(bot) {
+			return html`
+				<td class='${basil.racecol(bot.race)}'>$${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}$${bot.crashed ? html`<i class="fas fa-car-crash"></i>` 
+						: bot.loser ? html`<i class="fas fa-sad-tear"></i>` : ""} ${bot.name}
+				<a class="float-right normal" href="ranking.html#${bot.name}"><i class="fas fa-align-left"></i></a>
+				</td>
+				`;
+		}
+		return html`
+		${games.map(game => html`
+			<tr>
+			$${bot(game.botA)}
+			$${bot(game.botB)}
+			<td>${game.map}</td>
+			<td>${game.time}</td>
+			<td>$${ html`$${!game.frameCount ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : "" }$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}</td>
+			<td>$${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
+			<td>$${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
+			</tr>
+			`)}
+		`;
+	}
 	$(function() {
-		{% raw %}
-		Handlebars.registerPartial("bot", 
-			'<td class="{{racecol race}}">'
-			+ '{{#if winner}}<i class="fas fa-trophy"></i>{{/if}}'
-			+ '{{#if crashed}}<i class="fas fa-car-crash"></i>{{else}}'
-			+ '{{#if loser}}<i class="fas fa-sad-tear"></i>{{/if}}'
-			+ '{{/if}}'
-			+ ' {{name}} <a class="float-right normal" href="ranking.html#{{name}}"><i class="fas fa-align-left"></i></a></td>');
-		{% endraw %}
-		let source = $("#tableTemplate").html();
-		let template = Handlebars.compile(source);
 		$.getJSON("http://basilicum.bytekeeper.org/stats/game_results.json", function(data) {
 			for (i = 0; i < data.length; i++) {
 				let botA = data[i].botA.name;
@@ -46,8 +44,7 @@ title: Last 24h
 			data.sort(function(a,b) { 
 				return b.endedAt - a.endedAt;
 			});
-			let html = template(data);
-			$("#gamesTable tbody").append(html);
+			$("#gamesTable tbody").append(tableTemplate(data));
 			$("#gamesTable").tablesorter({
 				widgets: ["filter"],
 				widgetOptions: {
@@ -89,4 +86,4 @@ title: Last 24h
 	</dl>
 <small>Source: <a href="http://basilicum.bytekeeper.org/stats/game_results.json">http://basilicum.bytekeeper.org/stats/game_results.json</a></small>
 </table>
-
+		{% endraw %}
