@@ -61,7 +61,7 @@ title: Last 24h
 					};
 				});
 				let map = maps[g[i].m];
-				let events = g[i].ev.reduce((acc, e) => {
+				let events = g[i].ev && g[i].ev.reduce((acc, e) => {
 					let m = acc[e.u] = (acc[e.u] || {});
 					m[e.e] = e.c;
 					return acc;
