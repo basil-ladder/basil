@@ -3,6 +3,34 @@ layout: page
 permalink: /bot.html
 ---
 	{% raw %}
+<div id="botName"></div>
+<h2>ELO</h2>
+<form>
+<div class="row">
+	<div class="col-1">
+	<label for="startDate">Start</label>
+	<input style="width: 6em; text-align: right;" id="startDate" type="text" readonly="readonly">
+	</div>
+	<div class="col-1">
+	<label for="endDate">End</label>
+	<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
+	</div>
+</div>
+</form>
+<canvas id="eloChart" width="1200" height="600">
+</canvas>
+<h2>Wins Per Map</h2>
+<canvas id="perMapWinsChart" width="1200" height="300">
+</canvas>
+<h2>Vs</h2>
+<p>Top 30 contenders, sorted by WR, ties broken by #losses:</p>
+<canvas id="vsChart" width="1200" height="300">
+</canvas>
+<h2>Wins Per Race</h2>
+<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small>
+<canvas id="perRaceWinsChart" width="1200" height="300">
+</canvas>
+</table>
 <script>
 	function headerTemplate(bot) {
 		return html`
@@ -351,7 +379,7 @@ permalink: /bot.html
 				data.results.forEach(function(x) {
 					let epochSecond = parseInt(x.t, 16) * 3600;
 					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
-						let stat = rvr[x.r + x.er];
+						let stat = rvr[x.r + x.eR];
 						if (x.w === 1) stat.won++; else stat.lost++;
 					}
 				}, {});
@@ -408,32 +436,4 @@ permalink: /bot.html
 			});
 	});
 </script>
-<div id="botName"></div>
-<h2>ELO</h2>
-<form>
-<div class="row">
-	<div class="col-1">
-	<label for="startDate">Start</label>
-	<input style="width: 6em; text-align: right;" id="startDate" type="text" readonly="readonly">
-	</div>
-	<div class="col-1">
-	<label for="endDate">End</label>
-	<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
-	</div>
-</div>
-</form>
-<canvas id="eloChart" width="1200" height="600">
-</canvas>
-<h2>Wins Per Map</h2>
-<canvas id="perMapWinsChart" width="1200" height="300">
-</canvas>
-<h2>Vs</h2>
-<p>Top 30 contenders, sorted by WR, ties broken by #losses:</p>
-<canvas id="vsChart" width="1200" height="300">
-</canvas>
-<h2>Wins Per Race</h2>
-<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small>
-<canvas id="perRaceWinsChart" width="1200" height="300">
-</canvas>
-</table>
-	{% endraw %}
+{% endraw %}
