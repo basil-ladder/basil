@@ -7,13 +7,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.1.3.RELEASE"
-    id("io.spring.dependency-management") version "1.0.6.RELEASE"
-    id("com.github.ben-manes.versions") version "0.20.0"
+    id("org.springframework.boot") version "2.1.4.RELEASE"
+    id("io.spring.dependency-management") version "1.0.7.RELEASE"
+    id("com.github.ben-manes.versions") version "0.21.0"
 }
 
 group = "ctr"
 version = "1.0-SNAPSHOT"
+extra["junit-jupiter.version"] = "5.4.1"
+extra["mockito.version"] = "2.26.0"
+
 
 repositories {
     mavenCentral()
@@ -44,17 +47,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     testImplementation("com.h2database:h2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0-M1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.3.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.2")
-    testImplementation("org.assertj:assertj-core:3.11.1")
-    testImplementation("org.mockito:mockito-junit-jupiter:2.23.4")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
+    testImplementation("org.assertj:assertj-core:3.12.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:2.26.0")
 }
 
 configurations.all {
     exclude("org.springframework.boot", "spring-boot-starter-logging")
 }
-
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
@@ -62,13 +62,10 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
-
-
-val compileKotlin: KotlinCompile by tasks
-
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-
 
 allOpen {
     annotation("javax.persistence.Entity")

@@ -4,9 +4,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class Maps {
-    private val mapNamePattern = ("[^/]*/?(?:\\(\\d+\\))?(.+?)\\.sc.").toRegex()
-
-    val maps = listOf(
+    final val sscaitMapPool = listOf(
             "sscai/(4)Empire of the Sun.scm",
             "sscai/(3)Tau Cross.scx",
             "sscai/(2)Destination.scx",
@@ -21,7 +19,16 @@ class Maps {
             "sscai/(4)Python.scx",
             "sscai/(4)Circuit Breaker.scx",
             "sscai/(2)Heartbreak Ridge.scx"
-    )
+    ).map { SCMap(it) }
+    private val maps = sscaitMapPool.map { it.fileName to it }.toMap()
 
-    fun mapName(map: String) = mapNamePattern.matchEntire(map)?.groupValues?.get(1)
+    fun getMap(fileName: String) = maps[fileName]
+}
+
+class SCMap(val fileName: String, val modernMap: Boolean = false) {
+    val mapName = mapNamePattern.matchEntire(fileName)?.groupValues?.get(1)
+
+    companion object {
+        private val mapNamePattern = ("[^/]*/?(?:\\(\\d+\\))?(.+?)\\.sc.").toRegex()
+    }
 }

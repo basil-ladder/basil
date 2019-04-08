@@ -10,7 +10,7 @@ class MapsTest {
     fun shouldParseMapNameWithoutPlayerCount() {
         // GIVEN
         // WHEN
-        val mapName = sut.mapName("a/b.scx")
+        val mapName = SCMap("a/b.scx").mapName
 
         // THEN
         assertThat(mapName).isEqualTo("b")
@@ -20,7 +20,7 @@ class MapsTest {
     fun shouldParseSupportedNames() {
         // GIVEN
         // WHEN
-        val mapNames = sut.maps.map { sut.mapName(it) }
+        val mapNames = sut.sscaitMapPool.map { it.mapName }
 
         // THEN
         assertThat(mapNames).contains(

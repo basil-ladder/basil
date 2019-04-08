@@ -24,7 +24,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 raceA = gameEnded.winnerRace,
                 botB = gameEnded.loser,
                 raceB = gameEnded.loserRace,
-                map = gameEnded.map,
+                map = gameEnded.map.fileName,
                 gameHash = gameEnded.gameHash,
                 frameCount = gameEnded.frameCount))
         events.post(GameWon(gameResult, gameEnded.winner, gameEnded.loser))
@@ -50,7 +50,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameCrashed.gameTime,
-                map = gameCrashed.map,
+                map = gameCrashed.map.fileName,
                 botACrashed = if (botA == gameCrashed.botA) gameCrashed.botACrashed else gameCrashed.botBCrashed,
                 botBCrashed = if (botB == gameCrashed.botB) gameCrashed.botBCrashed else gameCrashed.botACrashed,
                 gameHash = gameCrashed.gameHash,
@@ -71,7 +71,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 botB = gameFailedToStart.botB,
                 raceB = gameFailedToStart.botBRace,
                 gameRealtime = 0.0,
-                map = gameFailedToStart.map,
+                map = gameFailedToStart.map.fileName,
                 botACrashed = true,
                 botBCrashed = true,
                 gameHash = gameFailedToStart.gameHash))
@@ -117,7 +117,7 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
                 winner = winner,
                 loser = loser,
                 gameRealtime = gameTimedOut.gameTime,
-                map = gameTimedOut.map,
+                map = gameTimedOut.map.fileName,
                 botACrashed = false,
                 botBCrashed = false,
                 gameHash = gameTimedOut.gameHash,

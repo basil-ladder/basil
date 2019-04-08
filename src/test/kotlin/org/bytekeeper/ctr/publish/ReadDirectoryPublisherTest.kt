@@ -13,7 +13,7 @@ import org.bytekeeper.ctr.scbw.Scbw
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.support.io.TempDirectory
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.ArgumentMatchers
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
@@ -24,7 +24,7 @@ import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 
-@ExtendWith(MockitoExtension::class, TempDirectory::class)
+@ExtendWith(MockitoExtension::class)
 class ReadDirectoryPublisherTest {
     @Mock
     private lateinit var publisher: Publisher
@@ -41,9 +41,11 @@ class ReadDirectoryPublisherTest {
 
     private lateinit var dataPath: Path
     private lateinit var botReadDir: Path
+    @TempDir
+    lateinit var base: Path
 
     @BeforeEach
-    fun setup(@TempDirectory.TempDir base: Path) {
+    fun setup() {
         dataPath = base.resolve("dataPath")
         botReadDir = base.resolve("botread")
         Files.createDirectories(dataPath)

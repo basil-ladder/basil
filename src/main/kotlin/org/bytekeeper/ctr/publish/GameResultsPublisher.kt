@@ -42,7 +42,9 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                     writer.writeValue(out,
                             PublishedGameList(
                                     bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short) },
-                                    playedMaps.entries.sortedBy { it.value }.map { maps.mapName(it.key) ?: it.key },
+                                    playedMaps.entries.sortedBy { it.value }.map {
+                                        maps.getMap(it.key)?.mapName ?: it.key
+                                    },
                                     relevantGames.map { gameResult ->
                                         val resultA = gameResult.botA
                                         val resultB = gameResult.botB

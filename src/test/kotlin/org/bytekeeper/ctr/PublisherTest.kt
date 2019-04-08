@@ -3,12 +3,12 @@ package org.bytekeeper.ctr
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.support.io.TempDirectory
+import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
-@ExtendWith(TempDirectory::class)
-internal class PublisherTest(@TempDirectory.TempDir private val tempDir: Path) {
+internal class PublisherTest {
+    @TempDir
+    lateinit var tempDir: Path
     private val config = Config()
     private lateinit var sut: Publisher
 

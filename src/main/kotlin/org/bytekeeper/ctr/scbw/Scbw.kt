@@ -154,7 +154,7 @@ class Scbw(private val botRepository: BotRepository,
         return botDir.resolve("read")
     }
 
-    data class GameConfig(val bots: List<String>, val map: String, val gameName: String)
+    data class GameConfig(val bots: List<String>, val map: SCMap, val gameName: String)
 
     private inner class ScbwGameRunner(val gameConfig: GameConfig) {
         private val log = LogManager.getLogger()
@@ -271,7 +271,7 @@ class Scbw(private val botRepository: BotRepository,
                 val replayPath = gamePath.resolve("player_$index.rep")
                 if (replayPath.toFile().exists()) {
                     val enemies = bots.filterNot { it == name }.joinToString(" ")
-                    val mapName = maps.mapName(gameConfig.map)
+                    val mapName = gameConfig.map.mapName
                     Files.move(replayPath, botPath.resolve("$name vs $enemies $mapName $gameName.rep"))
                 }
 

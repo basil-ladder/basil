@@ -5,8 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.support.io.TempDirectory
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.times
@@ -27,8 +26,9 @@ import java.time.Instant
 import java.util.zip.ZipInputStream
 import kotlin.streams.asSequence
 
-@ExtendWith(TempDirectory::class)
-class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
+class BasilSourceTest() {
+    @TempDir
+    lateinit var tempDir: Path
     private val config: Config = Config()
     private lateinit var sut: BasilSource
 
@@ -133,9 +133,9 @@ class BasilSourceTest(@TempDirectory.TempDir val tempDir: Path) {
         // GIVEN
         val botInfo = sut.botInfoOf("testBot")!!
         bufferProvider = {
-            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(200 * 1024 * 1024)) },
+            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(120 * 1024 * 1024)) },
                     DefaultDataBufferFactory(),
-                    200 * 1024 * 1024)
+                    120 * 1024 * 1024)
                     .toMono()
         }
         sut.refresh()

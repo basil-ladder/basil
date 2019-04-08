@@ -25,7 +25,7 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer().without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
 
-        val maptoIndex = maps.maps.mapIndexed { index, s -> s to index }.toMap()
+        val maptoIndex = maps.sscaitMapPool.mapIndexed { index, s -> s.fileName to index }.toMap()
         val botToIndex = mutableMapOf<String, Int>()
         var maxBotIndex = 0
         var lastBot: String? = null
@@ -50,8 +50,8 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
     private fun publish(bot: String?, writer: ObjectWriter, aggregate: List<PublishedBotGameResult>, botToIndex: Map<String, Int>) {
         bot?.let {
             publisher.botStatsWriter(it, "allGameResults.json").use { out ->
-                writer.writeValue(out, PublishedBotGameResults(maps.maps.map {
-                    maps.mapName(it) ?: it
+                writer.writeValue(out, PublishedBotGameResults(maps.sscaitMapPool.map {
+                    it.mapName ?: it.fileName
                 }, botToIndex.entries.sortedBy { it.value }.map { it.key }, aggregate))
             }
         }

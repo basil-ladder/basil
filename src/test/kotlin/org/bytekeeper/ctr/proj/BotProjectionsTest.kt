@@ -43,6 +43,8 @@ class BotProjectionsTest {
             gameHash = ""
     )
 
+    private val map: SCMap = Maps().sscaitMapPool[0]
+
     @BeforeEach
     fun setup() {
         sut = BotProjections(botRepository, botHistoryRepository, events)
@@ -76,7 +78,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, map, true, false, Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -96,7 +98,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameEnded(GameEnded(UUID.randomUUID(), botA, Race.ZERG, botB, Race.PROTOSS, "", Instant.now(), 0.0, "", null))
+        sut.onGameEnded(GameEnded(UUID.randomUUID(), botA, Race.ZERG, botB, Race.PROTOSS, map, Instant.now(), 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -114,7 +116,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameFailedToStart(GameFailedToStart(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.TERRAN, "", Instant.now(), ""))
+        sut.onGameFailedToStart(GameFailedToStart(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.TERRAN, map, Instant.now(), ""))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 1)
@@ -132,7 +134,7 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, "", Instant.now(), false, true, 0.0, "", null))
+        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, map, Instant.now(), false, true, 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
@@ -166,7 +168,7 @@ class BotProjectionsTest {
     @Test
     fun `should handle bot update`() {
         // GIVEN
-        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, "", true, false, Instant.now(), 0.0, "", null))
+        sut.onGameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.ZERG, botB, Race.TERRAN, map, true, false, Instant.now(), 0.0, "", null))
 
         // WHEN
         sut.onBotUpdated(BotBinaryUpdated(botA, Instant.now()))
