@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.3.21"
+    val kotlinVersion = "1.3.30"
 
     kotlin("jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
@@ -15,7 +15,7 @@ plugins {
 group = "ctr"
 version = "1.0-SNAPSHOT"
 extra["junit-jupiter.version"] = "5.4.1"
-extra["mockito.version"] = "2.26.0"
+extra["mockito.version"] = "2.27.0"
 
 
 repositories {
@@ -49,7 +49,7 @@ dependencies {
     testImplementation("com.h2database:h2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
     testImplementation("org.assertj:assertj-core:3.12.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:2.26.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:2.27.0")
 }
 
 configurations.all {
