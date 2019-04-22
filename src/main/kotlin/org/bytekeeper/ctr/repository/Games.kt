@@ -43,6 +43,8 @@ class BotStat(val bot: Bot, val won: Long, val lost: Long) {
     }
 }
 
+data class MapRaceWinStat(val race: Race, val map: String, val won: Long)
+
 class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
     init {
         Hibernate.initialize(bot)
@@ -104,4 +106,10 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
             " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b")
     @Timed
     fun findAllGamesSummarized(): Stream<BotGameResult>
+
+    @Query("SELECT new org.bytekeeper.ctr.repository.MapRaceWinStat(r.raceA, r.map, count(*))" +
+            " FROM GameResult r where r.winner = r.botA" +
+            " GROUP BY r.map, r.raceA")
+    @Timed
+    fun mapRaceWinStats(): List<MapRaceWinStat>
 }
