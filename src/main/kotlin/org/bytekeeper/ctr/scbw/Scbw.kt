@@ -426,7 +426,11 @@ class Scbw(private val botRepository: BotRepository,
                 return events.map(CSV::parseLine)
                         .mapNotNull(::toUnitEvent)
                         .filter {
-                            it.event != UnitEventType.UNIT_RENEGADE
+                            it.event != UnitEventType.UNIT_RENEGADE &&
+                                    when (it.unitType) {
+                                        UnitType.SPELL_DARK_SWARM, UnitType.SPELL_DISRUPTION_WEB, UnitType.SPELL_SCANNER_SWEEP -> it.event == UnitEventType.UNIT_CREATE
+                                        else -> true
+                                    }
                         }
             }
             unitEventRepository.saveAll(preprocess(botA, botAEvents))
