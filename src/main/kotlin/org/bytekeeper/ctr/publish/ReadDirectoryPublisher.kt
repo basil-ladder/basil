@@ -27,6 +27,11 @@ class ReadDirectoryPublisher(private val botRepository: BotRepository,
 
     private fun publish(bot: Bot, relevantUpdateTime: Instant?) {
         val readDir = scbw.readDirectoryOf(bot)
+        if (!readDir.toFile().exists()) {
+            log.info("Bot ${bot.name}'s read directory is missing, not publishing it")
+            return
+        }
+
         val readSize = Files.walk(readDir)
                 .filter { Files.isRegularFile(it) }
                 .mapToLong { Files.size(it) }
