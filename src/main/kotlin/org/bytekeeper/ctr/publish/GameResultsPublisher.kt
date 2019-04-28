@@ -28,6 +28,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
         publisher.globalStatsWriter("games_24h.json")
                 .use { out ->
                     val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours, ChronoUnit.HOURS))
+                    if (relevantGames.isEmpty()) return
                     val relevantGameEvents = unitEventsRepository.aggregateGameEventsWith8OrMoreEvents(relevantGames)
                             .groupBy { it.game }
                     val bots = relevantGames.flatMap { listOf(it.botA, it.botB) }
@@ -43,7 +44,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                             PublishedGameList(
                                     bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short) },
                                     playedMaps.entries.sortedBy { it.value }.map {
-                                        maps.getMap(it.key)?.mapName ?: it.key
+                                        maps.getMap(it.key).mapName ?: it.key
                                     },
                                     relevantGames.map { gameResult ->
                                         val resultA = gameResult.botA

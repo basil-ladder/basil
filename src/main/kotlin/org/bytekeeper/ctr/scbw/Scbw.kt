@@ -142,7 +142,7 @@ class Scbw(private val botRepository: BotRepository,
             }
         }
         log.info("Successfully setup $name")
-        events.post(BotBinaryUpdated(bot, botInfo.lastUpdated))
+        events.post(BotBinaryUpdated(bot, botInfo.lastUpdated, bot.mapPools()))
     }
 
     fun runGame(gameConfig: GameConfig) {
@@ -154,11 +154,12 @@ class Scbw(private val botRepository: BotRepository,
         return botDir.resolve("read")
     }
 
-    data class GameConfig(val bots: List<String>, val map: SCMap, val gameName: String)
+    data class GameConfig(val bots: List<String>, val mapPool: SCMapPool, val gameName: String)
 
     private inner class ScbwGameRunner(val gameConfig: GameConfig) {
         private val log = LogManager.getLogger()
         private val bots = gameConfig.bots
+        private val map = gameConfig.mapPool.random()
         private val gameName = gameConfig.gameName
         private val dockerPrefix = "GAME_${gameName}"
         private val selectableRaces = listOf(Race.ZERG, Race.TERRAN, Race.PROTOSS)
@@ -172,7 +173,7 @@ class Scbw(private val botRepository: BotRepository,
 
         fun run() {
             val botsParticipating = "${bots[0]} vs ${bots[1]}"
-            log.info("Upcoming: $gameName: $botsParticipating")
+            log.info("Upcoming: $gameName: $botsParticipating on pool ${gameConfig.mapPool.name}, map ${map.mapName}")
             val cmd = mutableListOf("scbw.play", "--headless")
 
             fun addParameter(par: String, vararg value: Any?) {
@@ -193,7 +194,7 @@ class Scbw(private val botRepository: BotRepository,
 
             addParameter("--timeout", scbwConfig.realtimeTimeoutSeconds)
             addParameter("--bot_dir", scbwConfig.botsDir)
-            addParameter("--map", gameConfig.map)
+            addParameter("--map", map)
             addParameter("--game_dir", scbwConfig.gamesDir)
             addParameter("--game_speed", scbwConfig.gameSpeed)
             addParameter("--game_name", gameName)
@@ -271,7 +272,7 @@ class Scbw(private val botRepository: BotRepository,
                 val replayPath = gamePath.resolve("player_$index.rep")
                 if (replayPath.toFile().exists()) {
                     val enemies = bots.filterNot { it == name }.joinToString(" ")
-                    val mapName = gameConfig.map.mapName
+                    val mapName = map.mapName
                     Files.move(replayPath, botPath.resolve("$name vs $enemies $mapName $gameName.rep"))
                 }
 
@@ -340,7 +341,8 @@ class Scbw(private val botRepository: BotRepository,
                             if (winnerBot == botA) botARace else botBRace,
                             loserBot,
                             if (loserBot == botB) botBRace else botARace,
-                            gameConfig.map,
+                            gameConfig.mapPool,
+                            map,
                             Instant.now(),
                             result.game_time,
                             gameConfig.gameName,
@@ -353,7 +355,8 @@ class Scbw(private val botRepository: BotRepository,
                                 botARace,
                                 botB,
                                 botBRace,
-                                gameConfig.map,
+                                gameConfig.mapPool,
+                                map,
                                 botResults[0].scores?.is_crashed != false,
                                 botResults[1].scores?.is_crashed != false,
                                 Instant.now(),
@@ -383,7 +386,8 @@ class Scbw(private val botRepository: BotRepository,
                                 slowerBot,
                                 botResults[0].scores?.let { it.kill_score + it.razing_score } ?: 0,
                                 botResults[1].scores?.let { it.kill_score + it.razing_score } ?: 0,
-                                gameConfig.map,
+                                gameConfig.mapPool,
+                                map,
                                 Instant.now(),
                                 result.is_realtime_outed,
                                 result.is_gametime_outed,
@@ -399,7 +403,8 @@ class Scbw(private val botRepository: BotRepository,
                         botARace,
                         botB,
                         botBRace,
-                        gameConfig.map,
+                        gameConfig.mapPool,
+                        map,
                         Instant.now(),
                         gameConfig.gameName))
             }

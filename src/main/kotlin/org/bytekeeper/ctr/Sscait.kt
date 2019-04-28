@@ -85,6 +85,8 @@ class SscaitSource : BotSource {
             override val botType: String,
             val description: String? = ""
     ) : org.bytekeeper.ctr.BotInfo {
+        private val SPLIT_SEMICOLON = "\\s*;\\s*".toRegex()
+
         private val basilCommands: List<String>
             get() {
                 val matcher = BASIL_COMMAND_MATCHER.matcher(description)
@@ -104,6 +106,12 @@ class SscaitSource : BotSource {
 
         override val lastUpdated
             get() = if (update == null) Instant.MIN else LocalDateTime.parse(update, SSCAIT_DATE_FORMAT).toInstant(ZoneOffset.UTC)
+
+
+        override val supportedMapPools: List<String> = basilCommands.mapNotNull {
+            if (it.startsWith("MAP-POOL:")) it.substring(9).split(SPLIT_SEMICOLON) else null
+        }
+                .firstOrNull() ?: emptyList()
 
         @JsonIgnore
         override val race: Race = parseRace(raceValue)

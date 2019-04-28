@@ -33,6 +33,7 @@ class EloPublisherTest {
             id = UUID.randomUUID(),
             gameRealtime = 0.0,
             time = Instant.now(),
+            mapPool = "",
             map = "",
             botA = testBot,
             raceA = Race.PROTOSS,

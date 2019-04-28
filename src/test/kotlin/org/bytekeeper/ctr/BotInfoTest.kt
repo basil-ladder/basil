@@ -97,4 +97,17 @@ class BotInfoTest {
                 .contains(Tuple.tuple("4E5297FFDB40A6FA", true))
 
     }
+
+    @Test
+    fun `should parse supported map pools`() {
+        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        // WHEN
+        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json"))
+
+        // THEN
+        assertThat(botInfoList).extracting("supportedMapPools")
+                .contains(listOf("a", "b", "c"))
+
+    }
 }

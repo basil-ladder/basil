@@ -21,6 +21,7 @@ class GameEnded(val id: UUID,
                 val winnerRace: Race,
                 val loser: Bot,
                 val loserRace: Race,
+                val mapPool: SCMapPool,
                 val map: SCMap,
                 val timestamp: Instant = Instant.now(),
                 val gameTime: Double,
@@ -32,6 +33,7 @@ class GameCrashed(val id: UUID,
                   val botARace: Race,
                   val botB: Bot,
                   val botBRace: Race,
+                  val mapPool: SCMapPool,
                   val map: SCMap,
                   val botACrashed: Boolean,
                   val botBCrashed: Boolean,
@@ -48,6 +50,7 @@ class GameTimedOut(val id: UUID,
                    val slowerBot: Bot?,
                    val scoreA: Int,
                    val scoreB: Int,
+                   val mapPool: SCMapPool,
                    val map: SCMap,
                    val timestamp: Instant = Instant.now(),
                    val realTimedOut: Boolean,
@@ -61,6 +64,7 @@ class GameFailedToStart(val id: UUID,
                         val botARace: Race,
                         val botB: Bot,
                         val botBRace: Race,
+                        val mapPool: SCMapPool,
                         val map: SCMap,
                         val timestamp: Instant = Instant.now(),
                         val gameHash: String)
@@ -70,7 +74,7 @@ data class GameWon(val game: GameResult,
                    val loser: Bot)
 
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val game: GameResult)
-class BotBinaryUpdated(val bot: Bot, val timestamp: Instant)
+class BotBinaryUpdated(val bot: Bot, val timestamp: Instant, val mapPools: List<String>)
 class BotListUpdated
 
 @Service

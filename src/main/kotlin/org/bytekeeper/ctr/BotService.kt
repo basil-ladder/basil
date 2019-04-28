@@ -21,15 +21,16 @@ class BotService(private val botRepository: BotRepository,
 
     private fun registerBot(botInfo: BotInfo) {
         log.info("Bot ${botInfo.name} not yet registered, creating it.")
-        val bot = Bot(null,
-                !botInfo.disabled,
-                null,
-                botInfo.name,
-                botInfo.race,
-                botInfo.botType,
-                null,
-                botInfo.publishReadDirectory,
-                botInfo.authorKey)
+        val bot = Bot(id = null,
+                enabled = !botInfo.disabled,
+                disabledReason = null,
+                name = botInfo.name,
+                race = botInfo.race,
+                botType = botInfo.botType,
+                lastUpdated = null,
+                publishRead = botInfo.publishReadDirectory,
+                authorKeyId = botInfo.authorKey,
+                mapPools = botInfo.supportedMapPools.joinToString(","))
         botRepository.save(bot)
     }
 

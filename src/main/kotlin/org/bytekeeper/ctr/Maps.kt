@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class Maps {
-    final val sscaitMapPool = listOf(
+    final val poolSscait = SCMapPool("SSCAIT", listOf(
             "sscai/(4)Empire of the Sun.scm",
             "sscai/(3)Tau Cross.scx",
             "sscai/(2)Destination.scx",
@@ -19,16 +19,27 @@ class Maps {
             "sscai/(4)Python.scx",
             "sscai/(4)Circuit Breaker.scx",
             "sscai/(2)Heartbreak Ridge.scx"
-    ).map { SCMap(it) }
-    private val maps = sscaitMapPool.map { it.fileName to it }.toMap()
+    ).map(SCMap.Companion::of))
 
-    fun getMap(fileName: String) = maps[fileName]
+    final val mapPools = listOf(
+            poolSscait
+    )
+
+    fun getMap(fileName: String) = SCMap.of(fileName)
+    fun allMaps() = SCMap.allMaps.values.toList()
 }
 
-class SCMap(val fileName: String, val modernMap: Boolean = false) {
+class SCMapPool(val name: String, val maps: List<SCMap>) {
+    fun random() = maps.random()
+}
+
+class SCMap private constructor(val fileName: String) {
     val mapName = mapNamePattern.matchEntire(fileName)?.groupValues?.get(1)
 
     companion object {
         private val mapNamePattern = ("[^/]*/?(?:\\(\\d+\\))?(.+?)\\.sc.").toRegex()
+        internal val allMaps = mutableMapOf<String, SCMap>()
+
+        internal fun of(fileName: String): SCMap = allMaps.computeIfAbsent(fileName) { SCMap(fileName) }
     }
 }

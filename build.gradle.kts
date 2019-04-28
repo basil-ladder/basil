@@ -47,9 +47,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     testImplementation("com.h2database:h2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.12.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:2.27.0")
+    testImplementation("org.mockito:mockito-junit-jupiter")
 }
 
 configurations.all {

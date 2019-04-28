@@ -83,6 +83,6 @@ class BotProjections(private val botRepository: BotRepository,
         bot.lastUpdated = botUpdated.timestamp
         bot.crashesSinceUpdate = 0
 
-        botHistoryRepository.save(BotHistory(bot, botUpdated.timestamp))
+        botHistoryRepository.save(BotHistory(bot, botUpdated.timestamp, botUpdated.mapPools.joinToString(",")))
     }
 }

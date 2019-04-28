@@ -41,7 +41,9 @@ class GameService(private val scbw: Scbw,
                         setupBot(botB)
                     }
 
-                    scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), maps.sscaitMapPool.random(), "CTR_$hash"))
+                    val pool = maps.mapPools.lastOrNull { botA.mapPools().contains(it.name) && botB.mapPools().contains(it.name) }
+                            ?: maps.poolSscait
+                    scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), pool, "CTR_$hash"))
                 } catch (e: FailedToLimitResources) {
                     log.warn(e.message)
                 } catch (e: BotDisabledException) {

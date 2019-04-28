@@ -35,11 +35,15 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var crashed: Int = 0,
           var crashesSinceUpdate: Int = 0,
           var won: Int = 0,
-          var lost: Int = 0)
+          var lost: Int = 0,
+          private var mapPools: String = "") {
+    fun mapPools() = mapPools.split(",")
+}
 
 @Entity
 class BotHistory(@ManyToOne(fetch = FetchType.LAZY) val bot: Bot,
-                 val time: Instant) {
+                 val time: Instant,
+                 val mapPools: String) {
     @Id
     @GeneratedValue
     var id: Long? = null

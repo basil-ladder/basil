@@ -45,7 +45,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.TERRAN, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, Race.ZERG, botB, Race.TERRAN, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "", "map", botA, Race.ZERG, botB, Race.TERRAN, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -62,7 +62,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, true, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, false, "", "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, true, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -79,7 +79,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, true, false, "map", botA, Race.PROTOSS, botB, Race.ZERG, null, null, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, true, false, "", "map", botA, Race.PROTOSS, botB, Race.ZERG, null, null, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -96,7 +96,7 @@ class GameResultsPublisherTest {
         val botB = Bot(-1, true, null, "botB", Race.ZERG, "")
 
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, true, "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, false, false, "", 0)))
+                GameResult(UUID.randomUUID(), Instant.MIN, 1.0, false, true, "", "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, false, false, "", 0)))
 
         // WHEN
         sut.handle(PreparePublish())
@@ -114,7 +114,7 @@ class GameResultsPublisherTest {
 
         val gameId = UUID.randomUUID()
         given(gameResultRepository.findByTimeGreaterThan(any())).willReturn(mutableListOf(
-                GameResult(gameId, Instant.MIN, 1.0, false, true, "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, false, false, "", 0)))
+                GameResult(gameId, Instant.MIN, 1.0, false, true, "", "map", botA, Race.TERRAN, botB, Race.PROTOSS, botA, botB, false, false, "", 0)))
         given(unitEventsRepository.aggregateGameEventsWith8OrMoreEvents(any())).willReturn(
                 listOf(GameEvent(gameId, UnitType.PROTOSS_CARRIER, UnitEventType.UNIT_CREATE, 10L))
         )

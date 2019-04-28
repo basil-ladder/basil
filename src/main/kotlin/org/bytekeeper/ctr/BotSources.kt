@@ -14,6 +14,7 @@ interface BotSource {
 }
 
 interface BotInfo {
+    val supportedMapPools: List<String>
     val name: String
     val publishReadDirectory: Boolean
     val authorKey: String?

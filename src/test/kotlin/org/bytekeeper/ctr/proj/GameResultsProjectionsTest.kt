@@ -28,7 +28,9 @@ class GameResultsProjectionsTest {
 
     private val botA = Bot(name = "A", race = Race.RANDOM, botType = "")
     private val botB = Bot(name = "B", race = Race.RANDOM, botType = "")
-    private val map = Maps().sscaitMapPool[0]
+    private val pool = Maps().poolSscait
+
+    private val map = pool.maps[0]
     private lateinit var gameResult: GameResult;
 
     @BeforeEach
@@ -46,7 +48,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, map, Instant.now(), false, true, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, pool, map, Instant.now(), false, true, 0.0, "", null))
 
         // THEN
         verify(events).post(GameWon(gameResult, botA, botB))
@@ -57,7 +59,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.PROTOSS, botA, 1, 0, map, Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.PROTOSS, botA, 1, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
 
         // THEN
         verify(events).post(GameWon(gameResult, botB, botA))
@@ -68,7 +70,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.ZERG, null, 0, 0, map, Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.ZERG, null, 0, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
 
         // THEN
         verify(events, never()).post(any())
@@ -79,7 +81,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.TERRAN, map, true, false, Instant.now(), 0.0, "", 0))
+        sut.gameCrashed(GameCrashed(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.TERRAN, pool, map, true, false, Instant.now(), 0.0, "", 0))
 
         // THEN
         verify(events).post(GameWon(gameResult, botB, botA))
@@ -90,7 +92,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameEnded(GameEnded(UUID.randomUUID(), botB, Race.ZERG, botA, Race.TERRAN, map, Instant.now(), 0.0, "", 0))
+        sut.gameEnded(GameEnded(UUID.randomUUID(), botB, Race.ZERG, botA, Race.TERRAN, pool, map, Instant.now(), 0.0, "", 0))
 
         // THEN
         verify(events).post(GameWon(gameResult, botB, botA))
@@ -103,10 +105,10 @@ class GameResultsProjectionsTest {
         val timestamp = Instant.now()
 
         // WHEN
-        sut.gameEnded(GameEnded(id, botB, Race.ZERG, botA, Race.TERRAN, map, timestamp, 0.0, "", 0))
+        sut.gameEnded(GameEnded(id, botB, Race.ZERG, botA, Race.TERRAN, pool, map, timestamp, 0.0, "", 0))
 
         // THEN
-        verify(gameResultRepository).save(eq(GameResult(id, timestamp, 0.0, false, false, map.fileName, botB, Race.ZERG,
+        verify(gameResultRepository).save(eq(GameResult(id, timestamp, 0.0, false, false, pool.name, map.fileName, botB, Race.ZERG,
                 botA, Race.TERRAN, botB, botA, false, false, "", 0)))
     }
 }
