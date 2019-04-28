@@ -194,7 +194,7 @@ class Scbw(private val botRepository: BotRepository,
 
             addParameter("--timeout", scbwConfig.realtimeTimeoutSeconds)
             addParameter("--bot_dir", scbwConfig.botsDir)
-            addParameter("--map", map)
+            addParameter("--map", map.fileName)
             addParameter("--game_dir", scbwConfig.gamesDir)
             addParameter("--game_speed", scbwConfig.gameSpeed)
             addParameter("--game_name", gameName)
