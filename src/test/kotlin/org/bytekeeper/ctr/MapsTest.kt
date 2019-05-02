@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.assertj.core.api.Assertions.assertThat
+import org.bytekeeper.ctr.SCMapPool.Companion.poolSscait
 import org.junit.jupiter.api.Test
 
 class MapsTest {
@@ -20,7 +21,7 @@ class MapsTest {
     fun shouldParseSupportedNames() {
         // GIVEN
         // WHEN
-        val mapNames = sut.poolSscait.maps.map { it.mapName }
+        val mapNames = poolSscait.maps.map { it.mapName }
 
         // THEN
         assertThat(mapNames).contains(

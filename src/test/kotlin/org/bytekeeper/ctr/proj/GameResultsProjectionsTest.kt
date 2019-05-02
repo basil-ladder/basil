@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.proj
 
 import org.bytekeeper.ctr.*
+import org.bytekeeper.ctr.SCMapPool.Companion.poolSscait
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.GameResult
 import org.bytekeeper.ctr.repository.GameResultRepository
@@ -28,7 +29,7 @@ class GameResultsProjectionsTest {
 
     private val botA = Bot(name = "A", race = Race.RANDOM, botType = "")
     private val botB = Bot(name = "B", race = Race.RANDOM, botType = "")
-    private val pool = Maps().poolSscait
+    private val pool = poolSscait
 
     private val map = pool.maps[0]
     private lateinit var gameResult: GameResult;

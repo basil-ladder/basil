@@ -2,6 +2,7 @@ package org.bytekeeper.ctr.proj
 
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.*
+import org.bytekeeper.ctr.SCMapPool.Companion.poolSscait
 import org.bytekeeper.ctr.repository.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,7 +45,7 @@ class BotProjectionsTest {
             gameHash = ""
     )
 
-    private val pool = Maps().poolSscait
+    private val pool = poolSscait
     private val map: SCMap = pool.maps[0]
 
     @BeforeEach

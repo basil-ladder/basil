@@ -1,5 +1,6 @@
 package org.bytekeeper.ctr
 
+import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.Race
@@ -7,6 +8,7 @@ import org.bytekeeper.ctr.scbw.Scbw
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito.*
 import org.mockito.Mock
 import org.mockito.Mockito
@@ -44,14 +46,19 @@ class GameServiceTest {
     @Mock
     private lateinit var botUpdater: BotUpdater
 
-    private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "")
-    private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "")
+    private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "", mapPools = "pool2,pool3")
+    private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "pool2")
+    private val botC = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "")
     private val botAInfo = TestBotInfo()
     private val botBInfo = TestBotInfo()
 
+    private val pool2 = SCMapPool("pool2", emptyList())
+    private val pool3 = SCMapPool("pool3", emptyList())
+
     @BeforeEach
     fun setup() {
-        sut = GameService(scbw, Maps(), botSources, botUpdater, botRepository)
+        given(maps.mapPools).willReturn(listOf(pool2, pool3))
+        sut = GameService(scbw, maps, botSources, botUpdater, botRepository)
         willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
         willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
 
@@ -114,5 +121,37 @@ class GameServiceTest {
 
         // THEN
         verify(scbw, Mockito.never()).runGame(any())
+    }
+
+    @Test
+    fun `should use most recent map pool`() {
+        // GIVEN
+
+        // WHEN
+        sut.schedule1on1()
+
+        // THEN
+        val gameConfigCaptor = ArgumentCaptor.forClass(Scbw.GameConfig::class.java)
+        verify(scbw).runGame(gameConfigCaptor.cap())
+        assertThat(gameConfigCaptor.value)
+                .extracting { it.mapPool }
+                .isEqualTo(pool2)
+    }
+
+    @Test
+    fun `should fall back to SSCAIT map pool`() {
+        // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botC))
+        sut.onBotListUpdate(BotListUpdated())
+
+        // WHEN
+        sut.schedule1on1()
+
+        // THEN
+        val gameConfigCaptor = ArgumentCaptor.forClass(Scbw.GameConfig::class.java)
+        verify(scbw).runGame(gameConfigCaptor.cap())
+        assertThat(gameConfigCaptor.value)
+                .extracting { it.mapPool }
+                .isEqualTo(SCMapPool.poolSscait)
     }
 }

@@ -4,7 +4,7 @@ import org.bytekeeper.ctr.repository.Race
 import java.time.Instant
 
 class TestBotInfo : BotInfo {
-    override val supportedMapPools: List<String> = listOf("advanced")
+    override var supportedMapPools: List<String> = mutableListOf()
     override var name: String = ""
     override var publishReadDirectory: Boolean = false
     override var authorKey: String? = null
