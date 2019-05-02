@@ -37,7 +37,7 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var won: Int = 0,
           var lost: Int = 0,
           var mapPools: String = "") {
-    fun mapPools() = mapPools.split(",")
+    fun mapPools() = mapPools.split(",").filter { it.isNotBlank() }
 }
 
 @Entity

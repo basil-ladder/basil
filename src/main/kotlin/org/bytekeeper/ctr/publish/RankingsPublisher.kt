@@ -2,10 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
-import org.bytekeeper.ctr.BotSources
-import org.bytekeeper.ctr.CommandHandler
-import org.bytekeeper.ctr.PreparePublish
-import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Component
 
@@ -37,7 +34,8 @@ class RankingsPublisher(private val publisher: Publisher,
                                         it.race.name,
                                         lastUpdated?.epochSecond,
                                         it.enabled,
-                                        it.disabledReason)
+                                        it.disabledReason,
+                                        listOf(SCMapPool.poolSscait.name) + it.mapPools())
                             })
                 }
     }
@@ -54,4 +52,5 @@ class PublishedBotRanking(val botName: String,
                           val race: String?,
                           val lastUpdated: Long?,
                           val enabled: Boolean,
-                          val disabledReason: String?)
+                          val disabledReason: String?,
+                          val mapPools: List<String>)
