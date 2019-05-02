@@ -45,6 +45,7 @@ class BotService(private val botRepository: BotRepository,
         }
         bot.publishRead = botInfo.publishReadDirectory
         bot.authorKeyId = botInfo.authorKey
+        bot.mapPools = botInfo.supportedMapPools.joinToString(",")
     }
 
     @Transactional

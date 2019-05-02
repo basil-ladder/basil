@@ -36,7 +36,7 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var crashesSinceUpdate: Int = 0,
           var won: Int = 0,
           var lost: Int = 0,
-          private var mapPools: String = "") {
+          var mapPools: String = "") {
     fun mapPools() = mapPools.split(",")
 }
 
