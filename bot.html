@@ -243,7 +243,8 @@ permalink: /bot.html
 						if (x.w === 1) stat.won++; else stat.lost++;
 					}
 				}, {});
-				map.sort(function(a,b) {
+			        map = map.filter(function(x) { return x.lost + x.won > 0; }) 
+	   				.sort(function(a,b) {
       					let dWR = a.won / Math.max(1, a.won + a.lost) - b.won / Math.max(1, b.won + b.lost);
 					if (dWR != 0) return dWR;
 					if (a.lost > b.lost) return -1;
