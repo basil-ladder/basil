@@ -40,7 +40,7 @@ data class SCMapPool(val name: String, val maps: List<SCMap>) {
                 "2019Season1/(3)Medusa 2.2_iCCup.scx",
                 "2019Season1/(4)Fighting Spirit.scx",
                 "2019Season1/(4)Ground_Zero_2.0_iCCup.scx",
-                "2019Season1/(2)Cross Game.scx",
+// Unsupported by BW:1.16.1                "2019Season1/(2)Cross Game.scx",
                 "2019Season1/(2)Overwatch(n).scx",
                 "2019Season1/(4)CircuitBreakers1.0.scx",
                 "2019Season1/(4)Colosseum 2.0_iCCup.scx"
