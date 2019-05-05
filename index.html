@@ -15,7 +15,7 @@ layout: home
 			<ul style="list-style-type: none; margin: 0; padding: 0;">
 			${bots.map(bot => html`
 				<li>
-				${bot.lastUpdated} <i class="fas fa-caret-right"></i> ${bot.botName}${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` :""}
+				${bot.lastUpdated} <i class="fas fa-caret-right"></i> ${bot.botName}$${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` :""}
 				</li>
 				`)}
 			</ul>
