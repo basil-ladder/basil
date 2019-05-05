@@ -1,0 +1,38 @@
+---
+layout: post
+title: "A new map pool: 2019 season 1"
+categories: basil 
+---
+The time has come to prove your bot on new playgrounds - if you want to.
+
+There is a longer history of some people wanting bots to use newer/fixed maps and people who'd rather only support SSCAITs maps and improve their bots there.
+A solution was discussed and proposed on the [Discord](https://discord.gg/frDVAwk), which is:
+
+Bots
+* *must* work on any SSCAIT map
+* *may* choose to support other map pools
+
+For BASIL that means:
+1. If the 2 scheduled bots support a new map pool, one of its maps will be chosen
+2. Otherwise, a SSCAIT map will be selected
+
+The only other map pool for now is `2019Season1` - the current seasons SC:R human map pool.
+Here is a list of the maps:
+* ~~(2)Cross Game~~ this map is not supported by BW 1.16 and will not be played
+* (2)Overwatch(n)
+* (3)Medusa 2.2_iCCup
+* (4)CircuitBreakers1.0
+* (4)Colosseum 2.0_iCCup
+* (4)Fighting Spirit
+* (4)Ground_Zero_2.0_iCCup
+
+You can get them [here](https://github.com/Bytekeeper/sc-docker/releases/tag/Maps_2019Season1).
+
+# TL;DR - I want my bot to use other maps
+Finally, if you want your bot to participate, add the following BASIL config setting: `MAP-POOL:2019Season1`. (Ie. `BASIL:PUBLISH-READ,...,MAP-POOL:2019Season1,...`.
+
+I am aware that this will have some influence on the ELO ratings, which will reflect on [SSCAIT's tables](https://sscaitournament.com/index.php?action=scores) as well. I estimate the impact to be very small overall.
+
+I might make some changes in the web front-end to indicate which map pool was used for a game. But there are no plans to make separate ladders or ranking tables based on the map pools being used. Resources are sparse, the community small and does not need any more fragmentation.
+
+As always, feel free to contact me if you have questions and/or suggestions. Either by mail (see below) or on the before-mentioned Discord server. Also, BASIL is open source - if you find bugs/have ideas you can open a ticket [here](https://github.com/Bytekeeper/basil).
