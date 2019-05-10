@@ -211,6 +211,7 @@ permalink: /bot.html
 				options: {
 					plugins: {
 						datalabels: {
+							align: "top",
 							formatter: function(value, context) {
 								let wins = context.chart.data.datasets[0].data[context.dataIndex];
 								let losses = context.chart.data.datasets[1].data[context.dataIndex];
@@ -257,7 +258,7 @@ permalink: /bot.html
 				winCharts.data.datasets = [{
 					label: "Won",
 					data: wonData,
-					backgroundColor: "#88AAEB"
+					backgroundColor: "#88AAEB",
 				}, {
 					label: "Lost",
 					data: lostData,
@@ -288,7 +289,23 @@ permalink: /bot.html
 		function setupVsChart(data) {
 			let vsChart = new Chart(document.getElementById("vsChart"), {
 				type: "bar",
+				plugins: [ChartDataLabels],
 				options: {
+					plugins: {
+						datalabels: {
+	   						rotation: -70,
+	   						font: {
+	   							size: 11
+							},
+	   						align: "top",
+							formatter: function(value, context) {
+								let wins = context.chart.data.datasets[0].data[context.dataIndex];
+								let losses = context.chart.data.datasets[1].data[context.dataIndex];
+								let wr = wins / Math.max(1, wins + losses);
+								return basil.percentFormat(wr, 1);
+							}
+						}
+					},
 					tooltips: {
 						mode: "index",
 						callbacks: {
@@ -331,7 +348,10 @@ permalink: /bot.html
 				}, {
 					label: "Lost",
 					data: lostData,
-					backgroundColor: "#EBAAAA"
+					backgroundColor: "#EBAAAA",
+					datalabels: {
+						display: false
+					}
 				}];
       				vsChart.options.scales = {
 					xAxes: [{
