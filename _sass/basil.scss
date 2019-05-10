@@ -5,6 +5,9 @@ $terran-color: #6fa8dc;
 $zerg-color: #c27ba0;
 $random-color: #cccccc;
 
+$nav-background-color: #090909;
+$yellow-color: #EF9F10;
+
 .race_unknown {
 	background-color: #ff4444;
 }
@@ -152,11 +155,6 @@ small.tiny {
 	font-size: 0.6em;
 }
 
-hr {
-	margin-top: -15px;
-	margin-bottom: 15px;
-}
-
 .tooltip {
 	span[role=tooltip] {
 		visibility: hidden;
@@ -190,5 +188,20 @@ hr {
 		right: 0;
 		bottom: 0;
 		font-size: 0.9em;
+	}
+}
+
+.site-header {
+	background-color: $nav-background-color;
+
+	.page-link {
+		color: $grey-color-light;
+	}
+}
+
+
+.site-title {
+	&,&:visited {
+		color: $yellow-color;
 	}
 }

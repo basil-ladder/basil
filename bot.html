@@ -35,7 +35,7 @@ permalink: /bot.html
 	function headerTemplate(bot) {
 		return html`
 			<h1 $${bot.race ? html`class="${basil.racecol(bot.race)}"` : ""}>${bot.botName}</h1>
-			<hr>
+			<hr style="margin-top: -15px; margin-bottom: 15px;">
 			$${bot.won ? html`
 					<div class="row">
 					<div class="col-6 row">

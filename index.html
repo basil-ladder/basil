@@ -12,6 +12,7 @@ layout: home
 		return html`
 			<h2>Recent Bot Updates</h2>
 
+			<div style="max-height: 20em; overflow: auto;">
 			<ul style="list-style-type: none; margin: 0; padding: 0;">
 			${bots.map(bot => html`
 				<li>
@@ -19,6 +20,8 @@ layout: home
 				</li>
 				`)}
 			</ul>
+			</div>
+			<hr>
 			`;
 	}
 	$(function() {
