@@ -314,7 +314,7 @@ permalink: /bot.html
 					}
 				}, {});
       				bots = bots.filter(function(x) { return x.won + x.lost > 0; });
-				bots.sort(function(a,b) {
+				bots = bots.sort(function(a,b) {
 					let dWR = a.won / (a.won + a.lost) - b.won / (b.won + b.lost);
 					if (dWR != 0) return dWR;
 					if (a.lost > b.lost) return -1;
