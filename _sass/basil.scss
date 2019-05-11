@@ -6,7 +6,7 @@ $zerg-color: #c27ba0;
 $random-color: #cccccc;
 
 $nav-background-color: #090909;
-$yellow-color: #EF9F10;
+$my-orange-color: #EF9F10;
 
 .race_unknown {
 	background-color: #ff4444;
@@ -199,9 +199,22 @@ small.tiny {
 	}
 }
 
+input:checked ~ .trigger {
+	display: block;
+	padding-bottom: 5px;
+	.page-link {
+		color: $text-color;
+	}
+}
+
+
+.site-nav {
+	z-index: 2;
+}
+
 
 .site-title {
 	&,&:visited {
-		color: $yellow-color;
+		color: $my-orange-color;
 	}
 }
