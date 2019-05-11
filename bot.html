@@ -23,7 +23,7 @@ permalink: /bot.html
 <canvas id="perMapWinsChart" width="1200" height="300">
 </canvas>
 <h2>Vs</h2>
-<p>Top 30 contenders, sorted by WR, ties broken by #losses:</p>
+<p>Top 70 contenders, sorted by WR, ties broken by #losses:</p>
 <canvas id="vsChart" width="1200" height="300">
 </canvas>
 <h2>Wins Per Race</h2>
@@ -293,9 +293,9 @@ permalink: /bot.html
 				options: {
 					plugins: {
 						datalabels: {
-	   						rotation: -70,
+	   						rotation: -85,
 	   						font: {
-	   							size: 11
+	   							size: 10
 							},
 	   						align: "top",
 							formatter: function(value, context) {
@@ -337,7 +337,7 @@ permalink: /bot.html
 					if (a.lost > b.lost) return -1;
 					if (a.lost < b.lost) return 1;
 					return 0;
-				}).slice(0, 30);
+				}).slice(0, 70);
 				let wonData = bots.map(function(a) { return a.won; });
 				let lostData = bots.map(function(a) { return a.lost; });
 			        let labels = bots.map(function(x) { return x.bot; });
