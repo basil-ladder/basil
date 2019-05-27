@@ -13,6 +13,7 @@ class Config {
     lateinit var publishCommand: String
     lateinit var publishBasePath: Path
     var gameResultsHours: Long = 48
+    var parallelGamesCount = 3
     lateinit var dataBasePath: Path
     lateinit var basilBotSource: Path
     var disableBotSourceDisabledAfter = Duration.ofDays(65)

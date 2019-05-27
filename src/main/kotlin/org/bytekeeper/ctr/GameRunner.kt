@@ -6,13 +6,14 @@ import org.springframework.stereotype.Component
 import kotlin.concurrent.thread
 
 @Component
-class GameRunner(private val gameService: GameService) : CommandLineRunner {
+class GameRunner(private val gameService: GameService,
+                 private val config: Config) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
     override fun run(vararg args: String?) {
-        log.info("Let's play!")
+        log.info("Let's play! Starting ${config.parallelGamesCount} concurrent games")
 
-        repeat(3) {
+        repeat(config.parallelGamesCount) {
             log.info("Starting worker thread")
             thread {
                 try {
