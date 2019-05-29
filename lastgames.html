@@ -27,6 +27,8 @@ title: Last 24h
 			$${ game.arbiter >= 10  ? html`<i class="tooltip fas fa-user-secret"><span role="tooltip">${game.arbiter} Arbiter</span></i>` : "" }
 			$${ game.lurkers >= 100  ? html`<i class="tooltip fas fa-spider"><span role="tooltip">${game.lurkers} Lurkers</span></i>` : "" }
 			$${ game.queens >= 80 ? html`<i class="tooltip fas fa-chess-queen"><span role="tooltip">${game.queens} Queens</span></i>` : "" }
+			$${ game.guardians >= 10 ? html`<i class="tooltip fas fa-pastafarianism"><span role="tooltip">${game.guardians} Guardians</span></i>` : "" }
+			$${ game.defilers >= 10 ? html`<i class="tooltip fas fa-smog"><span role="tooltip">${game.defilers} Defilers</span></i>` : "" }
 			</div></td>
 			<td>$${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
 			<td>$${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
@@ -84,7 +86,9 @@ title: Last 24h
 					cruisercarrier: (events[72] ? events[72][1] : 0) + (events[12] ? events[12][1] : 0),
 					arbiter: events[71] && events[71][1],
 					lurkers: events[103] && events[103][7],
-					queens: events[45] && events[45][7]
+					queens: events[45] && events[45][7],
+					guardians: events[44] && events[44][7],
+					defilers: events[46] && events[46][7],
 				});
 			}
 			// Required for index to work as expected
