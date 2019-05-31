@@ -84,7 +84,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                         PublishedGameResult(
                                                 botA,
                                                 botB,
-                                                bool2Short(gameResult.winner == null),
+                                                bool2Short(gameResult.winner == null || gameResult.realtimeTimeout),
                                                 bool2Short(gameResult.realtimeTimeout),
                                                 bool2Short(gameResult.frameTimeout),
                                                 (gameResult.time.epochSecond / 60).toString(16),

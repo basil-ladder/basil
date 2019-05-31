@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.1.4.RELEASE"
+    id("org.springframework.boot") version "2.1.5.RELEASE"
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
     id("com.github.ben-manes.versions") version "0.21.0"
 }
@@ -15,7 +15,7 @@ plugins {
 group = "ctr"
 version = "1.0-SNAPSHOT"
 extra["junit-jupiter.version"] = "5.4.1"
-extra["mockito.version"] = "2.27.0"
+extra["mockito.version"] = "2.28.2"
 
 
 repositories {
