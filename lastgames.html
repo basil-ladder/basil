@@ -77,7 +77,7 @@ title: Last 24h
 					replayUrl: "http://basilicum.bytekeeper.org/bots/" + botA.name + "/"+  botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
 					gameTime: gameTime,
 					notPlayed: !g[i].fc,
-					validGame: g[i].iv !== 1,
+					validGame: g[i].iv !== 1 && g[i].to != 1,
 					realTimeout: g[i].to === 1,
 					frameTimeout: g[i].fo === 1,
 					map: map,
