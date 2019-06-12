@@ -115,8 +115,22 @@ class Scbw(private val botRepository: BotRepository,
             Files.copy(it, bwapiDll, StandardCopyOption.REPLACE_EXISTING)
         }
         log.info("Downloading $name's binary")
-        ZipInputStream(botSources.downloadBinary(botInfo))
-                .use { zipIn ->
+        botSources.downloadBinary(botInfo)
+                .use { stream ->
+                    val timestamp = Instant.now().toEpochMilli() / 1000
+                    config.botBinariesHistoryPath?.resolve(name)?.resolve("binary_$timestamp.zip")
+                            ?.let {
+                                log.info("Saving bot history to $it")
+                                Files.createDirectories(it.parent)
+                                Files.copy(stream, it, StandardCopyOption.REPLACE_EXISTING)
+                                Files.newInputStream(it)
+                            } ?: run {
+                        log.info("No history path was given, passing download through")
+                        stream
+                    }
+                }.let {
+                    ZipInputStream(it)
+                }.use { zipIn ->
                     while (true) {
                         val nextEntry = zipIn.nextEntry ?: return@use
                         if (nextEntry.isDirectory) {

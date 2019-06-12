@@ -16,6 +16,7 @@ class Config {
     var parallelGamesCount = 3
     lateinit var dataBasePath: Path
     lateinit var basilBotSource: Path
+    var botBinariesHistoryPath: Path? = null
     var disableBotSourceDisabledAfter = Duration.ofDays(65)
     var rules = Rules()
 
