@@ -239,6 +239,8 @@ enum class UnitType(val identifier: String) {
 
     override fun toString() = identifier.replace('_', ' ')
 
+    fun short() = identifier.removePrefix("Terran").removePrefix("Zerg").removePrefix("Protoss").replace('_', ' ')
+
     companion object {
         private val typeMap = enumValues<UnitType>().map { it.identifier to it }.toMap()
 

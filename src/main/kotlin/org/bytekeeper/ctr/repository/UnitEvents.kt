@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import java.util.*
+import java.util.stream.Stream
 import javax.persistence.*
 
 
@@ -62,4 +63,7 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
             " GROUP BY game.id, unitType, event HAVING count(*) >= 8")
     @Timed
     fun aggregateGameEventsWith8OrMoreEvents(@Param("gameResults") games: List<GameResult>): List<GameEvent>
+
+    @Timed
+    fun findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(minExcl: Int, maxExcl: Int, events: List<UnitEventType>): Stream<UnitEvent>
 }
