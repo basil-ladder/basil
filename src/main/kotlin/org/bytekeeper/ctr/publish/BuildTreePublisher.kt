@@ -18,7 +18,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                          private val publisher: Publisher) {
     @CommandHandler
     @Timed
-    @Transactional(readOnly = true)
+    @Transactional
     fun handle(command: PreparePublish) {
         val root = Node()
         unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 8000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
