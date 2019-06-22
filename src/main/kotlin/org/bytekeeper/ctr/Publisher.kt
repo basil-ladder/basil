@@ -54,9 +54,9 @@ class Publisher(private val config: Config,
             try {
                 val process = Runtime.getRuntime().exec(arrayOf("/bin/bash", config.publishCommand))
                 val exited = process
-                        .waitFor(5, TimeUnit.MINUTES)
+                        .waitFor(15, TimeUnit.MINUTES)
                 if (!exited) {
-                    log.error("Publishing of games still running after 5 minutes, killing it, continuing games...")
+                    log.error("Publishing of games still running after 15 minutes, killing it...")
                     process.destroyForcibly()
                 }
             } catch (e: Exception) {
