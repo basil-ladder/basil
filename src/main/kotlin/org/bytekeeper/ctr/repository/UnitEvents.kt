@@ -3,6 +3,7 @@ package org.bytekeeper.ctr.repository
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.UnitType
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import java.util.*
@@ -65,5 +66,6 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     fun aggregateGameEventsWith8OrMoreEvents(@Param("gameResults") games: List<GameResult>): List<GameEvent>
 
     @Timed
+    @QueryHints(QueryHint(name = "org.hibernate.fetchSize", value = "50"))
     fun findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(minExcl: Int, maxExcl: Int, events: List<UnitEventType>): Stream<UnitEvent>
 }

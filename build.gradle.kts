@@ -1,14 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.3.31"
+    val kotlinVersion = "1.3.40"
 
     kotlin("jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.1.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
+    id("org.springframework.boot") version "2.1.6.RELEASE"
+    id("io.spring.dependency-management") version "1.0.8.RELEASE"
     id("com.github.ben-manes.versions") version "0.21.0"
 }
 
@@ -38,7 +38,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+")
-    implementation(group = "org.postgresql", name = "postgresql", version = "42.2.5")
+    implementation(group = "org.postgresql", name = "postgresql", version = "42.2.6")
     implementation("org.flywaydb:flyway-core")
     implementation("org.apache.commons:commons-compress:1.18")
     implementation("org.tukaani:xz:1.8")
