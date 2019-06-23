@@ -1,0 +1,53 @@
+---
+layout: page
+title: Build Orders
+---
+{% raw %}
+
+	<script>
+$(function() {
+	function tableTemplate(bos) {
+		return html`
+		${bos.map(bo => html`
+			<tr>
+			<td>
+			${bo.buildOrder}
+			</td>
+			<td>
+			${bo.amount}
+			</td>
+			</tr>
+			`)}
+		`;
+	}
+	$.get("http://basilicum.bytekeeper.org/stats/top_bos.json", undefined, undefined, "text")
+		.then(function(_data) {
+			let data = eval('(' + _data + ')');
+			$("#boRows").append(tableTemplate(data));	
+		});
+});
+	</script>
+
+	<h1>Top Build Orders</h1>
+	<small>
+		The following table shows the top selection of "build orders".
+		It's quite lacking:
+		<ul>
+			<li>Only units up to a certain fixed frame are checked.</li>
+			<li>Extractor trick not detected.</li>
+			<li>Supply not counted.</li>
+			<li>Race ignored.</li>
+		</ul>
+	</small>
+	<table>
+		<thead>
+			<tr>
+				<th>Build Order</th>
+				<th>#&nbsp;Used</th>
+			</tr>
+		</thead>
+		<tbody id="boRows">
+		</tbody>
+	</table>
+
+{% endraw %}
