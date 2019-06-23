@@ -12,22 +12,26 @@ import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
+import javax.persistence.EntityManager
+import kotlin.collections.HashMap
 
 @Component
 class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
-                         private val publisher: Publisher) {
+                         private val publisher: Publisher,
+                         private val entityManager: EntityManager) {
     @CommandHandler
     @Timed
-    @Transactional
+    @Transactional(readOnly = true)
     fun handle(command: PreparePublish) {
         val root = Node()
-        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 8000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
+        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 7000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
                 .use { stream ->
                     var lastGame = UUID(0, 0)
                     var botA: Long? = null
                     var botANode = root
                     var botBNode = root
                     stream.forEach { event ->
+                        entityManager.detach(event)
                         if (event.game.id != lastGame) {
                             botANode = root
                             botBNode = root
@@ -60,9 +64,10 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
     class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1) {
         fun add(unitType: UnitType): Node {
             count++
-            if (child == null)
-                child = mutableMapOf(unitType to Node())
-            else
+            if (child == null) {
+                child = HashMap(3)
+                child!![unitType] = Node()
+            } else
                 child!!.computeIfAbsent(unitType) { Node() }
             return child!![unitType]!!
         }

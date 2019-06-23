@@ -66,6 +66,6 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     fun aggregateGameEventsWith8OrMoreEvents(@Param("gameResults") games: List<GameResult>): List<GameEvent>
 
     @Timed
-    @QueryHints(QueryHint(name = "org.hibernate.fetchSize", value = "50"))
+    @QueryHints(QueryHint(name = org.hibernate.jpa.QueryHints.HINT_FETCH_SIZE, value = "50"))
     fun findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(minExcl: Int, maxExcl: Int, events: List<UnitEventType>): Stream<UnitEvent>
 }
