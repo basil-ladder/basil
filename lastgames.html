@@ -82,13 +82,13 @@ title: Last 24h
 					frameTimeout: g[i].fo === 1,
 					map: map,
 					nukes: events[14] && events[14][6],
-					mm: (events[0] ? events[0][1] : 0) + (events[34] ? events[34][1] : 0),
-					cruisercarrier: (events[72] ? events[72][1] : 0) + (events[12] ? events[12][1] : 0),
-					arbiter: events[71] && events[71][1],
-					lurkers: events[103] && events[103][7],
-					queens: events[45] && events[45][7],
-					guardians: events[44] && events[44][7],
-					defilers: events[46] && events[46][7],
+					mm: (events[0] ? events[0][2] : 0) + (events[34] ? events[34][2] : 0),
+					cruisercarrier: (events[72] ? events[72][2] : 0) + (events[12] ? events[12][2] : 0),
+					arbiter: events[71] && events[71][2],
+					lurkers: events[103] && events[103][2],
+					queens: events[45] && events[45][2],
+					guardians: events[44] && events[44][2],
+					defilers: events[46] && events[46][2],
 				});
 			}
 			// Required for index to work as expected
