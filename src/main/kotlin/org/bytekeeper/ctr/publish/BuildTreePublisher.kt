@@ -124,7 +124,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         private fun asTime(frame: Int) = "%d:%02d".format(frame / 24 / 60, (frame / 24) % 60)
     }
 
-    class BORow(private val buildOrder: String, val amount: Int) {
+    class BORow(val buildOrder: String, val amount: Int) {
         override fun toString(): String = "$buildOrder: $amount"
     }
 }
