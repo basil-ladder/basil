@@ -7,6 +7,7 @@ import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.UnitType
+import org.bytekeeper.ctr.repository.UnitEvent
 import org.bytekeeper.ctr.repository.UnitEventType
 import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import javax.persistence.EntityManager
 import kotlin.collections.HashMap
+import kotlin.math.max
+import kotlin.math.min
 
 @Component
 class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
@@ -24,7 +27,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
     @Transactional(readOnly = true)
     fun handle(command: PreparePublish) {
         val root = Node()
-        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 7000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
+        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 9000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
                 .use { stream ->
                     var lastGame = UUID(0, 0)
                     var botA: Long? = null
@@ -43,54 +46,86 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                             -> Unit
                             else -> {
                                 if (event.bot.id == botA) {
-                                    botANode = botANode.add(event.unitType)
+                                    botANode = botANode.add(event)
                                 } else {
-                                    botBNode = botBNode.add(event.unitType)
+                                    botBNode = botBNode.add(event)
                                 }
                             }
                         }
                     }
                 }
-        val result = mutableListOf<BORow>()
-        root.flatten(result, root.count / 250)
+        val result = retrieveBORows(root);
         val writer = jacksonObjectMapper().writer().without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
-        result.sortByDescending { it.amount }
         publisher.globalStatsWriter("top_bos.json")
                 .use { out ->
                     writer.writeValue(out, result)
                 }
     }
 
-    class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1) {
-        fun add(unitType: UnitType): Node {
-            count++
-            if (child == null) {
-                child = HashMap(3)
-                child!![unitType] = Node()
-            } else
-                child!!.computeIfAbsent(unitType) { Node() }
-            return child!![unitType]!!
-        }
-
-        fun flatten(target: MutableList<BORow>, limit: Int, row: String = "", wasRelevantUnit: Boolean = true) {
-            if (child == null || count < limit) {
-                if (wasRelevantUnit && count > limit / 2) target += BORow(row.substring(2), count)
-                return
-            }
-            child!!.entries.sortedByDescending { (_, node) -> node.count }
-                    .forEach { (type, child) ->
-                        child.flatten(target, limit, "$row, ${type.short()}", relevantUnit(type))
-                    }
-        }
-
-        private fun relevantUnit(type: UnitType) = when (type) {
-            UnitType.TERRAN_SCV, UnitType.PROTOSS_PROBE, UnitType.ZERG_DRONE, UnitType.PROTOSS_ASSIMILATOR, UnitType.PROTOSS_GATEWAY, UnitType.PROTOSS_FORGE, UnitType.PROTOSS_PHOTON_CANNON,
-            UnitType.ZERG_CREEP_COLONY, UnitType.ZERG_SPORE_COLONY, UnitType.ZERG_SUNKEN_COLONY, UnitType.ZERG_EXTRACTOR,
-            UnitType.ZERG_HYDRALISK_DEN, UnitType.TERRAN_REFINERY, UnitType.TERRAN_BARRACKS,
-            UnitType.PROTOSS_PYLON, UnitType.TERRAN_SUPPLY_DEPOT, UnitType.ZERG_OVERLORD -> false
-            else -> true
-        }
+    private fun retrieveBORows(root: Node) {
+        val result = mutableListOf<BORow>()
+        root.flatten(result, root.count / 500, root.count / 700)
+        return result.sortByDescending { it.amount }
     }
 
-    class BORow(val buildOrder: String, val amount: Int)
+    class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1, var minFrame: Int = Int.MAX_VALUE, var maxFrame: Int = Int.MIN_VALUE) {
+        fun add(event: UnitEvent): Node {
+            val unitType = event.unitType
+            count++
+            val childNode = if (child == null) {
+                child = HashMap(3)
+                val node = Node()
+                child!![unitType] = node
+                node
+            } else
+                child!!.computeIfAbsent(unitType) { Node() }
+            childNode.maxFrame = max(childNode.maxFrame, event.frame)
+            childNode.minFrame = min(childNode.minFrame, event.frame)
+            return childNode
+        }
+
+        fun flatten(target: MutableList<BORow>, alpha: Int, beta: Int, row: Deque<BOEntry> = ArrayDeque(), lastType: UnitType = UnitType.NONE, wasRelevantUnit: Boolean = true): Boolean {
+            if (child == null || count <= alpha) {
+                if (wasRelevantUnit) {
+                    target += BORow(row.joinToString(), count)
+                    return true
+                }
+                return false
+            }
+            val addedChild = child!!.entries
+                    .map { (type, child) ->
+                        (child.count >= beta) && run {
+                            val isRelevantChild = relevantUnit(type) && row.none { it.unitType == type }
+                            row += BOEntry(type, child.minFrame, child.maxFrame)
+                            val added = child.flatten(target, alpha, beta, row, type, isRelevantChild)
+                            row.removeLast()
+                            added
+                        }
+                    }.any { it }
+            if (!addedChild && wasRelevantUnit) {
+                target += BORow(row.joinToString(), count)
+                return true
+            }
+            return addedChild
+        }
+
+        private fun relevantUnit(type: UnitType) =
+                when (type) {
+                    UnitType.TERRAN_SCV, UnitType.PROTOSS_PROBE, UnitType.ZERG_DRONE, UnitType.PROTOSS_ASSIMILATOR, UnitType.PROTOSS_GATEWAY, UnitType.PROTOSS_FORGE, UnitType.PROTOSS_PHOTON_CANNON,
+                    UnitType.ZERG_CREEP_COLONY, UnitType.ZERG_SPORE_COLONY, UnitType.ZERG_SUNKEN_COLONY, UnitType.ZERG_EXTRACTOR,
+                    UnitType.ZERG_HYDRALISK_DEN, UnitType.TERRAN_REFINERY, UnitType.TERRAN_BARRACKS,
+                    UnitType.PROTOSS_PYLON, UnitType.TERRAN_SUPPLY_DEPOT, UnitType.ZERG_OVERLORD -> false
+                    else -> true
+                }
+    }
+
+    class BOEntry(var unitType: UnitType, val minFrame: Int, val maxFrame: Int) {
+        override fun toString(): String = "${unitType.short()} (${asTime(minFrame)} - ${asTime(maxFrame)})"
+
+        private fun asTime(frame: Int) = "%d:%02d".format(frame / 24 / 60, (frame / 24) % 60)
+    }
+
+    class BORow(val buildOrder: String, val amount: Int) {
+        override fun toString(): String = "$buildOrder: $amount"
+    }
 }
