@@ -60,7 +60,7 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
     fun globalUnitStats(): List<UnitStats>
 
     @Query("SELECT new org.bytekeeper.ctr.repository.GameEvent(game.id, unitType, event, count(*))" +
-            " FROM UnitEvent WHERE game IN :gameResults AND (event = 6 OR event = 1 OR event = 7)" +
+            " FROM UnitEvent WHERE game IN :gameResults AND event in (1, 2, 6, 7)" +
             " GROUP BY game.id, unitType, event HAVING count(*) >= 8")
     @Timed
     fun aggregateGameEventsWith8OrMoreEvents(@Param("gameResults") games: List<GameResult>): List<GameEvent>
