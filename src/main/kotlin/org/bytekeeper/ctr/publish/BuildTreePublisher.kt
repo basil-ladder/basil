@@ -1,6 +1,5 @@
 package org.bytekeeper.ctr.publish
 
-import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
@@ -55,17 +54,17 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                     }
                 }
         val result = retrieveBORows(root);
-        val writer = jacksonObjectMapper().writer().without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+        val writer = jacksonObjectMapper().writer()
         publisher.globalStatsWriter("top_bos.json")
                 .use { out ->
                     writer.writeValue(out, result)
                 }
     }
 
-    private fun retrieveBORows(root: Node) {
+    private fun retrieveBORows(root: Node): List<BORow> {
         val result = mutableListOf<BORow>()
         root.flatten(result, root.count / 500, root.count / 700)
-        return result.sortByDescending { it.amount }
+        return result.sortedByDescending { it.amount }
     }
 
     class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1, var minFrame: Int = Int.MAX_VALUE, var maxFrame: Int = Int.MIN_VALUE) {
@@ -125,7 +124,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         private fun asTime(frame: Int) = "%d:%02d".format(frame / 24 / 60, (frame / 24) % 60)
     }
 
-    class BORow(val buildOrder: String, val amount: Int) {
+    class BORow(private val buildOrder: String, val amount: Int) {
         override fun toString(): String = "$buildOrder: $amount"
     }
 }
