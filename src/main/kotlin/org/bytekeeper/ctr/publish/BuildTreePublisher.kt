@@ -1,11 +1,14 @@
 package org.bytekeeper.ctr.publish
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.UnitType
+import org.bytekeeper.ctr.UnitType.*
+import org.bytekeeper.ctr.buildorder.*
 import org.bytekeeper.ctr.repository.UnitEvent
 import org.bytekeeper.ctr.repository.UnitEventType
 import org.bytekeeper.ctr.repository.UnitEventsRepository
@@ -20,13 +23,14 @@ import kotlin.math.min
 @Component
 class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                          private val publisher: Publisher,
-                         private val entityManager: EntityManager) {
+                         private val entityManager: EntityManager,
+                         private val boMatcher: BOMatcher) {
     @CommandHandler
     @Timed
     @Transactional(readOnly = true)
     fun handle(command: PreparePublish) {
         val root = Node()
-        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 9000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
+        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 12000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
                 .use { stream ->
                     var lastGame = UUID(0, 0)
                     var botA: Long? = null
@@ -41,7 +45,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                             lastGame = event.game.id
                         }
                         when (event.unitType) {
-                            UnitType.ZERG_LURKER_EGG, UnitType.ZERG_EGG, UnitType.ZERG_LARVA, UnitType.TERRAN_VULTURE_SPIDER_MINE, UnitType.SPELL_SCANNER_SWEEP, UnitType.SPELL_DARK_SWARM, UnitType.SPELL_DISRUPTION_WEB
+                            ZERG_LURKER_EGG, ZERG_EGG, ZERG_LARVA, TERRAN_VULTURE_SPIDER_MINE, SPELL_SCANNER_SWEEP, SPELL_DARK_SWARM, SPELL_DISRUPTION_WEB
                             -> Unit
                             else -> {
                                 if (event.bot.id == botA) {
@@ -53,7 +57,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                         }
                     }
                 }
-        val result = retrieveBORows(root);
+        val result = retrieveBORows(root)
         val writer = jacksonObjectMapper().writer()
         publisher.globalStatsWriter("top_bos.json")
                 .use { out ->
@@ -64,6 +68,19 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
     private fun retrieveBORows(root: Node): List<BORow> {
         val result = mutableListOf<BORow>()
         root.flatten(result, root.count / 500, root.count / 700)
+        result.forEach {
+            val bo = it.buildOrder.map { it.unitType }
+            it.name = when {
+                boMatcher.isTwoGate(bo) -> "2 Gate"
+                boMatcher.isOneGateGoon(bo) -> "1 Gate Goon"
+                boMatcher.is4Pool(bo) -> "4 Pool"
+                boMatcher.is5Pool(bo) -> "5 Pool"
+                boMatcher.is2Hatch(bo) -> "2 Hatch"
+                boMatcher.is1Fac(bo) -> "1 Fac"
+                boMatcher.is8Rax(bo) -> "8 Rax"
+                else -> null
+            }
+        }
         return result.sortedByDescending { it.amount }
     }
 
@@ -83,10 +100,10 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
             return childNode
         }
 
-        fun flatten(target: MutableList<BORow>, alpha: Int, beta: Int, row: Deque<BOEntry> = ArrayDeque(), lastType: UnitType = UnitType.NONE, wasRelevantUnit: Boolean = true): Boolean {
+        fun flatten(target: MutableList<BORow>, alpha: Int, beta: Int, row: Deque<BOEntry> = ArrayDeque(), wasRelevantUnit: Boolean = true): Boolean {
             if (child == null || count <= alpha) {
                 if (wasRelevantUnit) {
-                    target += BORow(row.joinToString(), count)
+                    target += toBO(row, count)
                     return true
                 }
                 return false
@@ -96,24 +113,28 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                         (child.count >= beta) && run {
                             val isRelevantChild = relevantUnit(type) && row.none { it.unitType == type }
                             row += BOEntry(type, child.minFrame, child.maxFrame)
-                            val added = child.flatten(target, alpha, beta, row, type, isRelevantChild)
+                            val added = child.flatten(target, alpha, beta, row, isRelevantChild)
                             row.removeLast()
                             added
                         }
                     }.any { it }
             if (!addedChild && wasRelevantUnit) {
-                target += BORow(row.joinToString(), count)
+                target += toBO(row, count)
                 return true
             }
             return addedChild
         }
 
+        private fun toBO(row: Collection<BOEntry>, count: Int): BORow {
+            return BORow(row.toList(), count)
+        }
+
         private fun relevantUnit(type: UnitType) =
                 when (type) {
-                    UnitType.TERRAN_SCV, UnitType.PROTOSS_PROBE, UnitType.ZERG_DRONE, UnitType.PROTOSS_ASSIMILATOR, UnitType.PROTOSS_GATEWAY, UnitType.PROTOSS_FORGE, UnitType.PROTOSS_PHOTON_CANNON,
-                    UnitType.ZERG_CREEP_COLONY, UnitType.ZERG_SPORE_COLONY, UnitType.ZERG_SUNKEN_COLONY, UnitType.ZERG_EXTRACTOR,
-                    UnitType.ZERG_HYDRALISK_DEN, UnitType.TERRAN_REFINERY, UnitType.TERRAN_BARRACKS,
-                    UnitType.PROTOSS_PYLON, UnitType.TERRAN_SUPPLY_DEPOT, UnitType.ZERG_OVERLORD -> false
+                    TERRAN_SCV, PROTOSS_PROBE, ZERG_DRONE, PROTOSS_ASSIMILATOR, PROTOSS_GATEWAY, PROTOSS_FORGE, PROTOSS_PHOTON_CANNON,
+                    ZERG_CREEP_COLONY, ZERG_SPORE_COLONY, ZERG_SUNKEN_COLONY, ZERG_EXTRACTOR,
+                    ZERG_HYDRALISK_DEN, TERRAN_REFINERY, TERRAN_BARRACKS,
+                    PROTOSS_PYLON, TERRAN_SUPPLY_DEPOT, ZERG_OVERLORD -> false
                     else -> true
                 }
     }
@@ -124,7 +145,31 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         private fun asTime(frame: Int) = "%d:%02d".format(frame / 24 / 60, (frame / 24) % 60)
     }
 
-    class BORow(val buildOrder: String, val amount: Int) {
+    class BORow(@JsonIgnore val buildOrder: List<BOEntry>, val amount: Int, var name: String? = null) {
+        val boString = buildOrder.joinToString()
         override fun toString(): String = "$buildOrder: $amount"
+    }
+}
+
+@Component
+class BOMatcher {
+    fun isTwoGate(bo: List<UnitType>) = TWO_GATE.matches(bo)
+    fun isOneGateGoon(bo: List<UnitType>) = ONE_GATE_GOON.matches(bo)
+    fun is4Pool(bo: List<UnitType>) = _4_POOL.matches(bo)
+    fun is5Pool(bo: List<UnitType>) = _5_POOL.matches(bo)
+    fun is2Hatch(bo: List<UnitType>) = _2_HATCH.matches(bo)
+    fun is8Rax(bo: List<UnitType>) = _8_RAX.matches(bo)
+    fun is1Fac(bo: List<UnitType>) = _1_FAC.matches(bo)
+
+    companion object {
+        private val WILDCARD = ZeroOrMore(AnyItem)
+        private val NO_WORKER_OR_SUPPLY = ZeroOrMore(No(TERRAN_SCV, ZERG_DRONE, PROTOSS_PROBE, PROTOSS_PYLON, ZERG_OVERLORD, TERRAN_SUPPLY_DEPOT))
+        private val TWO_GATE = Seq(WILDCARD, One(PROTOSS_GATEWAY), ZeroOrMore(AnyItem), One(PROTOSS_GATEWAY), WILDCARD).matcher()
+        private val ONE_GATE_GOON = Seq(ZeroOrMore(No(PROTOSS_ZEALOT)), One(PROTOSS_DRAGOON), WILDCARD).matcher()
+        private val _4_POOL = Seq(One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
+        private val _5_POOL = Seq(One(ZERG_DRONE), One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
+        private val _2_HATCH = Seq(WILDCARD, One(ZERG_HATCHERY), WILDCARD).matcher()
+        private val _8_RAX = Seq(NO_WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), NO_WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
+        private val _1_FAC = Seq(NO_WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), NO_WORKER_OR_SUPPLY, One(TERRAN_REFINERY), NO_WORKER_OR_SUPPLY, One(TERRAN_FACTORY), WILDCARD).matcher()
     }
 }
