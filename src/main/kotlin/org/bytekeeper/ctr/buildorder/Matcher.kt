@@ -77,6 +77,14 @@ class No(vararg val item: Any) : StateDescriptor {
     }
 }
 
+class Opt(val child: StateDescriptor) : StateDescriptor {
+    override fun apply(entry: State): State {
+        val out = child.apply(entry)
+        entry.epsTransitions += out
+        return out
+    }
+}
+
 class Seq(vararg val child: StateDescriptor) : StateDescriptor {
     override fun apply(entry: State): State {
         var last = entry
@@ -93,7 +101,7 @@ class Seq(vararg val child: StateDescriptor) : StateDescriptor {
 class AtLeastOnce(val child: StateDescriptor) : StateDescriptor {
     override fun apply(entry: State): State {
         val done = child.apply(entry)
-        done.epsTransitions += listOf(entry)
+        done.epsTransitions += entry
         return done
     }
 }
@@ -120,5 +128,14 @@ class OneOf(vararg val child: StateDescriptor) : StateDescriptor {
         }
         return out
     }
+}
 
+class Times(private val times: Int, private val child: StateDescriptor) : StateDescriptor {
+    override fun apply(entry: State): State {
+        var out = entry
+        repeat(times) {
+            out = child.apply(out);
+        }
+        return out
+    }
 }

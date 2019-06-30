@@ -75,6 +75,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                 boMatcher.isOneGateGoon(bo) -> "1 Gate Goon"
                 boMatcher.is4Pool(bo) -> "4 Pool"
                 boMatcher.is5Pool(bo) -> "5 Pool"
+                boMatcher.is9Pool(bo) -> "9 Pool"
                 boMatcher.is2Hatch(bo) -> "2 Hatch"
                 boMatcher.is1Fac(bo) -> "1 Fac"
                 boMatcher.is8Rax(bo) -> "8 Rax"
@@ -160,16 +161,18 @@ class BOMatcher {
     fun is2Hatch(bo: List<UnitType>) = _2_HATCH.matches(bo)
     fun is8Rax(bo: List<UnitType>) = _8_RAX.matches(bo)
     fun is1Fac(bo: List<UnitType>) = _1_FAC.matches(bo)
+    fun is9Pool(bo: List<UnitType>) = _9_POOL.matches(bo)
 
     companion object {
         private val WILDCARD = ZeroOrMore(AnyItem)
         private val WORKER_OR_SUPPLY = ZeroOrMore(One(TERRAN_SCV, ZERG_DRONE, PROTOSS_PROBE, PROTOSS_PYLON, ZERG_OVERLORD, TERRAN_SUPPLY_DEPOT))
         private val TWO_GATE = Seq(WILDCARD, One(PROTOSS_GATEWAY), ZeroOrMore(AnyItem), One(PROTOSS_GATEWAY), WILDCARD).matcher()
         private val ONE_GATE_GOON = Seq(ZeroOrMore(No(PROTOSS_ZEALOT)), One(PROTOSS_DRAGOON), WILDCARD).matcher()
-        private val _4_POOL = Seq(One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
-        private val _5_POOL = Seq(One(ZERG_DRONE), One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
+        private val _4_POOL = Seq(One(ZERG_SPAWNING_POOL), Opt(One(ZERG_DRONE)), One(ZERG_ZERGLING), WILDCARD).matcher()
+        private val _5_POOL = Seq(One(ZERG_DRONE), One(ZERG_SPAWNING_POOL), Opt(One(ZERG_DRONE)), One(ZERG_ZERGLING), WILDCARD).matcher()
         private val _2_HATCH = Seq(WILDCARD, One(ZERG_HATCHERY), WILDCARD).matcher()
         private val _8_RAX = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
         private val _1_FAC = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_REFINERY), WORKER_OR_SUPPLY, One(TERRAN_FACTORY), WILDCARD).matcher()
+        private var _9_POOL = Seq(Times(5, One(ZERG_DRONE)), One(ZERG_SPAWNING_POOL))
     }
 }

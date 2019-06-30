@@ -2,6 +2,8 @@ package org.bytekeeper.ctr.buildorder
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class MatcherTest {
     @Test
@@ -159,5 +161,43 @@ class MatcherTest {
         val no = No("a")
 
         assertThat(no.matches(emptyList())).isFalse()
+    }
+
+    @Test
+    fun `should ignore non-match`() {
+        val m = Seq(Opt(One("a")), One("b"))
+
+        assertThat(m.matches(listOf("b"))).isTrue()
+    }
+
+    @Test
+    fun `should match optionally`() {
+        val m = Seq(Opt(One("a")), One("b"))
+
+        assertThat(m.matches(listOf("a", "b"))).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [0, 1, 9])
+    fun `should match n times`(times: Int) {
+        val m = Times(times, One("a"))
+
+        assertThat(m.matches(List(times) { "a" })).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [0, 1, 9])
+    fun `should not match n + 1 times`(times: Int) {
+        val m = Times(times, One("a"))
+
+        assertThat(m.matches(List(times + 1) { "a" })).isFalse()
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [1, 9])
+    fun `should not match n - 1 times`(times: Int) {
+        val m = Times(times, One("a"))
+
+        assertThat(m.matches(List(times - 1) { "a" })).isFalse()
     }
 }
