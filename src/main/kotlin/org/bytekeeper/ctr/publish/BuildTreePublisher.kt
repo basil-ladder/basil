@@ -163,13 +163,13 @@ class BOMatcher {
 
     companion object {
         private val WILDCARD = ZeroOrMore(AnyItem)
-        private val NO_WORKER_OR_SUPPLY = ZeroOrMore(No(TERRAN_SCV, ZERG_DRONE, PROTOSS_PROBE, PROTOSS_PYLON, ZERG_OVERLORD, TERRAN_SUPPLY_DEPOT))
+        private val WORKER_OR_SUPPLY = ZeroOrMore(One(TERRAN_SCV, ZERG_DRONE, PROTOSS_PROBE, PROTOSS_PYLON, ZERG_OVERLORD, TERRAN_SUPPLY_DEPOT))
         private val TWO_GATE = Seq(WILDCARD, One(PROTOSS_GATEWAY), ZeroOrMore(AnyItem), One(PROTOSS_GATEWAY), WILDCARD).matcher()
         private val ONE_GATE_GOON = Seq(ZeroOrMore(No(PROTOSS_ZEALOT)), One(PROTOSS_DRAGOON), WILDCARD).matcher()
         private val _4_POOL = Seq(One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
         private val _5_POOL = Seq(One(ZERG_DRONE), One(ZERG_SPAWNING_POOL), One(ZERG_ZERGLING), WILDCARD).matcher()
         private val _2_HATCH = Seq(WILDCARD, One(ZERG_HATCHERY), WILDCARD).matcher()
-        private val _8_RAX = Seq(NO_WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), NO_WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
-        private val _1_FAC = Seq(NO_WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), NO_WORKER_OR_SUPPLY, One(TERRAN_REFINERY), NO_WORKER_OR_SUPPLY, One(TERRAN_FACTORY), WILDCARD).matcher()
+        private val _8_RAX = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
+        private val _1_FAC = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_REFINERY), WORKER_OR_SUPPLY, One(TERRAN_FACTORY), WILDCARD).matcher()
     }
 }

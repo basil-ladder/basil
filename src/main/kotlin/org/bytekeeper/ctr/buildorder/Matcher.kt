@@ -61,10 +61,10 @@ object AnyItem : StateDescriptor {
     }
 }
 
-class One(val item: Any) : StateDescriptor {
+class One(vararg val item: Any) : StateDescriptor {
     override fun apply(entry: State): State {
         val done = State()
-        entry.transitions += { i -> if (i == item) listOf(done) else emptyList() }
+        entry.transitions += { i -> if (i in item) listOf(done) else emptyList() }
         return done
     }
 }
