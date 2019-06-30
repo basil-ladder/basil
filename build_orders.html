@@ -11,7 +11,10 @@ $(function() {
 		${bos.map(bo => html`
 			<tr>
 			<td>
-			${bo.buildOrder}
+			${bo.boString}
+			</td>
+			<td>
+			${bo.name || ""}
 			</td>
 			<td>
 			${bo.amount}
@@ -20,9 +23,7 @@ $(function() {
 			`)}
 		`;
 	}
-	$.get("http://basilicum.bytekeeper.org/stats/top_bos.json", undefined, undefined, "text")
-		.then(function(_data) {
-			let data = eval('(' + _data + ')');
+	$.getJSON("http://basilicum.bytekeeper.org/stats/top_bos.json", data => {
 			$("#boRows").append(tableTemplate(data));	
 		});
 });
@@ -43,6 +44,7 @@ $(function() {
 		<thead>
 			<tr>
 				<th>Build Order</th>
+				<th>Name</th>
 				<th>#&nbsp;Used</th>
 			</tr>
 		</thead>
