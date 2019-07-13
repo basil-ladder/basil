@@ -67,5 +67,5 @@ interface UnitEventsRepository : CrudRepository<UnitEvent, Long> {
 
     @Timed
     @QueryHints(QueryHint(name = org.hibernate.jpa.QueryHints.HINT_FETCH_SIZE, value = "50"))
-    fun findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(minExcl: Int, maxExcl: Int, events: List<UnitEventType>): Stream<UnitEvent>
+    fun findAllByFrameBetweenAndEventInOrderByGameAsc(minExcl: Int, maxExcl: Int, events: List<UnitEventType>): Stream<UnitEvent>
 }

@@ -9,6 +9,7 @@ import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.UnitType
 import org.bytekeeper.ctr.UnitType.*
 import org.bytekeeper.ctr.buildorder.*
+import org.bytekeeper.ctr.repository.GameResult
 import org.bytekeeper.ctr.repository.UnitEvent
 import org.bytekeeper.ctr.repository.UnitEventType
 import org.bytekeeper.ctr.repository.UnitEventsRepository
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import javax.persistence.EntityManager
+import javax.persistence.EntityNotFoundException
 import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.math.min
@@ -30,32 +32,26 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
     @Transactional(readOnly = true)
     fun handle(command: PreparePublish) {
         val root = Node()
-        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAscFrameAsc(2, 12000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
+        unitEventsRepository.findAllByFrameBetweenAndEventInOrderByGameAsc(2, 12000, listOf(UnitEventType.UNIT_CREATE, UnitEventType.UNIT_MORPH))
                 .use { stream ->
-                    var lastGame = UUID(0, 0)
-                    var botA: Long? = null
-                    var botANode = root
-                    var botBNode = root
+                    var lastGame: GameResult? = null
+                    val currentGame = mutableListOf<UnitEvent>()
                     stream.forEach { event ->
                         entityManager.detach(event)
-                        if (event.game.id != lastGame) {
-                            botANode = root
-                            botBNode = root
-                            botA = event.bot.id
-                            lastGame = event.game.id
-                        }
-                        when (event.unitType) {
-                            ZERG_LURKER_EGG, ZERG_EGG, ZERG_LARVA, TERRAN_VULTURE_SPIDER_MINE, SPELL_SCANNER_SWEEP, SPELL_DARK_SWARM, SPELL_DISRUPTION_WEB
-                            -> Unit
-                            else -> {
-                                if (event.bot.id == botA) {
-                                    botANode = botANode.add(event)
-                                } else {
-                                    botBNode = botBNode.add(event)
+                        try {
+                            if (event.game != lastGame) {
+                                if (currentGame.isNotEmpty()) {
+                                    addEvents(root, currentGame)
+                                    currentGame.clear()
                                 }
+                                lastGame?.let(entityManager::detach)
+                                lastGame = event.game
                             }
+                            currentGame += event
+                        } catch (e: EntityNotFoundException) {
                         }
                     }
+                    if (currentGame.isNotEmpty()) addEvents(root, currentGame)
                 }
         val result = retrieveBORows(root)
         val writer = jacksonObjectMapper().writer()
@@ -63,6 +59,29 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                 .use { out ->
                     writer.writeValue(out, result)
                 }
+    }
+
+    private fun addEvents(root: Node, currentGame: MutableList<UnitEvent>) {
+        var botANode = root
+        var botBNode = root
+        val event = currentGame.first()
+        val botA = event.bot
+        val botAWon = botA == event.game.winner
+        val botBWon = botA == event.game.loser
+        currentGame.sortBy { it.frame }
+        currentGame.forEach { evt ->
+            when (evt.unitType) {
+                ZERG_LURKER_EGG, ZERG_EGG, ZERG_LARVA, TERRAN_VULTURE_SPIDER_MINE, SPELL_SCANNER_SWEEP, SPELL_DARK_SWARM, SPELL_DISRUPTION_WEB
+                -> Unit
+                else -> {
+                    if (evt.bot == botA) {
+                        botANode = botANode.add(evt, botAWon, botBWon)
+                    } else {
+                        botBNode = botBNode.add(evt, botBWon, botAWon)
+                    }
+                }
+            }
+        }
     }
 
     private fun retrieveBORows(root: Node): List<BORow> {
@@ -85,17 +104,22 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         return result.sortedByDescending { it.amount }
     }
 
-    class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1, var minFrame: Int = Int.MAX_VALUE, var maxFrame: Int = Int.MIN_VALUE) {
-        fun add(event: UnitEvent): Node {
+    class Node(private var child: MutableMap<UnitType, Node>? = null, var count: Int = 1, var minFrame: Int = Int.MAX_VALUE, var maxFrame: Int = Int.MIN_VALUE, var won: Int = 0, var lost: Int = 0) {
+        fun add(event: UnitEvent, won: Boolean, lost: Boolean): Node {
             val unitType = event.unitType
             count++
+            if (won) this.won++
+            if (lost) this.lost++
+
+            fun newNode() = Node(won = if (won) 1 else 0, lost = if (lost) 1 else 0)
+
             val childNode = if (child == null) {
                 child = HashMap(3)
-                val node = Node()
+                val node = newNode()
                 child!![unitType] = node
                 node
             } else
-                child!!.computeIfAbsent(unitType) { Node() }
+                child!!.computeIfAbsent(unitType) { newNode() }
             childNode.maxFrame = max(childNode.maxFrame, event.frame)
             childNode.minFrame = min(childNode.minFrame, event.frame)
             return childNode
@@ -104,7 +128,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         fun flatten(target: MutableList<BORow>, alpha: Int, beta: Int, row: Deque<BOEntry> = ArrayDeque(), wasRelevantUnit: Boolean = true): Boolean {
             if (child == null || count <= alpha) {
                 if (wasRelevantUnit) {
-                    target += toBO(row, count)
+                    target += toBO(row, count, won, lost)
                     return true
                 }
                 return false
@@ -120,14 +144,14 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                         }
                     }.any { it }
             if (!addedChild && wasRelevantUnit) {
-                target += toBO(row, count)
+                target += toBO(row, count, won, lost)
                 return true
             }
             return addedChild
         }
 
-        private fun toBO(row: Collection<BOEntry>, count: Int): BORow {
-            return BORow(row.toList(), count)
+        private fun toBO(row: Collection<BOEntry>, count: Int, won: Int, lost: Int): BORow {
+            return BORow(row.toList(), count, won, lost)
         }
 
         private fun relevantUnit(type: UnitType) =
@@ -146,9 +170,9 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         private fun asTime(frame: Int) = "%d:%02d".format(frame / 24 / 60, (frame / 24) % 60)
     }
 
-    class BORow(@JsonIgnore val buildOrder: List<BOEntry>, val amount: Int, var name: String? = null) {
+    class BORow(@JsonIgnore val buildOrder: List<BOEntry>, val amount: Int, val won: Int, val lost: Int, var name: String? = null) {
         val boString = buildOrder.joinToString()
-        override fun toString(): String = "$buildOrder: $amount"
+        override fun toString(): String = "$buildOrder: $amount ($won - $lost)"
     }
 }
 
