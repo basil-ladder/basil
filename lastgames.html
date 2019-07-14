@@ -37,7 +37,7 @@ title: Last 24h
 		`;
 	}
 	$(function() {
-		$.get("http://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
+		$.get("https://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
 			.then(function(_data) {
 			let data = eval('(' + _data + ')');
 			let g = data.results;
@@ -74,7 +74,7 @@ title: Last 24h
 					botB: botB,
 					time: basil.formatDateTime(parseInt(g[i].e, 16) * 60),
 					timestamp: parseInt(g[i].e, 16),
-					replayUrl: "http://basilicum.bytekeeper.org/bots/" + botA.name + "/"+  botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
+					replayUrl: "https://basilicum.bytekeeper.org/bots/" + botA.name + "/"+  botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
 					gameTime: gameTime,
 					notPlayed: !g[i].fc,
 					validGame: g[i].iv !== 1 && g[i].to != 1,
@@ -135,6 +135,6 @@ title: Last 24h
 	<dt><i class="fas fa-poo-storm"></i></i></dt>
 	<dd>Game didn't start because one of the bots crashed prematurely.</dd>
 	</dl>
-<small>Source: <a href="http://basilicum.bytekeeper.org/stats/game_results.json">http://basilicum.bytekeeper.org/stats/game_results.json</a></small>
+<small>Source: <a href="https://basilicum.bytekeeper.org/stats/game_results.json">https://basilicum.bytekeeper.org/stats/game_results.json</a></small>
 </table>
 		{% endraw %}

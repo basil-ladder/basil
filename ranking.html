@@ -76,7 +76,7 @@ title: Ranking
 	}	
 $(function() {
 	let source = $("#tableTemplate").html();
-	$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
+	$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
 		for (i = 0; i < data.length; i++) {
 					      let played = data[i].won + data[i].lost;
 					      if (played > 0 && typeof data[i].won !== "undefined") {
@@ -119,6 +119,6 @@ $(function() {
 </small>
 <div id="eloTable">
 </div>
-<small>Source: <a href="http://basilicum.bytekeeper.org/stats/ranking.json">http://basilicum.bytekeeper.org/stats/ranking.json</a></small>
+<small>Source: <a href="https://basilicum.bytekeeper.org/stats/ranking.json">https://basilicum.bytekeeper.org/stats/ranking.json</a></small>
 </table>
 {% endraw %}

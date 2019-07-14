@@ -23,7 +23,7 @@ $(function() {
 			`)}
 		`;
 	}
-	$.getJSON("http://basilicum.bytekeeper.org/stats/top_bos.json", data => {
+	$.getJSON("https://basilicum.bytekeeper.org/stats/top_bos.json", data => {
 			$("#boRows").append(tableTemplate(data));	
 		});
 });

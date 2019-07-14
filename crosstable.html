@@ -8,7 +8,7 @@ title: Crosstable
 <script type="riot/tag">
 	{% raw %}
 	<crosstable>
-	<div>Download: <span each={ days in ranges } style="margin-left: 0.5em;"><a href="http://basilicum.bytekeeper.org/stats/botVsBot{ days == null ? '' : '_' + days }.csv">botVsBot{ days == null ? "" : "_" + days }.csv</a></div></span>
+	<div>Download: <span each={ days in ranges } style="margin-left: 0.5em;"><a href="https://basilicum.bytekeeper.org/stats/botVsBot{ days == null ? '' : '_' + days }.csv">botVsBot{ days == null ? "" : "_" + days }.csv</a></div></span>
 	<form onsumbit="" style="margin-top: 1em;">
 	<input type="checkbox" id="enabledOnly" name="enabledOnly" onclick= { toggleEnabledOnly } checked={ showEnabledOnly }><label for="enabledOnly"> Show enabled only</label>
 	<label for="minElo" style="margin-left: 0.8em;">Min ELO</label><input style="width: 5em;" type="number" id="minElo" ref="minElo" value={ minElo } min="0" max="5000" onchange={ trigger }>	
@@ -92,7 +92,7 @@ title: Crosstable
 			this.rerequest = function() {
 				let suffix = this.refs.range.value;
 				if (suffix === "everything") suffix = ""; else suffix = "_" + suffix;
-				$.getJSON("http://basilicum.bytekeeper.org/stats/botVsBot" + suffix +  ".json", onReceive);
+				$.getJSON("https://basilicum.bytekeeper.org/stats/botVsBot" + suffix +  ".json", onReceive);
 			};
 		};
 		mount.call(crosstable);
@@ -137,6 +137,6 @@ title: Crosstable
 			$(this).closest("table").find("td:nth-child(" + ($(this).index() + 1) + ")").removeClass("highlight");
 		});
 
-		$.getJSON("http://basilicum.bytekeeper.org/stats/botVsBot.json", onReceive);
+		$.getJSON("https://basilicum.bytekeeper.org/stats/botVsBot.json", onReceive);
 	});
 </script>

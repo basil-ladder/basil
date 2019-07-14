@@ -92,7 +92,7 @@ title: Stats
 	$(function() {
 	let percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1}).format;
 
-	$.getJSON("http://basilicum.bytekeeper.org/stats/stats.json", function(data) {
+	$.getJSON("https://basilicum.bytekeeper.org/stats/stats.json", function(data) {
 		data.nextUpdateTime = new Date(data.nextUpdateTime).toLocaleString([], {hour: "numeric"}) + " - " + new Date(data.nextUpdateTime + 60 * 60 * 1000).toLocaleString([], {hour: "numeric"}); 
 		let rowsHtml = rowTemplate(data);
 		$("#statsTable tbody").append(rowsHtml);
@@ -141,5 +141,5 @@ title: Stats
 <div id="unitStats">
 </div>
 </div>
-<small>Source: <a href="http://basilicum.bytekeeper.org/stats/stats.json">http://basilicum.bytekeeper.org/stats/stats.json</a></small>
+<small>Source: <a href="https://basilicum.bytekeeper.org/stats/stats.json">https://basilicum.bytekeeper.org/stats/stats.json</a></small>
 {% endraw %}

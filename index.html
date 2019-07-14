@@ -27,7 +27,7 @@ layout: home
 	}
 	$(function() {
 		let botsAfter = Date.now() / 1000 - 86400 * 5;
-		$.getJSON("http://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
+		$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
 			let bots = data.filter(function(x) {
 				return x.lastUpdated >= botsAfter && x.enabled;
 			}).sort(function(a, b) { return b.lastUpdated - a.lastUpdated; })
