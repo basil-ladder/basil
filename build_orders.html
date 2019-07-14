@@ -19,12 +19,22 @@ $(function() {
 			<td>
 			${bo.amount}
 			</td>
+			<td>
+			${bo.won}
+			</td>
+			<td>
+			${bo.lost}
+			</td>
+			<td>
+			${basil.percentFormat(bo.won / (bo.won + bo.lost))}
+			</td>
 			</tr>
 			`)}
 		`;
 	}
 	$.getJSON("https://basilicum.bytekeeper.org/stats/top_bos.json", data => {
 			$("#boRows").append(tableTemplate(data));	
+			$("#boTable").tablesorter();
 		});
 });
 	</script>
@@ -40,12 +50,15 @@ $(function() {
 			<li>Race ignored.</li>
 		</ul>
 	</small>
-	<table>
+	<table id="boTable">
 		<thead>
 			<tr>
 				<th>Build Order</th>
 				<th>Name</th>
 				<th>#&nbsp;Used</th>
+				<th>#&nbsp;Won</th>
+				<th>#&nbsp;Lost</th>
+				<th>Win&nbsp;&percnt;</th>
 			</tr>
 		</thead>
 		<tbody id="boRows">
