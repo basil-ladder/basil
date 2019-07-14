@@ -200,4 +200,20 @@ class MatcherTest {
 
         assertThat(m.matches(List(times - 1) { "a" })).isFalse()
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = [2, 3, 7, 9])
+    fun `should match number inbetween`(times: Int) {
+        val m = between(2, 9, One("a"))
+
+        assertThat(m.matches(List(times) { "a" })).isTrue()
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [1, 10, 20])
+    fun `should not match number outside`(times: Int) {
+        val m = between(2, 9, One("a"))
+
+        assertThat(m.matches(List(times) { "a" })).isFalse()
+    }
 }

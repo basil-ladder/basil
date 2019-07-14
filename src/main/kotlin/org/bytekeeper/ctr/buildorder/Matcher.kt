@@ -56,7 +56,7 @@ class Matcher(desc: StateDescriptor) {
 object AnyItem : StateDescriptor {
     override fun apply(entry: State): State {
         val done = State()
-        entry.transitions += { _ -> listOf(done) }
+        entry.transitions += { listOf(done) }
         return done
     }
 }
@@ -139,3 +139,5 @@ class Times(private val times: Int, private val child: StateDescriptor) : StateD
         return out
     }
 }
+
+fun between(min: Int, max: Int, child: StateDescriptor) = Seq(Times(min, child), Times(max - min, Opt(child)))

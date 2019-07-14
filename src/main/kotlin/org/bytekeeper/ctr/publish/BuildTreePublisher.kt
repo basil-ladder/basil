@@ -90,6 +90,7 @@ class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
         result.forEach {
             val bo = it.buildOrder.map { it.unitType }
             it.name = when {
+                boMatcher.is1015Gateway(bo) -> "10/15 Gateway"
                 boMatcher.isTwoGate(bo) -> "2 Gate"
                 boMatcher.isOneGateGoon(bo) -> "1 Gate Goon"
                 boMatcher.is4Pool(bo) -> "4 Pool"
@@ -186,6 +187,7 @@ class BOMatcher {
     fun is8Rax(bo: List<UnitType>) = _8_RAX.matches(bo)
     fun is1Fac(bo: List<UnitType>) = _1_FAC.matches(bo)
     fun is9Pool(bo: List<UnitType>) = _9_POOL.matches(bo)
+    fun is1015Gateway(bo: List<UnitType>) = _10_15_Gateway.matches(bo)
 
     companion object {
         private val WILDCARD = ZeroOrMore(AnyItem)
@@ -195,8 +197,10 @@ class BOMatcher {
         private val _4_POOL = Seq(One(ZERG_SPAWNING_POOL), Opt(One(ZERG_DRONE)), One(ZERG_ZERGLING), WILDCARD).matcher()
         private val _5_POOL = Seq(One(ZERG_DRONE), One(ZERG_SPAWNING_POOL), Opt(One(ZERG_DRONE)), One(ZERG_ZERGLING), WILDCARD).matcher()
         private val _2_HATCH = Seq(WILDCARD, One(ZERG_HATCHERY), WILDCARD).matcher()
-        private val _8_RAX = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
+        private val _8_RAX = Seq(Times(4, One(TERRAN_SCV)), One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_MARINE), WILDCARD).matcher()
         private val _1_FAC = Seq(WORKER_OR_SUPPLY, One(TERRAN_BARRACKS), WORKER_OR_SUPPLY, One(TERRAN_REFINERY), WORKER_OR_SUPPLY, One(TERRAN_FACTORY), WILDCARD).matcher()
-        private var _9_POOL = Seq(Times(5, One(ZERG_DRONE)), One(ZERG_SPAWNING_POOL))
+        private val _9_POOL = Seq(Times(5, One(ZERG_DRONE)), One(ZERG_SPAWNING_POOL), WILDCARD).matcher()
+        private val _10_15_Gateway = Seq(Times(4, One(PROTOSS_PROBE)), One(PROTOSS_PYLON), One(PROTOSS_PROBE), One(PROTOSS_PROBE), One(PROTOSS_GATEWAY), One(PROTOSS_PROBE), One(PROTOSS_ASSIMILATOR),
+                One(PROTOSS_PROBE), One(PROTOSS_PROBE), One(PROTOSS_CYBERNETICS_CORE), WILDCARD).matcher()
     }
 }
