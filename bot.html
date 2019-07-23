@@ -2,20 +2,20 @@
 layout: page
 permalink: /bot.html
 ---
-	{% raw %}
+{% raw %}
 <div id="botName"></div>
 <h2>ELO</h2>
 <form>
-<div class="row">
-	<div class="col-1">
-	<label for="startDate">Start</label>
-	<input style="width: 6em; text-align: right;" id="startDate" type="text" readonly="readonly">
+	<div class="row">
+		<div class="col-1">
+			<label for="startDate">Start</label>
+			<input style="width: 6em; text-align: right;" id="startDate" type="text" readonly="readonly">
+		</div>
+		<div class="col-1">
+			<label for="endDate">End</label>
+			<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
+		</div>
 	</div>
-	<div class="col-1">
-	<label for="endDate">End</label>
-	<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
-	</div>
-</div>
 </form>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
@@ -23,12 +23,13 @@ permalink: /bot.html
 <canvas id="perMapWinsChart" width="1200" height="300">
 </canvas>
 <h2>Vs</h2>
-<p>Top 70 contenders, sorted by WR, ties broken by #losses:</p>
+<small>Top 70 contenders, sorted by WR, ties broken by #losses:</small>
 <canvas id="vsChart" width="1200" height="300">
 </canvas>
 <h2>Wins Per Race</h2>
-<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small>
-<canvas id="perRaceWinsChart" width="1200" height="300">
+<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small><br>
+<small>Graph W/L is displayed, as if the bot started playing at the beginning of the selected time range.</small>
+<canvas id="perRaceWinsChart" width="1200" height="600">
 </canvas>
 </table>
 <script>
@@ -81,58 +82,58 @@ permalink: /bot.html
 				` : ""}
 		`;
 	}
-	$(function() {
+	$(function () {
 		let statsBaseUrl = "https://basilicum.bytekeeper.org/stats/";
 		let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
 		let myData;
-		$("#botName").append(headerTemplate({botName: botName}));
+		$("#botName").append(headerTemplate({ botName: botName }));
 		let now = Date.now() / 1000;
-		let selectedRange = { startSecond:  now - 30 * 86400, endSecond: now };
+		let selectedRange = { startSecond: now - 30 * 86400, endSecond: now };
 		let secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
 		let updaters = [];
 		$("#startDate").flatpickr({
 			defaultDate: new Date(selectedRange.startSecond * 1000),
-			onChange: function(selectedDates) {
+			onChange: function (selectedDates) {
 				selectedRange.startSecond = selectedDates[0].getTime() / 1000;
 				secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
-				updaters.forEach(function(x) {x.apply();});
+				updaters.forEach(function (x) { x.apply(); });
 			}
 		});
 		$("#endDate").flatpickr({
 			defaultDate: new Date(selectedRange.endSecond * 1000),
-			onChange: function(selectedDates) {
+			onChange: function (selectedDates) {
 				selectedRange.endSecond = selectedDates[0].getTime() / 1000 + 86400;
 				secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
-				updaters.forEach(function(x) {x.apply();});
+				updaters.forEach(function (x) { x.apply(); });
 			}
 
 		});
 		$.getJSON(statsBaseUrl + "ranking.json")
-			.then(function(data) {
-				data = data.filter(function(b) { return b.enabled; })
-					.sort(function(a,b) { 
-						if (a.rating !== b.rating) return b.rating - a.rating; 
+			.then(function (data) {
+				data = data.filter(function (b) { return b.enabled; })
+					.sort(function (a, b) {
+						if (a.rating !== b.rating) return b.rating - a.rating;
 						if (a.winRate !== b.winRate) return b.winRate - a.winRate;
 						return b.won - a.won;
 					});
-				let topBots = data.slice(0,5).map(function(bot) { return bot.botName; });
+				let topBots = data.slice(0, 5).map(function (bot) { return bot.botName; });
 				let myIndex = topBots.indexOf(botName);
-				if (myIndex === -1) topBots.push(botName); 
+				if (myIndex === -1) topBots.push(botName);
 				else {
 					let tmp = topBots[topBots.length - 1];
 					topBots[topBots.length - 1] = topBots[myIndex];
 					topBots[myIndex] = tmp;
 				}
 				$("#botName").empty();
-				myData = data.filter(function(a) { return a.botName === botName; })[0];
+				myData = data.filter(function (a) { return a.botName === botName; })[0];
 				myData.maxElo = "-";
 				if (!myData.enabled) myData.disabledReason = myData.disabledReason || "Disabled on SSCAIT/locally";
 				$("#botName").append(headerTemplate(myData));
-				return $.when.apply($, topBots.map(function(bot) {
+				return $.when.apply($, topBots.map(function (bot) {
 					return $.getJSON(statsBaseUrl + bot + "/eloHistory.json")
-						.then(function(data) { return {name: bot, data: data}; });
+						.then(function (data) { return { name: bot, data: data }; });
 				}));
-			}).then(function() {
+			}).then(function () {
 				const colors = [
 					"rgba(200, 0, 0, 0.8)",
 					"rgba(0, 200, 0, 0.4)",
@@ -156,16 +157,16 @@ permalink: /bot.html
 					let startSecond = selectedRange.startSecond;
 					let endSecond = selectedRange.endSecond;
 					if (typeof startSecond === "undefined" || typeof endSecond === "undefined" || startSecond >= endSecond)
-						return {label: unescape(bot.name), fill: false, data: []};
-					return args.map(function(bot, i) {
+						return { label: unescape(bot.name), fill: false, data: [] };
+					return args.map(function (bot, i) {
 						function filter(data) {
-							data.sort(function(a,b) { return a.epochSecond - b.epochSecond; });
+							data.sort(function (a, b) { return a.epochSecond - b.epochSecond; });
 							let chartData = [];
 							let lastSecond = 0;
 							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
 								let entry = data[i];
 								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond && entry.epochSecond - lastSecond >= secondsToAggregate) {
-									chartData.push({x: new Date(entry.epochSecond * 1000), y: entry.rating});
+									chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating });
 									lastSecond = entry.epochSecond;
 								}
 							}
@@ -175,8 +176,8 @@ permalink: /bot.html
 							label: unescape(bot.name),
 							fill: false,
 							borderColor: colors[i],
-							data: filter(bot.data)
-
+							data: filter(bot.data),
+							cubicInterpolationMode: "monotone",
 						};
 					});
 				}
@@ -199,7 +200,7 @@ permalink: /bot.html
 						}
 					}
 				});
-				updaters.push(function() {
+				updaters.push(function () {
 					eloChart.data.datasets = prepareDataSets();
 					eloChart.update();
 				});
@@ -212,7 +213,7 @@ permalink: /bot.html
 					plugins: {
 						datalabels: {
 							align: "top",
-							formatter: function(value, context) {
+							formatter: function (value, context) {
 								let wins = context.chart.data.datasets[0].data[context.dataIndex];
 								let losses = context.chart.data.datasets[1].data[context.dataIndex];
 								let wr = wins / Math.max(1, wins + losses);
@@ -223,7 +224,7 @@ permalink: /bot.html
 					tooltips: {
 						mode: "index",
 						callbacks: {
-							footer: function(tooltipItems, data) {
+							footer: function (tooltipItems, data) {
 								let wins = tooltipItems[0].yLabel;
 								let losses = tooltipItems[1].yLabel;
 								let wr = wins / Math.max(1, wins + losses);
@@ -233,28 +234,28 @@ permalink: /bot.html
 					}
 				}
 			});
-      			function updateChart() {
-				let map = data.maps.map(function(x) {
-					return {won: 0, lost: 0, map: x};
+			function updateChart() {
+				let map = data.maps.map(function (x) {
+					return { won: 0, lost: 0, map: x };
 				});
-				data.results.forEach(function(x) {
+				data.results.forEach(function (x) {
 					let epochSecond = parseInt(x.t, 16) * 3600;
 					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
 						let stat = map[x.m];
 						if (x.w === 1) stat.won++; else stat.lost++;
 					}
 				}, {});
-			        map = map.filter(function(x) { return x.lost + x.won > 0; }) 
-	   				.sort(function(a,b) {
-      					let dWR = a.won / Math.max(1, a.won + a.lost) - b.won / Math.max(1, b.won + b.lost);
-					if (dWR != 0) return dWR;
-					if (a.lost > b.lost) return -1;
-					if (a.lost < b.lost) return 1;
-					return 0;
-				});
-				let wonData = map.map(function(a) { return a.won; });
-				let lostData = map.map(function(a) { return a.lost; });
-			        let labels = map.map(function(a) { return a.map; });
+				map = map.filter(function (x) { return x.lost + x.won > 0; })
+					.sort(function (a, b) {
+						let dWR = a.won / Math.max(1, a.won + a.lost) - b.won / Math.max(1, b.won + b.lost);
+						if (dWR != 0) return dWR;
+						if (a.lost > b.lost) return -1;
+						if (a.lost < b.lost) return 1;
+						return 0;
+					});
+				let wonData = map.map(function (a) { return a.won; });
+				let lostData = map.map(function (a) { return a.lost; });
+				let labels = map.map(function (a) { return a.map; });
 				winCharts.data.datasets = [{
 					label: "Won",
 					data: wonData,
@@ -293,12 +294,12 @@ permalink: /bot.html
 				options: {
 					plugins: {
 						datalabels: {
-	   						rotation: -85,
-	   						font: {
-	   							size: 10
+							rotation: -85,
+							font: {
+								size: 10
 							},
-	   						align: "top",
-							formatter: function(value, context) {
+							align: "top",
+							formatter: function (value, context) {
 								let wins = context.chart.data.datasets[0].data[context.dataIndex];
 								let losses = context.chart.data.datasets[1].data[context.dataIndex];
 								let wr = wins / Math.max(1, wins + losses);
@@ -309,7 +310,7 @@ permalink: /bot.html
 					tooltips: {
 						mode: "index",
 						callbacks: {
-							footer: function(tooltipItems, data) {
+							footer: function (tooltipItems, data) {
 								let wins = tooltipItems[0].yLabel;
 								let losses = tooltipItems[1].yLabel;
 								let wr = wins / Math.max(1, wins + losses);
@@ -319,28 +320,28 @@ permalink: /bot.html
 					}
 				}
 			});
-      			function updateChart() {
-				let bots = data.bots.map(function(x) {
-					return {won: 0, lost: 0, bot: x};
+			function updateChart() {
+				let bots = data.bots.map(function (x) {
+					return { won: 0, lost: 0, bot: x };
 				});
-				data.results.forEach(function(x) {
+				data.results.forEach(function (x) {
 					let epochSecond = parseInt(x.t, 16) * 3600;
 					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
 						let stat = bots[x.e - 1];
 						if (x.w === 1) stat.won++; else stat.lost++;
 					}
 				}, {});
-      				bots = bots.filter(function(x) { return x.won + x.lost > 0; });
-				bots = bots.sort(function(a,b) {
+				bots = bots.filter(function (x) { return x.won + x.lost > 0; });
+				bots = bots.sort(function (a, b) {
 					let dWR = a.won / (a.won + a.lost) - b.won / (b.won + b.lost);
 					if (dWR != 0) return dWR;
 					if (a.lost > b.lost) return -1;
 					if (a.lost < b.lost) return 1;
 					return 0;
 				}).slice(0, 70);
-				let wonData = bots.map(function(a) { return a.won; });
-				let lostData = bots.map(function(a) { return a.lost; });
-			        let labels = bots.map(function(x) { return x.bot; });
+				let wonData = bots.map(function (a) { return a.won; });
+				let lostData = bots.map(function (a) { return a.lost; });
+				let labels = bots.map(function (x) { return x.bot; });
 				vsChart.data.datasets = [{
 					label: "Won",
 					data: wonData,
@@ -353,7 +354,7 @@ permalink: /bot.html
 						display: false
 					}
 				}];
-      				vsChart.options.scales = {
+				vsChart.options.scales = {
 					xAxes: [{
 						stacked: true,
 						type: "category",
@@ -367,89 +368,104 @@ permalink: /bot.html
 					}]
 				};
 				vsChart.update();
-       			}
-      			updateChart();
+			}
+			updateChart();
 			updaters.push(updateChart);
 		}
 		function setupMatchupChart(data) {
 			let chart = new Chart(document.getElementById("perRaceWinsChart"), {
-				type: "bar",
+				type: "line",
 				options: {
 					tooltips: {
-						mode: "index",
 						callbacks: {
-							footer: function(tooltipItems, data) {
-								let wins = tooltipItems[0].yLabel;
-								let losses = tooltipItems[1].yLabel;
-								let wr = wins / Math.max(1, wins + losses);
-								return "WR: " + basil.percentFormat(wr);
+							footer: function (tooltipItem, data) {
+								let e = data.datasets[tooltipItem[0].datasetIndex].data[tooltipItem[0].index];
+								return "W-L: " + e.w + " - " + e.l;
 							}
 						}
+					},
+					scales: {
+						xAxes: [{
+							type: "time",
+							time: {
+								unit: "day"
+							}
+						}],
+						yAxes: [{
+							ticks: {
+								callback: function (value, index, values) {
+									return value + "%";
+								}
+							}
+						}]
 					}
 				}
 			});
-      			function updateChart() {
-			        let rvr = {};
-      				let races = ["T", "P", "Z", "R"];
-			        let raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg" };
-      				races.forEach(function(a) {
-					races.forEach(function(b) {
-						rvr[a + b] = {label: raceLabel[a] + " vs " + raceLabel[b], won: 0, lost: 0};
+			function updateChart() {
+				let rvr = {};
+				let races = ["T", "P", "Z", "R"];
+				let raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg" };
+				races.forEach(function (a, i) {
+					races.forEach(function (b, j) {
+						rvr[a + b] = { label: raceLabel[a] + " vs " + raceLabel[b], won: 0, lost: 0, data: [], a: i, b: j };
 					});
 				});
-				data.results.forEach(function(x) {
+				data.results.sort((a, b) => parseInt(a.t, 16) - parseInt(b.t, 16))
+				data.results.forEach(function (x) {
 					let epochSecond = parseInt(x.t, 16) * 3600;
 					if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
 						let stat = rvr[x.r + x.eR];
 						if (x.w === 1) stat.won++; else stat.lost++;
+						if (stat.won + stat.lost > 0) {
+							stat.data.push({ x: new Date(epochSecond * 1000), y: 100 * stat.won / (stat.won + stat.lost), w: stat.won, l: stat.lost });
+						}
 					}
 				}, {});
-      				let rvrList = [];
-      				races.forEach(function(a) {
-					races.forEach(function(b) {
-					        rvrList.push(rvr[a + b]);
+				let rvrList = [];
+				races.forEach(function (a) {
+					races.forEach(function (b) {
+						rvrList.push(rvr[a + b]);
 					});
-			        });
-      				rvrList = rvrList.filter(function(x) { return x.won + x.lost > 0; });
-				rvrList.sort(function(a,b) {
-					let dWR = a.won / (a.won + a.lost) - b.won / (b.won + b.lost);
-					if (dWR != 0) return dWR;
-					if (a.lost > b.lost) return -1;
-					if (a.lost < b.lost) return 1;
-					return 0;
 				});
-				let wonData = rvrList.map(function(a) { return a.won; });
-				let lostData = rvrList.map(function(a) { return a.lost; });
-			        let labels = rvrList.map(function(x) { return x.label; });
-				chart.data.datasets = [{
-					label: "Won",
-					data: wonData,
-					backgroundColor: "#88AAEB"
-				}, {
-					label: "Lost",
-					data: lostData,
-					backgroundColor: "#EBAAAA"
-				}];
-      				chart.options.scales = {
-					xAxes: [{
-						stacked: true,
-						type: "category",
-						labels: labels,
-						ticks: {
-							autoSkip: false
+
+				function filter(data) {
+					let step = Math.ceil(data.length / 30);
+					let result = [];
+					let agg = { y: 0 };
+					for (i = 0; i < data.length; i++) {
+						if (step == 0) {
+							step = Math.ceil(data.length / 30);
+							agg.x = data[i].x;
+							agg.y /= step;
+							agg.w = data[i].w;
+							agg.l = data[i].l;
+							result.push(agg);
+							agg = { y: 0 };
 						}
-					}],
-					yAxes: [{
-						stacked: true
-					}]
-				};
+						agg.y += data[i].y;
+						step--;
+					}
+					return result;
+				}
+
+				chart.data.datasets = rvrList
+					.filter(r => r.data.length > 0)
+					.map(r => {
+						return {
+							label: r.label,
+							data: filter(r.data),
+							fill: false,
+							borderColor: new one.color.HSV(r.a * 0.2, 0.3 + r.b * 0.25 * 0.7, 0.3 + r.b * 0.25 * 0.7, 0.8).cssa(),
+							cubicInterpolationMode: "monotone",
+						}
+					});
 				chart.update();
-       			}
-      			updateChart();
+			}
+			updateChart();
 			updaters.push(updateChart);
-	        }
+		}
 		$.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
-			.then(function(_data) {
+			.then(function (_data) {
 				let data = eval('(' + _data + ')');
 				setupPerMapWinsChart(data);
 				setupVsChart(data);
