@@ -17,7 +17,7 @@ layout: home
 			<ul style="list-style-type: none; margin: 0; padding: 0;">
 			${bots.map(bot => html`
 				<li>
-				${bot.lastUpdated} <i class="fas fa-caret-right"></i> ${bot.botName}$${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` :""}
+				${bot.lastUpdated} <i class="fas fa-caret-right"></i> <a class="normal" href="bot.html?bot=${bot.botName}">${bot.botName}</a>$${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` : ""}
 				</li>
 				`)}
 			</ul>
@@ -25,13 +25,13 @@ layout: home
 			<hr>
 			`;
 	}
-	$(function() {
+	$(function () {
 		let botsAfter = Date.now() / 1000 - 86400 * 5;
-		$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
-			let bots = data.filter(function(x) {
+		$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function (data) {
+			let bots = data.filter(function (x) {
 				return x.lastUpdated >= botsAfter && x.enabled;
-			}).sort(function(a, b) { return b.lastUpdated - a.lastUpdated; })
-				.map(function(bot) {
+			}).sort(function (a, b) { return b.lastUpdated - a.lastUpdated; })
+				.map(function (bot) {
 					bot.lastUpdated = basil.formatDate(bot.lastUpdated);
 					return bot;
 				});
