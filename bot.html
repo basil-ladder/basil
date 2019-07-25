@@ -177,6 +177,7 @@ permalink: /bot.html
 						return { label: unescape(bot.name), fill: false, data: [] };
 					return args.map(function (bot, i) {
 						function filter(data) {
+							data.sort(function (a, b) { return a.epochSecond - b.epochSecond; });
 							let chartData = [];
 							let lastSecond = 0;
 							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
