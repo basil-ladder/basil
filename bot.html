@@ -39,7 +39,7 @@ permalink: /bot.html
 <script>
 	function headerTemplate(bot) {
 		return html`
-			<h1 $${bot.race ? html`class="${basil.racecol(bot.race)}"` : "-"}>${bot.botName} <span class="float-right">${bot.race ? basil.racename(bot.race) : "-"}</span ></h1>
+			<h1 $${bot.race ? html`class="${basil.racecol(bot.race)}"` : "-"}>${bot.botName} <span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>
 			<hr style="margin-top: -15px; margin-bottom: 15px;">
 				$${bot.won ? html`
 					<div class="row">
