@@ -4,8 +4,7 @@ permalink: /bot.html
 ---
 {% raw %}
 <div id="botName"></div>
-<h2>ELO</h2>
-<form>
+<form class="sticky-control" style="padding-top: 10px; margin-top: 2em;">
 	<div class="row">
 		<div class="col-1">
 			<label for="startDate">Start</label>
@@ -16,7 +15,9 @@ permalink: /bot.html
 			<input style="width: 6em; text-align: right;" id="endDate" type="text" readonly="readonly">
 		</div>
 	</div>
+	<hr style="margin-top: 10px;">
 </form>
+<h2>ELO</h2>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
 <h2>Wins Per Map</h2>
