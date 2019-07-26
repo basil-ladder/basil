@@ -397,7 +397,7 @@ permalink: /bot.html
 				if (step == 0) {
 					step = Math.ceil(data.length / 30);
 					agg.x = data[i].x;
-					agg.y /= step;
+					agg.y = Math.round(100 * agg.y / step) / 100;
 					agg.w = data[i].w;
 					agg.l = data[i].l;
 					result.push(agg);
@@ -516,7 +516,7 @@ permalink: /bot.html
 						let stat = vs[x.e] = (vs[x.e] || { won: 0, lost: 0, data: [], label: data.bots[x.e] });
 						if (x.w === 1) stat.won++; else stat.lost++;
 						if (stat.won + stat.lost > 0) {
-							stat.data.push({ x: new Date(epochSecond * 1000), y: Math.round(10000 * stat.won / (stat.won + stat.lost)) / 100, w: stat.won, l: stat.lost, label: stat.label });
+							stat.data.push({ x: new Date(epochSecond * 1000), y: 100 * stat.won / (stat.won + stat.lost), w: stat.won, l: stat.lost, label: stat.label });
 						}
 					}
 				}, {});
