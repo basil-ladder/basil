@@ -27,6 +27,24 @@ window.basil = function (basil) {
 				return "race_unknown";
 		}
 	};
+	basil.racename = function (race) {
+		switch (race) {
+			case "PROTOSS":
+			case "P":
+				return "Protoss";
+			case "ZERG":
+			case "Z":
+				return "Zerg";
+			case "TERRAN":
+			case "T":
+				return "Terran";
+			case "RANDOM":
+			case "R":
+				return "Random";
+			default:
+				return "Unknown";
+		}
+	};
 	basil.percentFormat = function (value, digits) {
 		return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2 }).format(value);
 	};
