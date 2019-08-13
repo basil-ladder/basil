@@ -3,8 +3,10 @@ layout: page
 permalink: /bot.html
 ---
 {% raw %}
-<div id="botName"></div>
-<form class="sticky-control" style="padding-top: 10px; margin-top: 2em;">
+<div id="botName"
+	style="height: 1.5em; position: sticky; top: 0px; margin-bottom: 10px; border-bottom: 2px solid black;"></div>
+<div id="botData"></div>
+<form style="padding-top: 10px; margin-top: 2em; position: sticky; top: 2.5em; background-color:white;">
 	<div class="row">
 		<div class="col-1">
 			<label for="startDate">Start</label>
@@ -37,10 +39,13 @@ permalink: /bot.html
 <canvas id="vs2Chart" width="1200" height="600"></canvas>
 </table>
 <script>
+	function nameTemplate(bot) {
+		return html`
+			<h1 style="height: 1.5em;" $${bot.race ? html`class="${basil.racecol(bot.race)}"` : ""}>${bot.botName} <span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>
+		`;
+	}
 	function headerTemplate(bot) {
 		return html`
-			<h1 $${bot.race ? html`class="${basil.racecol(bot.race)}"` : "-"}>${bot.botName} <span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>
-			<hr style="margin-top: -15px; margin-bottom: 15px;">
 				$${bot.won ? html`
 					<div class="row">
 					<div class="col-6 row">
@@ -104,7 +109,8 @@ permalink: /bot.html
 		let statsBaseUrl = "https://basilicum.bytekeeper.org/stats/";
 		let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
 		let myData;
-		$("#botName").append(headerTemplate({ botName: botName }));
+		$("#botName").append(nameTemplate({ botName: botName }))
+		$("#botData").append(headerTemplate({ botName: botName }));
 		let now = Date.now() / 1000;
 		let selectedRange = { startSecond: now - 30 * 86400, endSecond: now };
 		let secondsToAggregate = (selectedRange.endSecond - selectedRange.startSecond) / 60;
@@ -143,10 +149,12 @@ permalink: /bot.html
 					topBots[myIndex] = tmp;
 				}
 				$("#botName").empty();
+				$("#botData").empty();
 				myData = data.filter(function (a) { return a.botName === botName; })[0];
 				myData.maxElo = "-";
 				if (!myData.enabled) myData.disabledReason = myData.disabledReason || "Disabled on SSCAIT/locally";
-				$("#botName").append(headerTemplate(myData));
+				$("#botName").append(nameTemplate(myData))
+				$("#botData").append(headerTemplate(myData));
 				return $.when.apply($, topBots.map(function (bot) {
 					return $.getJSON(statsBaseUrl + bot + "/eloHistory.json")
 						.then(function (data) { return { name: bot, data: data }; });
@@ -168,8 +176,10 @@ permalink: /bot.html
 				}
 
 				$("#botName").empty();
+				$("#botData").empty();
 				myData.maxElo = maxElo;
-				$("#botName").append(headerTemplate(myData));
+				$("#botName").append(nameTemplate(myData));
+				$("#botData").append(headerTemplate(myData));
 
 				function prepareDataSets() {
 					let startSecond = selectedRange.startSecond;
@@ -391,21 +401,19 @@ permalink: /bot.html
 			updaters.push(updateChart);
 		}
 		function aggWinLossFilter(data) {
-			let step = Math.ceil(data.length / 30);
+			let steplen = Math.ceil(data.length / 30);
+			let step = 0;
 			let result = [];
-			let agg = { y: 0 };
+			let y = 0;
 			for (i = 0; i < data.length; i++) {
-				if (step == 0) {
-					step = Math.ceil(data.length / 30);
-					agg.x = data[i].x;
-					agg.y = Math.round(100 * agg.y / step) / 100;
-					agg.w = data[i].w;
-					agg.l = data[i].l;
-					result.push(agg);
-					agg = { y: 0 };
+				let d = data[i];
+				y += d.y;
+				step++;
+				if (step == steplen || i == data.length - 1) {
+					result.push({ x: d.x, y: Math.round(100 * y / step) / 100, w: d.w, l: d.l });
+					y = 0;
+					step = 0;
 				}
-				agg.y += data[i].y;
-				step--;
 			}
 			return result;
 		}
