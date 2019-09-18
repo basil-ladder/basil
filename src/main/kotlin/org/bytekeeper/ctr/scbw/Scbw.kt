@@ -62,7 +62,7 @@ class Scbw(private val botRepository: BotRepository,
             it.asSequence().map {
                 it.toString()
             }.filter {
-                !it.contains("bwapi", true)
+                !it.startsWith("bwapi", true) || !it.endsWith(".dll", true)
             }.count { it.endsWith(".$extension", true) }
         } else 0
         if (missingFiles.isNotEmpty() || aiFiles == 0 || aiFiles > 1) {
