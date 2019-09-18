@@ -60,7 +60,7 @@ class Scbw(private val botRepository: BotRepository,
         val missingFiles = arrayOf(botDir, aiDir, readDir, writeDir, botJsonDef, bwapiDll).filter { !it.toFile().exists() }
         val aiFiles = if (aiDir.toFile().exists()) Files.list(aiDir).use {
             it.asSequence().map {
-                it.toString()
+                it.last().toString()
             }.filter {
                 !it.startsWith("bwapi", true) || !it.endsWith(".dll", true)
             }.count { it.endsWith(".$extension", true) }
