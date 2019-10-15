@@ -41,6 +41,8 @@ Bots
   * *PB-KEY-\<KeyId\>* - Publish the read directory, compressed and encrypted. This will use the key (given by KeyId - without white space) with the given key id (or fingerprint, or long id), downloaded from a public PGP keyserver (pgp.mit.edu). Using that the read directory will be compressed to `7z` file and then encrypted. Read directories are currently published once a day. For example: PB-KEY-ABCD01234 for the key id `ABCD0124`.
   * *PUBLISH-READ* - Publish the read directory, compressed but not encrypted. Please note that anyone can download the file and see what your bot wrote/learned.
   * *MAP-POOL:<Pool>;<Pool>...* - Add this if you want to support additional map pools. Ie. `MAP-POOL:2019Season1` to support the current human ladder map pool besides SSCAIT's pool. Note: Your bot is always expected to work on SSCAIT maps and any map pool you add here.
-    
+* Bots get disabled when
+  * they are disabled on SSCAIT. Please note that just re-enabling them on SSCAIT will not re-enable on BASIL. You will need to push a new version to SSCAIT to automatically enable on BASIL (or ask me).
+  * they have a win-rate of below 15% in the last 100 games. If you update the bot it will get re-enabled and only the games since the update will count.
 
 [SSCAIT]: https://sscaitournament.com/
