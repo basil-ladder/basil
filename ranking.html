@@ -2,7 +2,7 @@
 layout: page
 title: Ranking
 ---
-	{% raw %}
+{% raw %}
 <script>
 	function tableTemplate(r) {
 		return html`
@@ -26,8 +26,8 @@ title: Ranking
 			<th>
 				${index + 1}
 			</th>
-			<td name="${bot.anchorName}" class="${basil.racecol(bot.race)}">${bot.botName}<div class="float-right"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
-				<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`  }</td>
+			<td name="${bot.anchorName}" class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+				<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 			<td>${bot.played}</td>
 			<td>${bot.won}</td>
 			<td>${bot.lost}</td>
@@ -60,7 +60,7 @@ title: Ranking
 				${index + 1}
 			</th>
 			<td name="${bot.anchorName}}" class="${basil.racecol(bot.race)}">${bot.botName}<div class="float-right"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
-			<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`  }</td>
+			<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 			<td>${bot.played}</td>
 			<td>${bot.won}</td>
 			<td>${bot.lost}</td>
@@ -73,52 +73,54 @@ title: Ranking
 			</table>
 
 		`;
-	}	
-$(function() {
-	let source = $("#tableTemplate").html();
-	$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function(data) {
-		for (i = 0; i < data.length; i++) {
-					      let played = data[i].won + data[i].lost;
-					      if (played > 0 && typeof data[i].won !== "undefined") {
-						      data[i].winRate = basil.percentFormat(data[i].won / played);
-					      } else {
-						      data[i].winRate = "-";
-					      }
-			if (played < 30) data[i].rating = null;
-					      if (data[i].lastUpdated) data[i].lastUpdated = basil.formatDateTime(data[i].lastUpdated);
-					      data[i].anchorName = encodeURIComponent(data[i].botName);
-					      data[i].showDisabled = !data[i].enabled && (data[i].won > 0 || data[i].lost > 0);
-			data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";
-		}
-		// Required for index to work as expected
-		data.sort(function(a,b) { 
-			if (a.enabled != b.enabled) {
-				if (a.enabled) return -1; else return 1;
+	}
+	$(function () {
+		let source = $("#tableTemplate").html();
+		$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function (data) {
+			for (i = 0; i < data.length; i++) {
+				let played = data[i].won + data[i].lost;
+				if (played > 0 && typeof data[i].won !== "undefined") {
+					data[i].winRate = basil.percentFormat(data[i].won / played);
+				} else {
+					data[i].winRate = "-";
+				}
+				if (played < 30) data[i].rating = null;
+				if (data[i].lastUpdated) data[i].lastUpdated = basil.formatDateTime(data[i].lastUpdated);
+				data[i].anchorName = encodeURIComponent(data[i].botName);
+				data[i].showDisabled = !data[i].enabled && (data[i].won > 0 || data[i].lost > 0);
+				data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";
 			}
-			let aPlayed = a.won + a.lost;
-			let bPlayed = b.won + b.lost;
-			if (aPlayed < 30 && bPlayed >= 30) return 1;
-			if (bPlayed < 30 && aPlayed >= 30) return -1;
-			if (a.rating !== b.rating) return b.rating - a.rating; 
-			if (a.winRate !== b.winRate) return b.winRate - a.winRate;
-			return b.won - a.won;
+			// Required for index to work as expected
+			data.sort(function (a, b) {
+				if (a.enabled != b.enabled) {
+					if (a.enabled) return -1; else return 1;
+				}
+				let aPlayed = a.won + a.lost;
+				let bPlayed = b.won + b.lost;
+				if (aPlayed < 30 && bPlayed >= 30) return 1;
+				if (bPlayed < 30 && aPlayed >= 30) return -1;
+				if (a.rating !== b.rating) return b.rating - a.rating;
+				if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+				return b.won - a.won;
+			});
+			let html = tableTemplate(data);
+			$("#eloTable").append(html);
+			$("#eloTable table").tablesorter();
+			if (location.hash) {
+				let headerHeight = $("thead tr").height();
+				let dest = $("td[name='" + location.hash.substring(1) + "']");
+				$("html, body").animate({ scrollTop: dest.offset().top - headerHeight }, 'slow');
+			}
 		});
-		let html = tableTemplate(data);
-		$("#eloTable").append(html);
-		$("#eloTable table").tablesorter();
-		if (location.hash) {
-			let headerHeight = $("thead tr").height();
-			let dest = $("td[name='" + location.hash.substring(1) + "']");
-			$("html, body").animate({ scrollTop: dest.offset().top - headerHeight }, 'slow');
-		}
 	});
-});
 </script>
 <small>
-	The following table is sorted by ELO, % Win, # Won by default. To sort multiple columns simulatenously, hold <em>shift</em> when clicking a second, third... column.
+	The following table is sorted by ELO, % Win, # Won by default. To sort multiple columns simulatenously, hold
+	<em>shift</em> when clicking a second, third... column.
 </small>
 <div id="eloTable">
 </div>
-<small>Source: <a href="https://basilicum.bytekeeper.org/stats/ranking.json">https://basilicum.bytekeeper.org/stats/ranking.json</a></small>
+<small>Source: <a
+		href="https://basilicum.bytekeeper.org/stats/ranking.json">https://basilicum.bytekeeper.org/stats/ranking.json</a></small>
 </table>
 {% endraw %}
