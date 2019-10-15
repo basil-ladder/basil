@@ -41,8 +41,10 @@ permalink: /bot.html
 <script>
 	function nameTemplate(bot) {
 		return html`
-			<h1 style="height: 1.5em;" $${bot.race ? html`class="${basil.racecol(bot.race)}"` : ""}>${bot.botName} <span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>
-		`;
+			<h1 style="height: 1.5em;" $${bot.race ?
+				html`class="${basil.racecol(bot.race)}"` : ""}>${bot.botName} 
+				<span class="tooltip medal ${bot.medal}">${bot.rank}<span role="tooltip">Current Rank</span></span>
+				<span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>`;
 	}
 	function headerTemplate(bot) {
 		return html`
@@ -134,12 +136,7 @@ permalink: /bot.html
 		});
 		$.getJSON(statsBaseUrl + "ranking.json")
 			.then(function (data) {
-				data = data.filter(function (b) { return b.enabled; })
-					.sort(function (a, b) {
-						if (a.rating !== b.rating) return b.rating - a.rating;
-						if (a.winRate !== b.winRate) return b.winRate - a.winRate;
-						return b.won - a.won;
-					});
+				basil.sortByRank(data);
 				let topBots = data.slice(0, 5).map(function (bot) { return bot.botName; });
 				let myIndex = topBots.indexOf(botName);
 				if (myIndex === -1) topBots.push(botName);
@@ -152,6 +149,12 @@ permalink: /bot.html
 				$("#botData").empty();
 				myData = data.filter(function (a) { return a.botName === botName; })[0];
 				myData.maxElo = "-";
+				myData.rank = data.indexOf(myData) + 1;
+				if (myData.rank == 1) myData.medal = "gold";
+				else if (myData.rank == 2) myData.medal = "silver";
+				else if (myData.rank == 3) myData.medal = "bronze";
+				else if (myData.rank < 100) myData.medal = "gray";
+				else myData.medal = "";
 				if (!myData.enabled) myData.disabledReason = myData.disabledReason || "Disabled on SSCAIT/locally";
 				$("#botName").append(nameTemplate(myData))
 				$("#botData").append(headerTemplate(myData));

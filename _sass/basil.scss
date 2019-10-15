@@ -165,7 +165,7 @@ small.tiny {
     background-color: #333;
     color: #fff;
     text-align: center;
-    font-size: 0.8em;
+    font-size: 12px;
     padding: 0.3em;
     border-radius: 0.5em;
     position: absolute;
@@ -232,4 +232,29 @@ input:checked ~ .trigger {
 
 .space-right {
   margin-right: $spacing-unit;
+}
+
+.medal {
+  border-radius: 50%;
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  text-align: center;
+  margin-left: 2em;
+}
+
+.gray {
+  background-color: gray;
+}
+
+.gold {
+  background-image: linear-gradient(-30deg, gold 45%, white 60%, gold 75%);
+}
+
+.silver {
+  background-image: linear-gradient(-30deg, silver 45%, white 60%, silver 75%);
+}
+
+.bronze {
+  background-image: linear-gradient(-30deg, #cd7f32 45%, white 60%, #cd7f32 80%);
 }

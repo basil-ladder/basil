@@ -48,6 +48,20 @@ window.basil = function (basil) {
 	basil.percentFormat = function (value, digits) {
 		return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2 }).format(value);
 	};
+	basil.sortByRank = function (data) {
+		data.sort(function (a, b) {
+			if (a.enabled != b.enabled) {
+				if (a.enabled) return -1; else return 1;
+			}
+			let aPlayed = a.won + a.lost;
+			let bPlayed = b.won + b.lost;
+			if (aPlayed < 30 && bPlayed >= 30) return 1;
+			if (bPlayed < 30 && aPlayed >= 30) return -1;
+			if (a.rating !== b.rating) return b.rating - a.rating;
+			if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+			return b.won - a.won;
+		});
+	};
 
 	Chart.plugins.unregister(ChartDataLabels);
 };

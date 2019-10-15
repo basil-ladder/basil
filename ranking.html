@@ -59,8 +59,8 @@ title: Ranking
 			<th>
 				${index + 1}
 			</th>
-			<td name="${bot.anchorName}}" class="${basil.racecol(bot.race)}">${bot.botName}<div class="float-right"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank"><i class="fas fa-chart-line"></i></a></div></td>
-			<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
+			<td name="${bot.anchorName}" class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+				<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 			<td>${bot.played}</td>
 			<td>${bot.won}</td>
 			<td>${bot.lost}</td>
@@ -91,18 +91,7 @@ title: Ranking
 				data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";
 			}
 			// Required for index to work as expected
-			data.sort(function (a, b) {
-				if (a.enabled != b.enabled) {
-					if (a.enabled) return -1; else return 1;
-				}
-				let aPlayed = a.won + a.lost;
-				let bPlayed = b.won + b.lost;
-				if (aPlayed < 30 && bPlayed >= 30) return 1;
-				if (bPlayed < 30 && aPlayed >= 30) return -1;
-				if (a.rating !== b.rating) return b.rating - a.rating;
-				if (a.winRate !== b.winRate) return b.winRate - a.winRate;
-				return b.won - a.won;
-			});
+			basil.sortByRank(data);
 			let html = tableTemplate(data);
 			$("#eloTable").append(html);
 			$("#eloTable table").tablesorter();
