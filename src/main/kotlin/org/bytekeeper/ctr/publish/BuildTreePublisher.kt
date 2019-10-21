@@ -22,7 +22,7 @@ import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.math.min
 
-@Component
+//@Component
 class BuildTreePublisher(private val unitEventsRepository: UnitEventsRepository,
                          private val publisher: Publisher,
                          private val entityManager: EntityManager,
