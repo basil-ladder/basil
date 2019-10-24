@@ -13,7 +13,8 @@ import java.time.Instant
 @Component
 class ReadDirectoryPublisher(private val botRepository: BotRepository,
                              private val publisher: Publisher,
-                             private val scbw: Scbw) {
+                             private val scbw: Scbw,
+                             private val config: Config) {
     private val log = LogManager.getLogger()
 
     @CommandHandler
@@ -36,8 +37,10 @@ class ReadDirectoryPublisher(private val botRepository: BotRepository,
                 .filter { Files.isRegularFile(it) }
                 .mapToLong { Files.size(it) }
                 .sum()
-        if (readSize > 100 * 1024 * 1024)
+        if (readSize > config.publishing.maxUncompressedRead * 1024 * 1024) {
+            log.warn("Bot ${bot.name}'s read directory exceeds ${config.publishing.maxUncompressedRead} MB uncompressed and will not be published.")
             return
+        }
 
         val targetFile = publisher.botDataPath(bot.name).resolve("read.7z")
         if (targetFile.toFile().exists() &&

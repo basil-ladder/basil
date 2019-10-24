@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.repository
 
 import io.micrometer.core.annotation.Timed
+import org.bytekeeper.basil.proto.GameResultOuterClass
 import org.bytekeeper.ctr.UnitType
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.QueryHints
@@ -48,6 +49,17 @@ class UnitEvent(val frame: Int,
     @GeneratedValue
     var id: Long? = null
 }
+
+fun GameResultOuterClass.BotResult.Builder.addFromUnitEvent(e: UnitEvent) =
+        also {
+            addUnitEventsBuilder()
+                    .setFrame(e.frame)
+                    .setPosX(e.posX.toInt())
+                    .setPosY(e.posY.toInt())
+                    .setUnitEventType(e.event.ordinal)
+                    .setUnitType(e.unitType.ordinal)
+                    .setUnitId(e.unitId.toInt())
+        }
 
 data class UnitStats(val type: UnitType, val event: UnitEventType, val amount: Long)
 data class Nuke(val frame: Int, val posX: Short, val posY: Short)

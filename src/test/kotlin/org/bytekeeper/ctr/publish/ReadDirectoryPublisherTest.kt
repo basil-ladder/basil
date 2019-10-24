@@ -3,6 +3,7 @@ package org.bytekeeper.ctr.publish
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
+import org.bytekeeper.ctr.Config
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.any
@@ -50,7 +51,7 @@ class ReadDirectoryPublisherTest {
         botReadDir = base.resolve("botread")
         Files.createDirectories(dataPath)
         Files.createDirectories(botReadDir)
-        sut = ReadDirectoryPublisher(botRepository, publisher, scbw)
+        sut = ReadDirectoryPublisher(botRepository, publisher, scbw, Config())
         given(scbw.readDirectoryOf(any())).willReturn(botReadDir)
         given(publisher.botDataPath(ArgumentMatchers.anyString())).willReturn(dataPath)
         given(botRepository.findAllByEnabledTrueAndPublishReadTrue())

@@ -1,10 +1,11 @@
 package org.bytekeeper.ctr.math
 
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 object Elo {
     fun calculateElos(rA: Int, playedA: Int, rB: Int, playedB: Int): Pair<Int, Int> {
-        val eA = 1.0 / (1 + Math.pow(10.0, (rB - rA) / 400.0))
+        val eA = 1.0 / (1 + 10.0.pow((rB - rA) / 400.0))
         val eB = 1.0 - eA
         val kA = kValue(playedA, rA)
         val kB = kValue(playedB, rB)

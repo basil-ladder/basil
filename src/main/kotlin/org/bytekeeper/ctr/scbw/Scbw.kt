@@ -452,8 +452,20 @@ class Scbw(private val botRepository: BotRepository,
                                     }
                         }
             }
-            unitEventRepository.saveAll(preprocess(botA, botAEvents))
-            unitEventRepository.saveAll(preprocess(botB, botBEvents))
+
+            val botAProcessedEvents = preprocess(botA, botAEvents)
+            val botBProcessedEvents = preprocess(botB, botBEvents)
+            unitEventRepository.saveAll(botAProcessedEvents)
+            unitEventRepository.saveAll(botBProcessedEvents)
+//            val grb = GameResultOuterClass.GameResult.newBuilder()
+//                    .setGameIdLSB(gameId.leastSignificantBits)
+//                    .setGameIdMSB(gameId.mostSignificantBits)
+//            botAProcessedEvents.fold(grb.botABuilder
+//                    .setId(botA.id ?: -1),
+//                    GameResultOuterClass.BotResult.Builder::addFromUnitEvent).build()
+//            botAProcessedEvents.fold(grb.botBBuilder
+//                    .setId(botB.id ?: -1),
+//                    GameResultOuterClass.BotResult.Builder::addFromUnitEvent).build()
         }
 
         private fun moveLog(source: Path, dest: Path) {

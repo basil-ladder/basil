@@ -5,6 +5,9 @@ import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
+import java.time.DayOfWeek
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 
 @Component
@@ -13,9 +16,15 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             private val botRepository: BotRepository,
                             private val unitEventsRepository: UnitEventsRepository,
                             private val publisher: Publisher) {
+    private var lastPublish: LocalDateTime? = null
+
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
+        if (lastPublish?.plus(1, ChronoUnit.DAYS)?.isAfter(command.now) == true || command.now.dayOfWeek != DayOfWeek.FRIDAY)
+            return
+        lastPublish = command.now
+
         val writer = jacksonObjectMapper().writer()
 
         publisher.globalStatsWriter("stats.json")

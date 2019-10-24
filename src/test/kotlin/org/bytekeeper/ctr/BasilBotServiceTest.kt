@@ -24,7 +24,7 @@ class BasilBotServiceTest {
         assertThat(updated).isNotNull()
         val captor = ArgumentCaptor.forClass(BasilSourceBot::class.java)
         verify(basilSourceBotRepository).save(captor.capture())
-        assertThat(captor.value).extracting("lastUpdated").doesNotContainNull()
+        assertThat(captor.value).extracting("lastUpdated").isNotNull()
     }
 
     @Test
@@ -40,7 +40,7 @@ class BasilBotServiceTest {
         assertThat(updated).isEqualTo(updateTime)
         val captor = ArgumentCaptor.forClass(BasilSourceBot::class.java)
         verify(basilSourceBotRepository).save(captor.capture())
-        assertThat(captor.value).extracting("lastUpdated").doesNotContainNull()
+        assertThat(captor.value).extracting("lastUpdated").isNotNull()
     }
 
     @Test
@@ -55,6 +55,6 @@ class BasilBotServiceTest {
         assertThat(updated).isEqualTo(Instant.MIN)
         val captor = ArgumentCaptor.forClass(BasilSourceBot::class.java)
         verify(basilSourceBotRepository).save(captor.capture())
-        assertThat(captor.value).extracting("lastUpdated").allMatch { it == Instant.MIN }
+        assertThat(captor.value).extracting("lastUpdated").isEqualTo(Instant.MIN)
     }
 }

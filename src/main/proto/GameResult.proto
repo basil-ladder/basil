@@ -1,0 +1,30 @@
+syntax = "proto3";
+package org.bytekeeper.basil.proto;
+
+message GameResult {
+    uint64 gameIdLSB = 1;
+    uint64 gameIdMSB = 2;
+    BotResult botA = 3;
+    BotResult botB = 4;
+}
+
+message BotResult {
+    int64 id = 1;
+    enum Result {
+        WINNER = 0;
+        LOSER = 1;
+        DRAWED = 2;
+    }
+    Result result = 2;
+    bool crash = 3;
+    repeated UnitEvent unitEvents = 4;
+}
+
+message UnitEvent {
+    int32 frame = 1;
+    int32 unitId = 2;
+    int32 unitEventType = 3;
+    int32 posX = 4;
+    int32 posY = 5;
+    int32 unitType = 6;
+}

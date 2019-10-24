@@ -11,6 +11,7 @@ import org.springframework.core.MethodIntrospector
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -104,7 +105,7 @@ class Events {
     }
 }
 
-class PreparePublish
+class PreparePublish(val now: LocalDateTime = LocalDateTime.now())
 
 @Service
 class Commands {

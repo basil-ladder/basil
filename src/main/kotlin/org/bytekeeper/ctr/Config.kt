@@ -19,6 +19,7 @@ class Config {
     var botBinariesHistoryPath: Path? = null
     var disableBotSourceDisabledAfter = Duration.ofDays(65)
     var rules = Rules()
+    var publishing = Publishing()
 
     class Rules {
         var winRatio = WinRatioTooLowRuleConfig()
@@ -27,9 +28,13 @@ class Config {
             var minGames = 100
             var minRatio = 0.15
         }
+    }
 
+    class Publishing {
+        var maxUncompressedRead = 100
     }
 }
+
 
 @ConfigurationProperties("scbw")
 @Component
