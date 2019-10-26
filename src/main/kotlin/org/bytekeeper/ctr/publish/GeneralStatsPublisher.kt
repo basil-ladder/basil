@@ -5,7 +5,6 @@ import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
-import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -21,7 +20,7 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
-        if (lastPublish?.plus(1, ChronoUnit.DAYS)?.isAfter(command.now) == true || command.now.dayOfWeek != DayOfWeek.FRIDAY)
+        if (lastPublish?.plus(6, ChronoUnit.HOURS)?.isAfter(command.now) == true)
             return
         lastPublish = command.now
 
@@ -59,8 +58,6 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                                     gameResultRepository.averageGameRealtime(),
                                     raceCrossTable,
                                     unitStats
-
-
                             ))
                 }
     }

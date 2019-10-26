@@ -65,19 +65,18 @@ class GeneralStatsPublisherTest {
     }
 
     @Test
-    fun `should skip publish on same day`() {
+    fun `should skip publish below 6h`() {
         // GIVEN
         given(botUpdater.nextBotUpdateTime).willReturn(1L, 10L)
         sut.handle(PreparePublish(LocalDateTime.of(2019, 10, 25, 0, 0)))
 
         // WHEN
-        sut.handle(PreparePublish(LocalDateTime.of(2019, 10, 25, 23, 59)))
+        sut.handle(PreparePublish(LocalDateTime.of(2019, 10, 25, 5, 59)))
 
         // THEN
         assertThat(jacksonObjectMapper().readValue<GeneralStatsPublisher.PublishedStats>(writer.toString()))
                 .extracting { it.nextUpdateTime }
                 .isEqualTo(1L)
-
     }
 
     @Test
