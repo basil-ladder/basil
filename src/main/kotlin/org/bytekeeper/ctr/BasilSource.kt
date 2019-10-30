@@ -15,14 +15,14 @@ import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.io.InputStream
 import java.net.URI
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
+import java.nio.file.*
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.*
 import java.util.stream.Collectors
 import java.util.zip.ZipError
+import java.util.zip.ZipException
+import java.util.zip.ZipFile
 import kotlin.streams.asSequence
 
 @Service
@@ -141,7 +141,16 @@ class BasilSource(private val config: Config,
             Files.delete(tempFile)
             return null
         }
-        log.info("Successfully downloaded ${botInfo.name} to '$tempFile'.")
+        val zipName = try {
+            ZipFile(tempFile.toFile()).name
+        } catch (e: ZipException) {
+            val atticFile = Paths.get(System.getProperty("java.io.tmpdir"))
+                    .resolve("invalid-bot-binary-${botInfo.name}-${UUID.randomUUID()}.bin")
+            Files.move(tempFile, atticFile)
+            log.warn("${botInfo.name} returned file is not a zip file, moved to $atticFile and ignored.")
+            return null
+        }
+        log.info("Successfully downloaded ${botInfo.name} to '$tempFile' ($zipName).")
         return tempFile
     }
 

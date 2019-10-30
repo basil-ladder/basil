@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
@@ -22,6 +21,7 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.Instant
 import java.util.zip.ZipInputStream
 import kotlin.streams.asSequence
@@ -148,24 +148,6 @@ class BasilSourceTest() {
     }
 
     @Test
-    fun `should not throw ZipError`() {
-        // GIVEN
-        val botInfo = sut.botInfoOf("testBot")!!
-        bufferProvider = {
-            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(1)) },
-                    DefaultDataBufferFactory(),
-                    1)
-                    .toMono()
-        }
-        sut.refresh()
-
-        // WHEN, THEN
-        assertThrows<FailedToDownloadBot> {
-            sut.downloadBwapiDLL(botInfo)
-        }
-    }
-
-    @Test
     fun `should not set good lastUpdated on error`() {
         // GIVEN
         bufferProvider = { Mono.error(FailedToDownloadBot("No wai")) }
@@ -175,5 +157,9 @@ class BasilSourceTest() {
         assertThat(sut.botInfoOf("testBot"))
                 .extracting { it?.lastUpdated }
                 .isEqualTo(Instant.MIN)
+        assertThat(Files.list(Paths.get("/tmp")))
+                .anyMatch {
+                    it.fileName.toString().startsWith("invalid-bot-binary")
+                }
     }
 }
