@@ -121,7 +121,7 @@ class BasilSource(private val config: Config,
         val tempFile = Files.createTempFile("bot-binary", ".zip")
         Files.newOutputStream(tempFile)
                 .use { out ->
-                    val body = webClient
+                    val response = webClient
                             .get(URI.create(botInfo.botBinary))
                             .flatMap {
                                 if (lastUpdate != null && !Instant.ofEpochMilli(it.headers().asHttpHeaders().lastModified).isAfter(lastUpdate)) {
@@ -130,11 +130,17 @@ class BasilSource(private val config: Config,
                                 it.toMono()
                             }
                             .block()
-                            .bodyToMono(DataBuffer::class.java)
-                    DataBufferUtils.write(body, out)
-                            .map(DataBufferUtils::release)
-                            .then()
-                            .block()
+                    if (response.statusCode()?.is2xxSuccessful != false) {
+                        val body = response
+                                .bodyToMono(DataBuffer::class.java)
+                        DataBufferUtils.write(body, out)
+                                .map(DataBufferUtils::release)
+                                .then()
+                                .block()
+                    } else {
+                        log.warn("${botInfo.name} download failure with code ${response.statusCode()}")
+                        return null
+                    }
                 }
         if (Files.size(tempFile) == 0L || Files.size(tempFile) > 100 * 1024 * 1024) {
             log.warn("${botInfo.name} returned file of size ${Files.size(tempFile)}, deleting and ignoring.")
