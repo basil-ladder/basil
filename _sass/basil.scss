@@ -258,3 +258,7 @@ input:checked ~ .trigger {
 .bronze {
   background-image: linear-gradient(-30deg, #cd7f32 45%, white 60%, #cd7f32 80%);
 }
+
+.nowrap {
+  white-space: nowrap;
+}

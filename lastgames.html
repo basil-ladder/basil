@@ -20,7 +20,7 @@ title: Last 24h
 			$${bot(game.botA)}
 			$${bot(game.botB)}
 			<td>${game.map}</td>
-			<td>${game.time}</td>
+			<td class="nowrap">${game.time}</td>
 			<td class="overlayed">$${ html`$${game.notPlayed ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : ""}$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}<div class="overlay">
 			$${ game.nukes > 1 ? html`<i class="tooltip fas fa-radiation"><span role="tooltip">${game.nukes} nukes</span></i>` : ""}
 			$${ game.mm >= 400 ? html`<i class="tooltip fas fa-biohazard"><span role="tooltip">${game.mm} M&M</span></i>` : ""}
