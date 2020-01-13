@@ -14,7 +14,7 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
@@ -148,9 +148,26 @@ class BasilSourceTest() {
     }
 
     @Test
-    fun `should not set good lastUpdated on error`() {
+    fun `should not change lastUpdated on error`() {
         // GIVEN
         bufferProvider = { Mono.error(FailedToDownloadBot("No wai")) }
+
+        // WHEN, THEN
+        sut.refresh()
+        assertThat(sut.botInfoOf("testBot"))
+                .extracting { it?.lastUpdated }
+                .isEqualTo(Instant.MIN)
+    }
+
+    @Test
+    fun `should not change lastUpdated on invalid file`() {
+        // GIVEN
+        bufferProvider = {
+            DataBufferUtils.readInputStream({ ByteArrayInputStream(ByteArray(120)) },
+                    DefaultDataBufferFactory(),
+                    120)
+                    .toMono()
+        }
 
         // WHEN, THEN
         sut.refresh()

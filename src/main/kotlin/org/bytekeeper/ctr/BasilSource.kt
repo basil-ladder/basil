@@ -12,7 +12,7 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 import java.io.InputStream
 import java.net.URI
 import java.nio.file.*
@@ -130,7 +130,7 @@ class BasilSource(private val config: Config,
                                 it.toMono()
                             }
                             .block()
-                    if (response.statusCode()?.is2xxSuccessful != false) {
+                    if (response?.statusCode()?.is2xxSuccessful != false) {
                         val body = response
                                 .bodyToMono(DataBuffer::class.java)
                         DataBufferUtils.write(body, out)

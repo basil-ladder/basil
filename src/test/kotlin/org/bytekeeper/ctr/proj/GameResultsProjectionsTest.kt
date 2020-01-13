@@ -49,21 +49,21 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, pool, map, Instant.now(), false, true, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, 1, 0, pool, map, Instant.now(), false, true, 0.0, "", null))
 
         // THEN
         verify(events).post(GameWon(gameResult, botA, botB))
     }
 
     @Test
-    fun `should select loser by slowerBot on real-timeout`() {
+    fun `should skip real-timeout game results`() {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.PROTOSS, botA, 1, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.PROTOSS, 1, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
 
         // THEN
-        verify(events).post(GameWon(gameResult, botB, botA))
+        verify(events, never()).post(GameWon(gameResult, botB, botA))
     }
 
     @Test
@@ -71,7 +71,7 @@ class GameResultsProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.ZERG, null, 0, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
+        sut.gameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.PROTOSS, botB, Race.ZERG, 0, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
 
         // THEN
         verify(events, never()).post(any())

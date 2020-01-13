@@ -379,17 +379,6 @@ class Scbw(private val botRepository: BotRepository,
                                 frameCount))
                     } else {
                         require(result.is_gametime_outed || result.is_realtime_outed)
-                        val slowerBot =
-                                if (botResults.any { it.frames == null }) null
-                                else {
-                                    val frameSumA = botResults[0].frames!!.sumFrameTime
-                                    val frameSumB = botResults[1].frames!!.sumFrameTime
-                                    when {
-                                        frameSumA > frameSumB -> botA
-                                        frameSumA < frameSumB -> botB
-                                        else -> null
-                                    }
-                                }
 
                         events.post(GameTimedOut(
                                 gameId,
@@ -397,7 +386,6 @@ class Scbw(private val botRepository: BotRepository,
                                 botARace,
                                 botB,
                                 botBRace,
-                                slowerBot,
                                 botResults[0].scores?.let { it.kill_score + it.razing_score } ?: 0,
                                 botResults[1].scores?.let { it.kill_score + it.razing_score } ?: 0,
                                 gameConfig.mapPool,

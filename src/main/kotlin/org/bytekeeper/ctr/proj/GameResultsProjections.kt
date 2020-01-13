@@ -96,15 +96,6 @@ class GameResultsProjections(private val gameResultRepository: GameResultReposit
             }
         }
 
-        if (gameTimedOut.slowerBot != null && winner == null && loser == null) {
-            if (gameTimedOut.botA == gameTimedOut.slowerBot) {
-                winner = gameTimedOut.botB
-                loser = gameTimedOut.botA
-            } else {
-                winner = gameTimedOut.botA
-                loser = gameTimedOut.botB
-            }
-        }
         val botA = winner ?: gameTimedOut.botA
         val botB = loser ?: gameTimedOut.botB
 

@@ -137,7 +137,25 @@ class BotProjectionsTest {
         // GIVEN
 
         // WHEN
-        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, botA, 1, 0, pool, map, Instant.now(), false, true, 0.0, "", null))
+        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, 1, 0, pool, map, Instant.now(), false, true, 0.0, "", null))
+
+        // THEN
+        assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
+        assertThat(botB).hasFieldOrPropertyWithValue("crashed", 0)
+        assertThat(botA).hasFieldOrPropertyWithValue("played", 1)
+        assertThat(botB).hasFieldOrPropertyWithValue("played", 1)
+        assertThat(botA).hasFieldOrPropertyWithValue("won", 0)
+        assertThat(botB).hasFieldOrPropertyWithValue("won", 0)
+        assertThat(botA).hasFieldOrPropertyWithValue("lost", 0)
+        assertThat(botB).hasFieldOrPropertyWithValue("lost", 0)
+    }
+
+    @Test
+    fun shouldRegisterRealTimeOut() {
+        // GIVEN
+
+        // WHEN
+        sut.onGameTimedOut(GameTimedOut(UUID.randomUUID(), botA, Race.TERRAN, botB, Race.ZERG, 1, 0, pool, map, Instant.now(), true, false, 0.0, "", null))
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("crashed", 0)
