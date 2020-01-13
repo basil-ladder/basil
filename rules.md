@@ -14,7 +14,7 @@ Games
 * All games are 1v1.
 * Starcraft Brood War version 1.16.1 is used.
 * *No time limit per frame* is used due to technical limitations.
-* *Realtime limit* is 30 minutes - after that a game will be killed and the bot with lower time spend per frame (all frames > 0) will be assigned winner.
+* *Realtime limit* is 30 minutes - after that a game will be killed. Neither bot gets a win or loss. Bots that seem to cause this very often will be disabled. Intenionally causing this timeout to avoid losing will result in the bot being banned.
 * *Gametime limit* is 60 minutes - after which the player with the highest ingame kills+razings score will be assigned winner. If the score is identical, the *Realtime limit* rule applies.
 * *Draws* are only possible if bots have the same score and the same time spent per frame (almost impossible) - and are not counted as win/loss.
 * *Speed* setting is LF3 (Normal).
