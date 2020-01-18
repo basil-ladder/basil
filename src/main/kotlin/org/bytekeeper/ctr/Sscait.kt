@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
@@ -23,7 +24,11 @@ import java.time.format.DateTimeFormatter
 @Order(2)
 class SscaitSource : BotSource {
     private val log = LogManager.getLogger()
-    private val webClient = WebClient.builder().baseUrl("https://sscaitournament.com/").build()
+    private val webClient = WebClient.builder()
+            .exchangeStrategies(ExchangeStrategies.builder()
+                    .codecs { config -> config.defaultCodecs().maxInMemorySize(1024 * 1024 * 20) }
+                    .build())
+            .baseUrl("https://sscaitournament.com/").build()
 
     private var botCache: Map<String, org.bytekeeper.ctr.BotInfo> = emptyMap()
     override fun allBotInfos(): List<org.bytekeeper.ctr.BotInfo> = botCache.values.toList()
