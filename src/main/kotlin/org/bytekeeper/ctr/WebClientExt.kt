@@ -3,16 +3,22 @@ package org.bytekeeper.ctr
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.net.URI
 
+private const val MAX_REDIRECTS = 5
+
 @Component
 @Scope("prototype")
 class RedirectingWebClient {
-    private val webClient = WebClient.create()
-    private val MAX_REDIRECTS = 5
+    private val webClient = WebClient.builder()
+            .exchangeStrategies(ExchangeStrategies.builder()
+                    .codecs { config -> config.defaultCodecs().maxInMemorySize(1024 * 1024 * 20) }
+                    .build())
+            .build()
 
     operator fun get(uri: URI): Mono<ClientResponse> {
         return redirectingRequest(uri, 0)
