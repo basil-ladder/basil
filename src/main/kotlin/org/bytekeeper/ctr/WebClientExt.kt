@@ -16,7 +16,7 @@ private const val MAX_REDIRECTS = 5
 class RedirectingWebClient {
     private val webClient = WebClient.builder()
             .exchangeStrategies(ExchangeStrategies.builder()
-                    .codecs { config -> config.defaultCodecs().maxInMemorySize(1024 * 1024 * 20) }
+                    .codecs { config -> config.defaultCodecs().maxInMemorySize(1024 * 1024 * 100) }
                     .build())
             .build()
 
