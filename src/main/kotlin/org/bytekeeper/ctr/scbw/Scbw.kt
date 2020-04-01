@@ -315,7 +315,11 @@ class Scbw(private val botRepository: BotRepository,
 
                             }
                             FrameResult(
-                                    lastLine.substringBefore(',').toInt(),
+                                    try {
+                                        lastLine.substringBefore(',').toInt()
+                                    } catch (e: NumberFormatException) {
+                                        0
+                                    },
                                     sumFrameTime ?: 0.0)
                         }
                     } else null
