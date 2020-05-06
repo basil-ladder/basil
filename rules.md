@@ -14,8 +14,8 @@ Games
 * All games are 1v1.
 * Starcraft Brood War version 1.16.1 is used.
 * *No time limit per frame* is used due to technical limitations.
-* *Realtime limit* is 30 minutes - after that a game will be killed. Neither bot gets a win or loss. Bots that seem to cause this very often will be disabled. Intenionally causing this timeout to avoid losing will result in the bot being banned.
-* *Gametime limit* is 60 minutes - after which the player with the highest ingame kills+razings score will be assigned winner. If the score is identical, the *Realtime limit* rule applies.
+* *Real-time limit* is 30 minutes - after that a game will be killed. Neither bot gets a win or loss. Bots that seem to cause this very often will be disabled. Intenionally causing this timeout to avoid losing will result in the bot being banned.
+* *Game-time limit* is 60 minutes - after which the player with the highest ingame kills+razings score will be assigned winner. If the score is identical, the *Realtime limit* rule applies.
 * *Draws* are only possible if bots have the same score and the same time spent per frame (almost impossible) - and are not counted as win/loss.
 * *Speed* setting is LF3 (Normal).
 * *Map pool* being used is that of [SSCAIT](https://sscaitournament.com/index.php?action=maps).
@@ -34,7 +34,7 @@ Bots
 * Accessing the internet/network is generally prohibited. (With some notable exception I won't disclaim)
 * Hardware resources: 
   * 1 CPU core of an `AMD Ryzen 7 1700X`.
-  * 1 GB of RAM (- memory uses by OS).
+  * 1 GB of RAM (- memory used by OS).
   * Up to 100MB of disk space total for your `read` + `write` + `ai` directories.
 * Special options (applied by adding `BASIL: <option>[,<option>...]`:
   * *RESET* - Clear the directory on the next update (note: this will only delete the first time the new update is received) 
