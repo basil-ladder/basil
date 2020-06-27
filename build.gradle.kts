@@ -3,24 +3,21 @@ import com.google.protobuf.gradle.protoc
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.3.71"
+    val kotlinVersion = "1.3.72"
 
     kotlin("jvm") version kotlinVersion
     idea
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("org.springframework.boot") version "2.3.1.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("com.github.ben-manes.versions") version "0.28.0"
-    id("com.google.protobuf") version "0.8.10"
+    id("com.google.protobuf") version "0.8.12"
 }
 
 group = "ctr"
 version = "1.0-SNAPSHOT"
-extra["junit-jupiter.version"] = "5.6.1"
-extra["mockito.version"] = "3.3.3"
-
 
 repositories {
     mavenCentral()
@@ -48,7 +45,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.20")
     implementation("org.tukaani:xz:1.8")
     implementation("io.micrometer:micrometer-registry-influx")
-    implementation("com.google.protobuf:protobuf-java:3.11.4")
+    implementation("com.google.protobuf:protobuf-java:3.12.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
@@ -80,6 +77,6 @@ allOpen {
 protobuf {
     protoc {
         // Download from repositories
-        artifact = "com.google.protobuf:protoc:3.11.2"
+        artifact = "com.google.protobuf:protoc:3.12.3"
     }
 }
