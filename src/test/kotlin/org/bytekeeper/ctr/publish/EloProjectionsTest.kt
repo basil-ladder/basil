@@ -19,6 +19,9 @@ import java.util.*
 class EloPublisherTest {
     @Mock
     private lateinit var botEloRepository: BotEloRepository
+
+    @Mock
+    private lateinit var botHistoryRepository: BotHistoryRepository
     private lateinit var sut: EloPublisher
 
     @Mock
@@ -44,7 +47,7 @@ class EloPublisherTest {
 
     @BeforeEach
     fun setup() {
-        sut = EloPublisher(botEloRepository, botRepository, publisher)
+        sut = EloPublisher(botEloRepository, botRepository, publisher, botHistoryRepository)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
     }
@@ -53,7 +56,7 @@ class EloPublisherTest {
     fun shouldPublishBotEloHistory() {
         // GIVEN
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
-        given(botEloRepository.findAllByBot(testBot)).willReturn(listOf(
+        given(botEloRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
                 BotElo(-1, testBot, Instant.MIN, 0, gameResult),
                 BotElo(-1, testBot, Instant.MIN, 1, gameResult)
         ))
@@ -65,4 +68,27 @@ class EloPublisherTest {
         assertThat(botStatsWriter.toString()).isEqualTo("[{\"epochSecond\":-31557014167219200,\"rating\":0},{\"epochSecond\":-31557014167219200,\"rating\":1}]")
     }
 
+    @Test
+    fun shouldShowUpdates() {
+        // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
+        given(botEloRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
+                BotElo(-1, testBot, Instant.ofEpochSecond(1000), 0, gameResult),
+                BotElo(-1, testBot, Instant.ofEpochSecond(2000), 1, gameResult),
+                BotElo(-1, testBot, Instant.ofEpochSecond(3000), 2, gameResult),
+                BotElo(-1, testBot, Instant.ofEpochSecond(4000), 2, gameResult),
+                BotElo(-1, testBot, Instant.ofEpochSecond(5000), 2, gameResult)
+        ))
+        given(botHistoryRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
+                BotHistory(testBot, Instant.ofEpochSecond(1100), ""),
+                BotHistory(testBot, Instant.ofEpochSecond(1200), ""),
+                BotHistory(testBot, Instant.ofEpochSecond(4000), "")
+        ))
+
+        // WHEN
+        sut.handle(PreparePublish())
+
+        // THEN
+        assertThat(botStatsWriter.toString()).isEqualTo("[{\"epochSecond\":1000,\"rating\":0},{\"epochSecond\":2000,\"rating\":1,\"updated\":true},{\"epochSecond\":3000,\"rating\":2},{\"epochSecond\":4000,\"rating\":2,\"updated\":true},{\"epochSecond\":5000,\"rating\":2}]")
+    }
 }

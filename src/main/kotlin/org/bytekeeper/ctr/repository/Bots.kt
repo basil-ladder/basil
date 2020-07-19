@@ -80,8 +80,11 @@ fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
 
 interface BotEloRepository : CrudRepository<BotElo, Long> {
     @Timed
-    fun findAllByBot(bot: Bot): List<BotElo>
+    fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotElo>
 }
 
 
-interface BotHistoryRepository : CrudRepository<BotHistory, Long>
+interface BotHistoryRepository : CrudRepository<BotHistory, Long> {
+    @Timed
+    fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotHistory>
+}
