@@ -189,26 +189,32 @@ permalink: /bot.html
 					let endSecond = selectedRange.endSecond;
 					if (typeof startSecond === "undefined" || typeof endSecond === "undefined" || startSecond >= endSecond)
 						return { label: unescape(bot.name), fill: false, data: [] };
-					return args.map(function (bot, i) {
+					return args.map(function (bot, index) {
 						function filter(data) {
 							data.sort(function (a, b) { return a.epochSecond - b.epochSecond; });
 							let chartData = [];
 							let lastSecond = 0;
+							let updated = false;
 							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
 								let entry = data[i];
+								updated = entry.updated || false;
 								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond && entry.epochSecond - lastSecond >= secondsToAggregate) {
-									chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating });
+									chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating, updated: updated });
+									updated = false;
 									lastSecond = entry.epochSecond;
 								}
 							}
 							return chartData;
 						}
+						let data = filter(bot.data);
 						return {
 							label: unescape(bot.name),
 							fill: false,
-							borderColor: colors[i],
-							data: filter(bot.data),
+							borderColor: colors[index],
+							data: data,
 							cubicInterpolationMode: "monotone",
+							pointBackgroundColor: data.map(e => e.updated ? colors[index] : 'transparent'),
+							pointRadius: data.map(e => e.updated ? 5 : 3)
 						};
 					});
 				}
@@ -228,6 +234,18 @@ permalink: /bot.html
 									unit: "day"
 								}
 							}]
+						},
+						tooltips: {
+							mode: "nearest",
+							callbacks: {
+								footer: function (tooltipItems, data) {
+									const item = tooltipItems[0];
+									const updated = data.datasets[item.datasetIndex].data[item.index].updated;
+									let elo = item.yLabel;
+									return updated ? "Updated version" : null;
+								}
+							}
+
 						}
 					}
 				});
