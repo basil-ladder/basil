@@ -197,7 +197,7 @@ permalink: /bot.html
 							let updated = false;
 							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
 								let entry = data[i];
-								updated = entry.updated || false;
+								updated |= entry.updated || false;
 								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond && entry.epochSecond - lastSecond >= secondsToAggregate) {
 									chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating, updated: updated });
 									updated = false;
@@ -353,7 +353,7 @@ permalink: /bot.html
 								let losses = context.chart.data.datasets[1].data[context.dataIndex];
 								let wr = wins / Math.max(1, wins + losses);
 								return basil.percentFormat(wr, 1);
-							}
+							},
 						}
 					},
 					tooltips: {
