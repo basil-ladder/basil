@@ -197,11 +197,13 @@ permalink: /bot.html
 							let updated = false;
 							for (i = 0; i < data.length && lastSecond < endSecond; i++) {
 								let entry = data[i];
-								updated |= entry.updated || false;
-								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond && entry.epochSecond - lastSecond >= secondsToAggregate) {
-									chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating, updated: updated });
-									updated = false;
-									lastSecond = entry.epochSecond;
+								if (entry.epochSecond >= startSecond && entry.epochSecond <= endSecond) {
+									updated |= entry.updated || false;
+									if (entry.epochSecond - lastSecond >= secondsToAggregate) {
+										chartData.push({ x: new Date(entry.epochSecond * 1000), y: entry.rating, updated: updated });
+										updated = false;
+										lastSecond = entry.epochSecond;
+									}
 								}
 							}
 							return chartData;
@@ -339,7 +341,24 @@ permalink: /bot.html
 		function setupVsChart(data) {
 			let vsChart = new Chart(document.getElementById("vsChart"), {
 				type: "bar",
-				plugins: [ChartDataLabels],
+				plugins: [ChartDataLabels,
+					{
+						beforeEvent: function (chartInstance, chartEvent) {
+							var xAxis = chartInstance.scales['x-axis-0'];
+
+							// If mouse is over the legend, change cursor style to pointer, else don't show it
+							var x = chartEvent.x;
+							var y = chartEvent.y;
+
+							if (chartEvent.type === 'click' &&
+								x <= xAxis.right && x >= xAxis.left &&
+								y <= xAxis.bottom && y >= xAxis.top) {
+								// category scale returns index here for some reason
+								var index = xAxis.getValueForPixel(x);
+								console.log(chartInstance.data.labels[index]);
+							}
+						}
+					}],
 				options: {
 					plugins: {
 						datalabels: {
