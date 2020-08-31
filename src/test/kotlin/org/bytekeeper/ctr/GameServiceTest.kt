@@ -46,6 +46,9 @@ class GameServiceTest {
     @Mock
     private lateinit var botUpdater: BotUpdater
 
+    @Mock
+    private lateinit var matchmaking: UCBMatchMaking
+
     private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "", mapPools = "pool2,pool3")
     private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "pool2")
     private val botC = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "")
@@ -58,7 +61,8 @@ class GameServiceTest {
     @BeforeEach
     fun setup() {
         given(maps.mapPools).willReturn(listOf(pool2, pool3))
-        sut = GameService(scbw, maps, botSources, botUpdater, botRepository)
+        given(matchmaking.opponentSequenceFor(any())).willReturn(sequenceOf(botA, botB))
+        sut = GameService(scbw, maps, botSources, botUpdater, botRepository, matchmaking)
         willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
         willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
 

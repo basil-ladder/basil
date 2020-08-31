@@ -14,7 +14,8 @@ class GameService(private val scbw: Scbw,
                   private val maps: Maps,
                   private val botSources: BotSources,
                   private val botUpdater: BotUpdater,
-                  private val botRepository: BotRepository) {
+                  private val botRepository: BotRepository,
+                  private var matchmaking: UCBMatchMaking) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Bot, Bot>()
     private var candidates: List<Bot> = emptyList()
@@ -28,8 +29,8 @@ class GameService(private val scbw: Scbw,
     fun canSchedule() = candidates.isNotEmpty()
 
     fun schedule1on1() {
-        withLockedBot { botA ->
-            withLockedBot { botB ->
+        withLockedBot(generateSequence { candidates.random() }) { botA ->
+            withLockedBot(matchmaking.opponentSequenceFor(botA)) { botB ->
                 try {
                     val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).toUpperCase()
 
@@ -44,6 +45,8 @@ class GameService(private val scbw: Scbw,
                     val pool = maps.mapPools.lastOrNull { botA.mapPools().contains(it.name) && botB.mapPools().contains(it.name) }
                             ?: SCMapPool.poolSscait
                     scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), pool, "CTR_$hash"))
+//                    println("${botA.name} : ${botA.rating} vs ${botB.name} : ${botB.rating}")
+                    Thread.sleep(1000)
                 } catch (e: FailedToLimitResources) {
                     log.warn(e.message)
                 } catch (e: BotDisabledException) {
@@ -65,8 +68,8 @@ class GameService(private val scbw: Scbw,
         scbw.checkBotDirectory(bot)
     }
 
-    private fun withLockedBot(block: (Bot) -> Unit) {
-        val bot = generateSequence { candidates.random() }
+    private fun withLockedBot(selector: Sequence<Bot>, block: (Bot) -> Unit) {
+        val bot = selector
                 .mapNotNull { bot ->
                     locks.putIfAbsent(bot, bot) ?: return@mapNotNull bot
                     null
