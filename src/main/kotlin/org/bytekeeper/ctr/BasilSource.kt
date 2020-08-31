@@ -129,8 +129,8 @@ class BasilSource(private val config: Config,
                                 }
                                 it.toMono()
                             }
-                            .block()
-                    if (response?.statusCode()?.is2xxSuccessful != false) {
+                            .block()!!
+                    if (!response.statusCode().is2xxSuccessful) {
                         val body = response
                                 .bodyToMono(DataBuffer::class.java)
                         DataBufferUtils.write(body, out)

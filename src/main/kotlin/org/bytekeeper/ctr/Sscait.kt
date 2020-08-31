@@ -99,7 +99,9 @@ class SscaitSource : BotSource {
                 return emptyList()
             }
 
-        override val disabled = status == "Disabled" || basilCommands.contains("DISABLED")
+        // SSCAIT disabled a lot of older bots which are still "ok". The authors didn't disable them,
+        // BASIL will continue using them
+        override val disabled = false //status == "Disabled" || basilCommands.contains("DISABLED")
 
         override val clearReadDirectory = basilCommands.contains("RESET")
 

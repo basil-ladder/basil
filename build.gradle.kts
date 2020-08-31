@@ -3,16 +3,16 @@ import com.google.protobuf.gradle.protoc
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    val kotlinVersion = "1.3.72"
+    val kotlinVersion = "1.4.0"
 
     kotlin("jvm") version kotlinVersion
     idea
     id("org.jetbrains.kotlin.plugin.jpa") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
-    id("org.springframework.boot") version "2.3.1.RELEASE"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("org.springframework.boot") version "2.3.3.RELEASE"
+    id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("com.github.ben-manes.versions") version "0.29.0"
     id("com.google.protobuf") version "0.8.12"
 }
 
@@ -40,7 +40,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2")
-    implementation(group = "org.postgresql", name = "postgresql", version = "42.2.12")
+    implementation(group = "org.postgresql", name = "postgresql", version = "42.2.16")
     implementation("org.flywaydb:flyway-core")
     implementation("org.apache.commons:commons-compress:1.20")
     implementation("org.tukaani:xz:1.8")
@@ -51,7 +51,8 @@ dependencies {
 
     testImplementation("com.h2database:h2")
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.assertj:assertj-core:3.15.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.assertj:assertj-core:3.17.1")
     testImplementation("org.mockito:mockito-junit-jupiter")
 }
 
