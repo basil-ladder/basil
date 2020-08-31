@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Service
-import java.time.Duration
 import java.time.Instant
 import javax.transaction.Transactional
 
@@ -37,9 +36,7 @@ class BotService(private val botRepository: BotRepository,
     private fun updateBot(bot: Bot, botInfo: BotInfo) {
         val enabledInSourceAndUpdated = !botInfo.disabled && botInfo.lastUpdated.isAfter(bot.lastUpdated ?: Instant.MIN)
         val locallyEnabledAndBinaryAvailable = bot.enabled && bot.lastUpdated != null
-        val enabledInSourceOrRecentlyDisabled = !botInfo.disabled || Duration.between(botInfo.lastUpdated, Instant.now()) < config.disableBotSourceDisabledAfter
-        bot.enabled = enabledInSourceAndUpdated
-                || locallyEnabledAndBinaryAvailable && enabledInSourceOrRecentlyDisabled
+        bot.enabled = enabledInSourceAndUpdated || locallyEnabledAndBinaryAvailable
         if (bot.enabled) {
             bot.disabledReason = null
         }

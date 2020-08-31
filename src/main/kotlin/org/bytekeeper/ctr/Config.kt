@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 import java.nio.file.Path
-import java.time.Duration
 
 @ConfigurationProperties("basil")
 @Component
@@ -17,7 +16,6 @@ class Config {
     lateinit var dataBasePath: Path
     lateinit var basilBotSource: Path
     var botBinariesHistoryPath: Path? = null
-    var disableBotSourceDisabledAfter = Duration.ofDays(65)
     var rules = Rules()
     var publishing = Publishing()
 
