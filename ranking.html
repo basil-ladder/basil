@@ -27,7 +27,7 @@ title: Ranking
 				${index + 1}
 			</th>
 			<td name="${bot.anchorName}" class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-				<td>$${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
+				<td>$${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 			<td>${bot.played}</td>
 			<td>${bot.won}</td>
 			<td>${bot.lost}</td>

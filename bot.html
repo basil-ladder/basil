@@ -19,6 +19,22 @@ permalink: /bot.html
 	</div>
 	<hr style="margin-top: 10px;">
 </form>
+<h2>Games in the last 24h</h2>
+<table id="gamesTable">
+	<thead>
+		<tr>
+			<th>Bot A</th>
+			<th>Bot B</th>
+			<th class="filter-select">Map</th>
+			<th class="filter-false">Ended At</th>
+			<th class="filter-false" data-sorter="false">Game time</th>
+			<th class="filter-false" data-sorter="false"><i class="fas fa-download"></i></th>
+			<th class="filter-false" data-sorter="false"><i class="fas fa-eye"></i></th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
 <h2>ELO</h2>
 <canvas id="eloChart" width="1200" height="600">
 </canvas>
@@ -78,7 +94,7 @@ permalink: /bot.html
 					ELO
 					</div>
 					<div class="col-1">
-					${bot.rating}
+					${bot.basilRating || bot.rating}
 					</div>
 					</div>
 					<div class="row">
@@ -601,6 +617,108 @@ permalink: /bot.html
 				setupVsChart(data);
 				setupRaceMatchupChart(data);
 				setupBotMatchupChart(data);
+			});
+
+		$.get(statsBaseUrl + "games_24h.json", undefined, undefined, "text")
+			.then(function (_data) {
+				let data = eval('(' + _data + ')');
+				let g = data.results;
+				let maps = data.maps;
+				let bots = data.bots;
+				let games = [];
+				for (i = 0; i < g.length; i++) {
+					let gameTime = undefined;
+					if (g[i].fc) {
+						let secs = Math.round(g[i].fc / 24);
+						if (secs > 59) gameTime = Math.floor(secs / 60) + "m "; else gameTime = "";
+						gameTime += Math.ceil(secs % 60) + "s";
+					}
+					let [botA, botB] = [g[i].a, g[i].b].map(desc => {
+						let bot = bots[desc.b];
+						return {
+							name: bot.name,
+							winner: desc.w === 1,
+							loser: desc.l === 1,
+							crashed: desc.c === 1,
+							race: desc.r || bot.race,
+							randomBot: desc.r && desc.r !== bot.race
+						};
+					});
+					if (botA.name !== botName && botB.name !== botName) {
+						continue;
+					}
+					let map = maps[g[i].m];
+					let events = g[i].ev && g[i].ev.reduce((acc, e) => {
+						let m = acc[e.u] = (acc[e.u] || {});
+						m[e.e] = e.c;
+						return acc;
+					}, {}) || {};
+
+					games.push({
+						botA: botA,
+						botB: botB,
+						time: basil.formatDateTime(parseInt(g[i].e, 16) * 60),
+						timestamp: parseInt(g[i].e, 16),
+						replayUrl: "https://basilicum.bytekeeper.org/bots/" + botA.name + "/" + botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep",
+						gameTime: gameTime,
+						notPlayed: !g[i].fc,
+						validGame: g[i].iv !== 1 && g[i].to != 1,
+						realTimeout: g[i].to === 1,
+						frameTimeout: g[i].fo === 1,
+						map: map,
+						nukes: events[14] && events[14][6],
+						mm: (events[0] ? events[0][2] : 0) + (events[34] ? events[34][2] : 0),
+						cruisercarrier: (events[72] ? events[72][2] : 0) + (events[12] ? events[12][2] : 0),
+						arbiter: events[71] && events[71][2],
+						lurkers: events[103] && events[103][2],
+						queens: events[45] && events[45][2],
+						guardians: events[44] && events[44][2],
+						defilers: events[46] && events[46][2],
+					});
+				}
+				// Required for index to work as expected
+				games.sort(function (a, b) {
+					return b.timestamp - a.timestamp;
+				});
+				function tableTemplate(games) {
+					function bot(bot) {
+						return html`
+				<td class='${basil.racecol(bot.race) + (bot.randomBot ? "_random" : "")}'>
+				<a class="normal" href="ranking.html#${bot.name}">$${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}$${bot.crashed ? html`<i class="fas fa-car-crash"></i>`
+								: bot.loser ? html`<i class="fas fa-sad-tear"></i>` : ""} ${bot.name}
+				<div class="float-right normal"><i class="fas fa-align-left"></i></div></a>
+				</td>
+				`;
+					}
+					return html`
+		${games.map(game => html`
+			<tr>
+			$${bot(game.botA)}
+			$${bot(game.botB)}
+			<td>${game.map}</td>
+			<td class="nowrap">${game.time}</td>
+			<td class="overlayed">$${ html`$${game.notPlayed ? html`<i class="fas fa-poo-storm"</i> ` : ""}$${game.realTimeout ? html`<i class="fas fa-fish"></i> ` : ""}$${game.frameTimeout ? html`<i class="fas fa-stopwatch"></i> ` : ""}${game.gameTime}`}<div class="overlay">
+			$${ game.nukes > 1 ? html`<i class="tooltip fas fa-radiation"><span role="tooltip">${game.nukes} nukes</span></i>` : ""}
+			$${ game.mm >= 400 ? html`<i class="tooltip fas fa-biohazard"><span role="tooltip">${game.mm} M&M</span></i>` : ""}
+			$${ game.cruisercarrier >= 20 ? html`<i class="tooltip fas fa-fighter-jet"><span role="tooltip">${game.cruisercarrier} BC + Carrier</span></i>` : ""}
+			$${ game.arbiter >= 10 ? html`<i class="tooltip fas fa-user-secret"><span role="tooltip">${game.arbiter} Arbiter</span></i>` : ""}
+			$${ game.lurkers >= 100 ? html`<i class="tooltip fas fa-spider"><span role="tooltip">${game.lurkers} Lurkers</span></i>` : ""}
+			$${ game.queens >= 80 ? html`<i class="tooltip fas fa-chess-queen"><span role="tooltip">${game.queens} Queens</span></i>` : ""}
+			$${ game.guardians >= 10 ? html`<i class="tooltip fas fa-pastafarianism"><span role="tooltip">${game.guardians} Guardians</span></i>` : ""}
+			$${ game.defilers >= 10 ? html`<i class="tooltip fas fa-smog"><span role="tooltip">${game.defilers} Defilers</span></i>` : ""}
+			</div></td>
+			<td>$${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
+			<td>$${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
+			</tr>
+			`)}
+		`;
+				}
+				$("#gamesTable tbody").append(tableTemplate(games));
+				$("#gamesTable").tablesorter({
+					widgets: ["filter"],
+					widgetOptions: {
+					}
+				});
 			});
 	});
 </script>
