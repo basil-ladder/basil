@@ -11,7 +11,6 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 @ExtendWith(MockitoExtension::class)
 class BotServiceTest {
@@ -101,7 +100,7 @@ class BotServiceTest {
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("enabled", false)
     }
-
+/*
     @Test
     fun `should disable bot if locally enabled but disabled on source and not updated longer than threshold`() {
         // GIVEN
@@ -130,5 +129,5 @@ class BotServiceTest {
 
         // THEN
         assertThat(botA).hasFieldOrPropertyWithValue("enabled", true)
-    }
+    }*/
 }
