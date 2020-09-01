@@ -4,12 +4,13 @@ permalink: /bot.html
 ---
 {% raw %}
 <div id="botName"
-	style="height: 1.5em; position: sticky; top: 0px; margin-bottom: 10px; border-bottom: 2px solid black;"></div>
+	style="height: 2em; position: sticky; top: 0px; margin-bottom: 10px; border-bottom: 2px solid black; z-index: 999;">
+</div>
 <div id="botData"></div>
 <h2>Games in the last 24h</h2>
 <table id="gamesTable">
 	<thead>
-		<tr>
+		<tr style="position: sticky; top: 2em; z-index: 900;">
 			<th>Bot A</th>
 			<th>Bot B</th>
 			<th class="filter-select">Map</th>
@@ -22,7 +23,7 @@ permalink: /bot.html
 	<tbody>
 	</tbody>
 </table>
-<form style="padding-top: 10px; margin-top: 2em; position: sticky; top: 2.5em; background-color:white;">
+<form style="padding-top: 0.5em; position: sticky; top: 2em; background-color:white">
 	<div class="row">
 		<div class="col-1">
 			<label for="startDate">Start</label>
