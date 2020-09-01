@@ -17,7 +17,7 @@ class GameService(private val scbw: Scbw,
                   private val botRepository: BotRepository,
                   private var matchmaking: UCBMatchMaking) {
     private val log = LogManager.getLogger()
-    private val locks = ConcurrentHashMap<Bot, Bot>()
+    private val locks = ConcurrentHashMap<Long, Long>()
     private var candidates: List<Bot> = emptyList()
 
     @EventHandler
@@ -71,13 +71,13 @@ class GameService(private val scbw: Scbw,
     private fun withLockedBot(selector: Sequence<Bot>, block: (Bot) -> Unit) {
         val bot = selector
                 .mapNotNull { bot ->
-                    locks.putIfAbsent(bot, bot) ?: return@mapNotNull bot
+                    locks.putIfAbsent(bot.id!!, bot.id!!) ?: return@mapNotNull bot
                     null
                 }.first()
         try {
             block(bot)
         } finally {
-            locks.remove(bot)
+            locks.remove(bot.id)
         }
     }
 
