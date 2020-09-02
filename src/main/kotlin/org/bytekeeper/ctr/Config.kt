@@ -18,6 +18,7 @@ class Config {
     var botBinariesHistoryPath: Path? = null
     var rules = Rules()
     var publishing = Publishing()
+    var ranking = Ranking()
 
     class Rules {
         var winRatio = WinRatioTooLowRuleConfig()
@@ -26,6 +27,10 @@ class Config {
             var minGames = 100
             var minRatio = 0.15
         }
+    }
+
+    class Ranking {
+        var games_rank_locked: Int = 200
     }
 
     class Publishing {

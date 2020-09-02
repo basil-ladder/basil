@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component
 @Component
 class RankingsPublisher(private val publisher: Publisher,
                         private val botRepository: BotRepository,
-                        private val botSources: BotSources) {
+                        private val botSources: BotSources,
+                        private val config: Config) {
 
     @CommandHandler
     @Timed
@@ -35,7 +36,8 @@ class RankingsPublisher(private val publisher: Publisher,
                                         lastUpdated?.epochSecond,
                                         it.enabled,
                                         it.disabledReason,
-                                        listOf(SCMapPool.poolSscait.name) + it.mapPools())
+                                        listOf(SCMapPool.poolSscait.name) + it.mapPools(),
+                                        it.rank.toString())
                             })
                 }
     }
@@ -53,4 +55,5 @@ class PublishedBotRanking(val botName: String,
                           val lastUpdated: Long?,
                           val enabled: Boolean,
                           val disabledReason: String?,
-                          val mapPools: List<String>)
+                          val mapPools: List<String>,
+                          val rank: String)

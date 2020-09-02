@@ -27,11 +27,14 @@ class RankingsPublisherTest {
     @Mock
     private lateinit var botSources: BotSources
 
+    @Mock
+    private lateinit var config: Config
+
     private val statsWriter: StringWriter = StringWriter()
 
     @BeforeEach
     fun setup() {
-        sut = RankingsPublisher(publisher, botRepository, botSources)
+        sut = RankingsPublisher(publisher, botRepository, botSources, config)
 
         BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(statsWriter))
     }

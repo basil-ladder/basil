@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.repository
 
 import io.micrometer.core.annotation.Timed
+import org.bytekeeper.ctr.Ranking
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
@@ -36,7 +37,9 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var crashesSinceUpdate: Int = 0,
           var won: Int = 0,
           var lost: Int = 0,
-          var mapPools: String = "") {
+          var mapPools: String = "",
+          @Enumerated(EnumType.STRING) var rank: Ranking.Rank = Ranking.Rank.UNRANKED,
+          var rankSince: Int = 0) {
     fun mapPools() = mapPools.split(",").filter { it.isNotBlank() }
 }
 
