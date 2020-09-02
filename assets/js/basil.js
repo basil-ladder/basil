@@ -45,6 +45,9 @@ window.basil = function (basil) {
 				return "Unknown";
 		}
 	};
+	basil.rankcol = function (rank) {
+		return "rank_" + rank.toLowerCase();
+	};
 	basil.percentFormat = function (value, digits) {
 		return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2 }).format(value);
 	};

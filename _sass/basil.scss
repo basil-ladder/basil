@@ -5,12 +5,43 @@ $terran-color: #6fa8dc;
 $zerg-color: #c27ba0;
 $random-color: #cccccc;
 
+$rank-s-color: #ffd919;
+$rank-a-color: #ff2a00;
+$rank-b-color: #c619ff;
+$rank-c-color: #3399ff;
+$rank-d-color: #19ffff;
+$rank-e-color: #33ffbb;
+$rank-f-color: #eeffe5;
+
 $nav-background-color: #090909;
 $my-orange-color: #ef9f10;
 $grey-color-very-dark: darken($grey-color, 40%) !default;
 
 .race_unknown {
   background-color: #ff4444;
+}
+
+@each $rank,
+  $color
+    in (
+      s: $rank-s-color,
+      a: $rank-a-color,
+      b: $rank-b-color,
+      c: $rank-c-color,
+      d: $rank-d-color,
+      e: $rank-e-color,
+      f: $rank-f-color
+    )
+{
+  .rank_#{$rank} {
+    color: $color;
+    background-color: change-color(desaturate($color, 60%), $lightness: 15%);
+    font-weight: 900;
+    font-size: 1.3em;
+    text-align: center;
+    padding: 0;
+    border: 2px ridge $color;
+  }
 }
 
 @each $race, $color in (protoss: $protoss-color, terran: $terran-color, zerg: $zerg-color, random: $random-color) {
