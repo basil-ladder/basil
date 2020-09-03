@@ -9,6 +9,12 @@ Participants
 * If you want to opt-out, just drop me a mail: [bytekeeper@mailbox.org](mailto:bytekeeper@mailbox.org).
 * If you want to participate but have not uploaded your bot to SSCAIT, drop me a mail and I'll try to add your bot.
 
+Ranking
+=======
+* Bots get assigned ranks, similar to those in [SC:R](https://liquipedia.net/starcraft/StarCraft_Remastered_Ladder)
+* Within a rank, the place of the bot is determined by its ELO
+* If a bot climbs or drops in rank, it will be locked in that rank for the next 200 games - this prevents hysteresis and allows you to adapt to the new challenge. It also means, new bots are *UNRANKED* for their first 200 games.
+
 Games
 =====
 * All games are 1v1.
@@ -42,7 +48,7 @@ Bots
   * *PUBLISH-READ* - Publish the read directory, compressed but not encrypted. Please note that anyone can download the file and see what your bot wrote/learned.
   * *MAP-POOL:<Pool>;<Pool>...* - Add this if you want to support additional map pools. Ie. `MAP-POOL:2019Season1` to support the current human ladder map pool besides SSCAIT's pool. Note: Your bot is always expected to work on SSCAIT maps and any map pool you add here.
 * Bots get disabled when
-  * they are disabled on SSCAIT. Please note that just re-enabling them on SSCAIT will not re-enable on BASIL. You will need to push a new version to SSCAIT to automatically enable on BASIL (or ask me).
+  * you request your bot to be disabled
   * they have a win-rate of below 15% in the last 100 games. If you update the bot it will get re-enabled and only the games since the update will count.
 
 [SSCAIT]: https://sscaitournament.com/

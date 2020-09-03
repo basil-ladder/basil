@@ -63,7 +63,7 @@ window.basil = function (basil) {
 			case "UNRANKED": return 99999;
 		}
 	}
-	basil.sortByRank = function (data, useRank) {
+	basil.sortByRank = function (data) {
 		data.sort(function (a, b) {
 			if (a.enabled != b.enabled) {
 				if (a.enabled) return -1; else return 1;
@@ -72,7 +72,7 @@ window.basil = function (basil) {
 			let bPlayed = b.won + b.lost;
 			if (aPlayed < 30 && bPlayed >= 30) return 1;
 			if (bPlayed < 30 && aPlayed >= 30) return -1;
-			if (useRank && rankValue(a.rank) != rankValue(b.rank)) return rankValue(a.rank) - rankValue(b.rank);
+			if (rankValue(a.rank) != rankValue(b.rank)) return rankValue(a.rank) - rankValue(b.rank);
 			if (a.rating !== b.rating) return b.rating - a.rating;
 			if (a.winRate !== b.winRate) return b.winRate - a.winRate;
 			return b.won - a.won;
