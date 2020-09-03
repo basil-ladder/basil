@@ -189,7 +189,6 @@ small.tiny {
 }
 
 .tooltip {
-  position: relative;
   span[role="tooltip"] {
     visibility: hidden;
     width: 15em;
@@ -200,7 +199,6 @@ small.tiny {
     padding: 0.3em;
     border-radius: 0.5em;
     position: absolute;
-    z-index: 1;
     top: 111%;
     left: 50%;
     margin-left: -6em;
@@ -211,6 +209,7 @@ small.tiny {
   &:hover span[role="tooltip"] {
     visibility: visible;
     opacity: 1;
+    z-index: 1;
   }
 }
 

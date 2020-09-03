@@ -60,7 +60,7 @@ permalink: /bot.html
 		return html`
 			<h1 style="height: 1.5em;" $${bot.race ?
 				html`class="${basil.racecol(bot.race)}"` : ""}>${bot.botName} 
-				<span class="tooltip medal ${bot.medal}">${bot.rank}<span role="tooltip">Current Rank</span></span>
+				<div style="position: relative;" class="tooltip medal ${bot.medal}">${bot.rank}<span role="tooltip">Current Rank</span></div>
 				<span class="float-right">${basil.racename && bot.race ? basil.racename(bot.race) : "-"}</span ></h1>`;
 	}
 	function headerTemplate(bot) {
