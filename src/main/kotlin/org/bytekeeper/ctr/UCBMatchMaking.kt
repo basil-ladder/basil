@@ -49,11 +49,11 @@ class UCBMatchMaking(
         /**
          * Higher = bot with fewer games will be preferred
          */
-        private const val EXPLORATION = 0.2
+        const val EXPLORATION = 0.2
 
         /**
          * Higher = Higher probability that a "bad" opponent might be chosen (this is not a 0-1 scale!)
          */
-        private const val RANDOMIZATION = 3
+        const val RANDOMIZATION = 3
     }
 }
