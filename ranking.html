@@ -10,6 +10,7 @@ title: Ranking
 			<thead>
 			<tr>
 			<th>#</th>
+			<th data-sorter="false">Rank</th>
 			<th>Bot</th>
 			<th>ELO</th>
 			<th># Games</th>
@@ -26,6 +27,7 @@ title: Ranking
 			<th>
 				${index + 1}
 			</th>
+			<td class="${basil.rankcol(bot.rank)}">${bot.rank}</td>
 			<td name="${bot.anchorName}" class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
 				<td>$${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 			<td>${bot.played}</td>
@@ -35,26 +37,27 @@ title: Ranking
 			<td>${bot.crashesSinceUpdate}</td>
 			<td>${bot.lastUpdated}</td>
 			</tr>
-				` : "")}
-			</tbody>
-			</table>
-			<h3>Disabled bots</h3>
-			<table>
+				` : "")
+			}
+			</tbody >
+			</table >
+		<h3>Disabled bots</h3>
+		<table>
 			<thead>
-			<tr>
-			<th>#</th>
-			<th>Bot</th>
-			<th>ELO</th>
-			<th># Games</th>
-			<th># Won</th>
-			<th># Lost</th>
-			<th>% Win</th>
-			<th># Crashes</th>
-			<th data-sorter="false">Reason</th>
-			</tr>
+				<tr>
+					<th>#</th>
+					<th>Bot</th>
+					<th>ELO</th>
+					<th># Games</th>
+					<th># Won</th>
+					<th># Lost</th>
+					<th>% Win</th>
+					<th># Crashes</th>
+					<th data-sorter="false">Reason</th>
+				</tr>
 			</thead>
 			<tbody>
-			${r.map((bot, index) => bot.showDisabled ? html`
+				${r.map((bot, index) => bot.showDisabled ? html`
 			<tr>
 			<th>
 				${index + 1}
@@ -70,7 +73,7 @@ title: Ranking
 			</tr>
 				` : "")}
 			</tbody>
-			</table>
+		</table>
 
 		`;
 	}
