@@ -4,6 +4,7 @@ import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import javax.transaction.Transactional
+import kotlin.math.min
 import kotlin.math.round
 
 @Component
@@ -15,7 +16,7 @@ class Ranking(
         val result = mutableListOf<RankBotCount>()
         var remainingBots = botCount
         for (delta in arrayOf(Rank.S to 0.01, Rank.A to 0.07, Rank.B to 0.21, Rank.C to 0.21, Rank.D to 0.21, Rank.E to 0.21)) {
-            val botsInRank = round(delta.second * botCount).toInt()
+            val botsInRank = min(round(delta.second * botCount).toInt(), remainingBots)
             remainingBots -= botsInRank
             result += RankBotCount(delta.first, botsInRank)
         }
@@ -27,15 +28,17 @@ class Ranking(
     @Transactional
     fun updateRankings() {
         val activeBots = botRepository.findAllByEnabledTrue()
-        val botsToCheck = activeBots.filter { it.played >= it.rankSince + config.ranking.games_rank_locked }
+        val botsToCheck = activeBots
                 .sortedBy { it.rating }.toMutableList()
         val ranks = buildEloLadder(botsToCheck.size)
         for (rank in ranks) {
             for (i in 0 until rank.botCount) {
                 val bot = botsToCheck.removeLast()
-                bot.rankSince = bot.played
-                bot.rank = rank.rank
-                botRepository.save(bot)
+                if (bot.played >= bot.rankSince + config.ranking.games_rank_locked) {
+                    bot.rankSince = bot.played
+                    bot.rank = rank.rank
+                    botRepository.save(bot)
+                }
             }
         }
     }
