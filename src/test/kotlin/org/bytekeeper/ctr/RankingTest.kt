@@ -43,4 +43,20 @@ internal class RankingTest {
         // THEN
         assertThat(bots).filteredOn { it.rank == Ranking.Rank.S }.hasSize(2)
     }
+
+    @Test
+    fun `should not refresh recovery phase for same rank`() {
+        // GIVEN
+        bots[80].played = 500
+        sut.updateRankings()
+
+        // WHEN
+        bots[80].rating = 100
+        bots[80].played = 501
+        sut.updateRankings()
+
+        // THEN
+        assertThat(bots[80]).extracting { it.rank }.isEqualTo(Ranking.Rank.S)
+    }
+
 }
