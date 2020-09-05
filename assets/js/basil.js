@@ -60,6 +60,7 @@ window.basil = function (basil) {
 			case "D": return 4;
 			case "E": return 5;
 			case "F": return 6;
+			case "U":
 			case "UNRANKED": return 99999;
 		}
 	}
