@@ -46,6 +46,8 @@ class Ranking(
     data class RankBotCount(val rank: Rank, val botCount: Int)
 
     enum class Rank {
-        S, A, B, C, D, E, F, UNRANKED
+        S, A, B, C, D, E, F, UNRANKED;
+
+        val short = this.name.substring(0, 1)
     }
 }

@@ -42,7 +42,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
 
                     writer.writeValue(out,
                             PublishedGameList(
-                                    bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short) },
+                                    bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short, bot.rank.short) },
                                     playedMaps.entries.sortedBy { it.value }.map {
                                         maps.getMap(it.key).mapName ?: it.key
                                     },
@@ -100,7 +100,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     }
 
     data class PublishedGameList(val bots: List<PublishedBotInfo>, val maps: List<String>, val results: List<PublishedGameResult>)
-    data class PublishedBotInfo(val name: String, val race: String)
+    data class PublishedBotInfo(val name: String, val race: String, val rank: String)
 
     class PublishedBotResult(@JsonProperty("b") val botIndex: Int,
                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("r") val race: String?,

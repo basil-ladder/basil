@@ -30,7 +30,8 @@ class SimMatchups {
                     val winner = line[0]
                     val loser = line[1]
                     val count = Integer.parseInt(line[2])
-                    bots.computeIfAbsent(loser) { B(loser) }
+                    val played = Integer.parseInt(line[3])
+                    bots.computeIfAbsent(loser) { B(loser) }.playedOnBasil = played
                     bots.computeIfAbsent(winner) { B(winner) }.gameCount.compute(loser) { _, c ->
                         (c ?: 0) + count
                     }
@@ -146,25 +147,6 @@ class SimMatchups {
                 }
     }
 
-    /*
-    (0 until 800000).forEach {
-//            playGame()
-        ucbPlayGame()
-    }
-    (0 until 200000).forEach {
-//            playGame()
-        ucbPlayGame()
-    }
-
-    println("Average elo: ${bots.values.map { it.elo }.average()}")
-    bots.entries.sortedByDescending { (n, b) -> b.elo }
-            .forEach {
-                println(it.value)
-            }
-}
-
-     */
-
     private fun playGame() {
         val first = bots.keys.random()
         val second = generateSequence { bots.keys.random() }.filter { it != first }.first()
@@ -203,6 +185,6 @@ class SimMatchups {
     }
 }
 
-class B(val name: String, var elo: Int = 2000, var played: Int = 0, var winrates: MutableMap<B, Double> = mutableMapOf(), val gameCount: MutableMap<String, Int> = mutableMapOf()) {
+class B(val name: String, var elo: Int = 2000, var played: Int = 0, var winrates: MutableMap<B, Double> = mutableMapOf(), val gameCount: MutableMap<String, Int> = mutableMapOf(), var playedOnBasil: Int = 0) {
     override fun toString(): String = "%20s : %5d".format(name, elo)
 }
