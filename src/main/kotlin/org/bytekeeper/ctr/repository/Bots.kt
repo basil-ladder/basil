@@ -68,6 +68,8 @@ interface BotRepository : CrudRepository<Bot, Long> {
 
     @Timed
     fun countByRace(race: Race): Int
+
+    override fun <S : Bot?> save(entity: S): S;
 }
 
 fun BotRepository.getBotsForUpdate(bots: List<Bot>) =

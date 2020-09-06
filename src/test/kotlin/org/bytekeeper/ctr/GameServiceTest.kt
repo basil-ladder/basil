@@ -68,7 +68,6 @@ class GameServiceTest {
 
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
         given(botUpdater.setupBot(any())).willAnswer { (it.arguments[0] as () -> Unit)() }
-        sut.onBotListUpdate(BotListUpdated())
     }
 
     @Test
@@ -146,7 +145,6 @@ class GameServiceTest {
     fun `should fall back to SSCAIT map pool`() {
         // GIVEN
         given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botC))
-        sut.onBotListUpdate(BotListUpdated())
 
         // WHEN
         sut.schedule1on1()

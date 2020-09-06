@@ -18,17 +18,10 @@ class GameService(private val scbw: Scbw,
                   private var matchmaking: UCBMatchMaking) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Long, Long>()
-    private var candidates: List<Bot> = emptyList()
-
-    @EventHandler
-    fun onBotListUpdate(event: BotListUpdated) {
-        candidates = botRepository.findAllByEnabledTrue()
-        log.info("${candidates.size} bots are enabled for BASIL")
-    }
-
-    fun canSchedule() = candidates.isNotEmpty()
 
     fun schedule1on1() {
+        val candidates = botRepository.findAllByEnabledTrue()
+        if (candidates.size < 2) throw NotEnoughBotsException("Found ${candidates.size} bots, but need at least 2!")
         withLockedBot(generateSequence { candidates.random() }) { botA ->
             withLockedBot(matchmaking.opponentSequenceFor(botA)) { botB ->
                 try {
@@ -80,5 +73,6 @@ class GameService(private val scbw: Scbw,
             locks.remove(bot.id)
         }
     }
-
 }
+
+class NotEnoughBotsException(msg: String) : IllegalStateException(msg)

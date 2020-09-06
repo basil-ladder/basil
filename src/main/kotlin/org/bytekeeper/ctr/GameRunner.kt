@@ -18,13 +18,11 @@ class GameRunner(private val gameService: GameService,
             thread {
                 try {
                     while (true) {
-                        if (gameService.canSchedule()) {
-                            gameService.schedule1on1()
-                        } else {
-                            log.debug("No bots to schedule, pausing...")
-                            Thread.sleep(1000)
-                        }
+                        gameService.schedule1on1()
                     }
+                } catch (e: NotEnoughBotsException) {
+                    log.debug("No bots to schedule, pausing...")
+                    Thread.sleep(1000)
                 } catch (e: Exception) {
                     log.error("Worker thread DIED!", e)
                     throw e

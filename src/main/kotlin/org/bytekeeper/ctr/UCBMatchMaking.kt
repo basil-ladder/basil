@@ -13,30 +13,12 @@ import kotlin.math.sqrt
 class UCBMatchMaking(
         private val botRepository: BotRepository
 ) {
-    private var sumPlayed: Int = 0
-    private lateinit var candidates: List<Bot>
     private val rng = SplittableRandom()
 
-    init {
-        onEloUpdated(null)
-    }
-
-    @EventHandler
-    fun onEloUpdated(event: EloUpdated?) {
-        updateCandidates()
-    }
-
-    @EventHandler
-    fun onBotListUpdated(event: BotListUpdated) {
-        updateCandidates()
-    }
-
-    private fun updateCandidates() {
-        candidates = botRepository.findAllByEnabledTrue()
-        sumPlayed = candidates.sumBy { it.played }
-    }
-
     fun opponentSequenceFor(botA: Bot): Sequence<Bot> {
+        val candidates = botRepository.findAllByEnabledTrue()
+        val sumPlayed = candidates.sumBy { it.played }
+
         val botARating = botA.rating
         return candidates.map { botB ->
             val expectedGameOutcome: Double = 1.0 / (1.0 + 10.0.pow((botB.rating - botARating) / 400.0))
