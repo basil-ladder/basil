@@ -22,6 +22,12 @@ class BotElo(@Id @GeneratedValue var id: Long? = null,
              @ManyToOne(fetch = FetchType.LAZY) val game: GameResult)
 
 @Entity
+class BotRank(@Id @GeneratedValue var id: Long? = null,
+              @ManyToOne(fetch = FetchType.LAZY) var bot: Bot,
+              val time: Instant,
+              @Enumerated(EnumType.STRING) val rank: Ranking.Rank)
+
+@Entity
 class Bot(@Id @GeneratedValue var id: Long? = null,
           var enabled: Boolean = true,
           var disabledReason: String? = null,
@@ -39,6 +45,7 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           var lost: Int = 0,
           var mapPools: String = "",
           @Enumerated(EnumType.STRING) var rank: Ranking.Rank = Ranking.Rank.UNRANKED,
+          @Enumerated(EnumType.STRING) var previousRank: Ranking.Rank = Ranking.Rank.UNRANKED,
           var rankSince: Int = 0) {
     fun mapPools() = mapPools.split(",").filter { it.isNotBlank() }
 }
@@ -69,7 +76,7 @@ interface BotRepository : CrudRepository<Bot, Long> {
     @Timed
     fun countByRace(race: Race): Int
 
-    override fun <S : Bot?> save(entity: S): S;
+    override fun <S : Bot?> save(entity: S): S
 }
 
 fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
@@ -82,12 +89,12 @@ fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
                 .map { it.second }
 
 
-
 interface BotEloRepository : CrudRepository<BotElo, Long> {
     @Timed
     fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotElo>
 }
 
+interface BotRankRepository : CrudRepository<BotRank, Long>
 
 interface BotHistoryRepository : CrudRepository<BotHistory, Long> {
     @Timed

@@ -1,8 +1,11 @@
 package org.bytekeeper.ctr
 
+import org.bytekeeper.ctr.repository.BotRank
+import org.bytekeeper.ctr.repository.BotRankRepository
 import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.Instant
 import javax.transaction.Transactional
 import kotlin.math.min
 import kotlin.math.round
@@ -10,6 +13,7 @@ import kotlin.math.round
 @Component
 class Ranking(
         private val botRepository: BotRepository,
+        private val botRankRepository: BotRankRepository,
         private val config: Config
 ) {
     fun buildEloLadder(botCount: Int): List<RankBotCount> {
@@ -30,14 +34,17 @@ class Ranking(
         val activeBots = botRepository.findAllByEnabledTrue()
         val botsToCheck = activeBots
                 .sortedBy { it.rating }.toMutableList()
+        val now = Instant.now()
         val ranks = buildEloLadder(botsToCheck.size)
         for (rank in ranks) {
             for (i in 0 until rank.botCount) {
                 val bot = botsToCheck.removeLast()
                 if (bot.played >= bot.rankSince + config.ranking.games_rank_locked && bot.rank != rank.rank) {
                     bot.rankSince = bot.played
+                    bot.previousRank = bot.rank
                     bot.rank = rank.rank
                     botRepository.save(bot)
+                    botRankRepository.save(BotRank(bot = bot, time = now, rank = rank.rank))
                 }
             }
         }
