@@ -2,7 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.json.JsonWriteFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
@@ -23,7 +23,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
-        val writer = jacksonObjectMapper().writer().without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+        val writer = jacksonObjectMapper().writer().without(JsonWriteFeature.QUOTE_FIELD_NAMES)
 
         publisher.globalStatsWriter("games_24h.json")
                 .use { out ->
@@ -42,7 +42,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
 
                     writer.writeValue(out,
                             PublishedGameList(
-                                    bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short, bot.rank.short) },
+                                    bots.entries.sortedBy { it.value }.map { (bot, _) -> PublishedBotInfo(bot.name, bot.race.short, bot.rank.short, bot.rating) },
                                     playedMaps.entries.sortedBy { it.value }.map {
                                         maps.getMap(it.key).mapName ?: it.key
                                     },
@@ -100,7 +100,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     }
 
     data class PublishedGameList(val bots: List<PublishedBotInfo>, val maps: List<String>, val results: List<PublishedGameResult>)
-    data class PublishedBotInfo(val name: String, val race: String, val rank: String)
+    data class PublishedBotInfo(val name: String, val race: String, val rank: String, val rating: Int)
 
     class PublishedBotResult(@JsonProperty("b") val botIndex: Int,
                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("r") val race: String?,
