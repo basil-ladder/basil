@@ -4,64 +4,30 @@ title: Build Orders
 ---
 {% raw %}
 
-	<script>
-$(function() {
-	function tableTemplate(bos) {
-		return html`
-		${bos.map(bo => html`
-			<tr>
-			<td>
-			${bo.boString}
-			</td>
-			<td>
-			${bo.name || ""}
-			</td>
-			<td>
-			${bo.amount}
-			</td>
-			<td>
-			${bo.won}
-			</td>
-			<td>
-			${bo.lost}
-			</td>
-			<td>
-			${basil.percentFormat(bo.won / (bo.won + bo.lost))}
-			</td>
-			</tr>
-			`)}
-		`;
-	}
-	$.getJSON("https://basilicum.bytekeeper.org/stats/top_bos.json", data => {
-			$("#boRows").append(tableTemplate(data));	
-			$("#boTable").tablesorter();
-		});
-});
-	</script>
-
-	<h1>Top Build Orders</h1>
-	<small>
-		The following table shows the top selection of "build orders".
-		It's quite lacking:
-		<ul>
-			<li>Only units up to a certain fixed frame are checked.</li>
-			<li>Extractor trick not detected.</li>
-			<li>Supply not counted.</li>
-			<li>Race ignored.</li>
-		</ul>
-	</small>
-	<table id="boTable">
-		<thead>
-			<tr>
-				<th>Build Order</th>
-				<th>Name</th>
-				<th>#&nbsp;Used</th>
-				<th>#&nbsp;Won</th>
-				<th>#&nbsp;Lost</th>
-				<th>Win&nbsp;&percnt;</th>
-			</tr>
-		</thead>
-		<tbody id="boRows">
-		</tbody>
-	</table>
+<h1>Top Build Orders</h1>
+<small>
+	The following table shows the top selection of "build orders".
+	It's quite lacking:
+	<ul>
+		<li>Only units up to a certain fixed frame are checked.</li>
+		<li>Extractor trick not detected.</li>
+		<li>Supply not counted.</li>
+		<li>Race ignored.</li>
+	</ul>
+</small>
+<table id="boTable" style="table-layout: fixed;">
+	<thead>
+		<tr>
+			<th style="width: 40em;">Build Order</th>
+			<th>Name</th>
+			<th>#&nbsp;Used</th>
+			<th>#&nbsp;Won</th>
+			<th>#&nbsp;Lost</th>
+			<th>Win&nbsp;&percnt;</th>
+		</tr>
+	</thead>
+	<tbody id="boRows">
+	</tbody>
+</table>
+<script type="module" src="assets/js/buildorders.js"></script>
 {% endraw %}

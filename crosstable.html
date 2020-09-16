@@ -2,8 +2,10 @@
 layout: page
 title: Crosstable
 ---
-<crosstable>
-</crosstable>
+
+<div id="form"></div>
+<div id="tablePlaceholder" style="position: absolute; left: 0;">
+</div>
 
 <script type="riot/tag">
 	{% raw %}
@@ -18,125 +20,10 @@ title: Crosstable
 		<option each={ days in ranges } value={ days }>{ days == null ? "everything" : days + " days" }</option>
 	</select>
 	</form>
-<div id="tablePlaceholder" style="position: absolute; left: 0;">
-	<table class="tiny crosstable">
-	<thead>
-	<tr>
-		<th style="max-width: 1em; min-width: 1em;">#</th>
-		<th style="max-width: 116px; min-width: 116px;">Bot</th>
-		<th style="max-width: 3em; min-width: 3em;">ELO</th>
-		<th each={ bots } class={ basil.racecol(race) }>{ name }</th>
-	</tr>
-	</thead>
-	<tbody>
-	<tr each={ bot, index in bots } class="highlight">
-		<th>{ index + 1 }</th>
-		<th class={ basil.racecol(bot.race) }>{ bot.name }</th>
-		<th>{ bot.rating }</th>
-		<td each={ bot.row } style="background-color: rgba({ color });">
-		<span hide={ this.self }>{ won } - { lost }</span>
-		</td>
-	</tr>
-	</tbody>
-	</table>
-</div>
 
 	</crosstable>
 
 	{% endraw %}
 </script>
-<script>
-	$(function() {
-		let onReceive = function(recv) {
-			let stats = {};
-			function entry(a, b) {
-				if (!stats[a]) stats[a] = {};
-				if (!stats[a][b]) stats[a][b] = {won: 0, lost: 0};
-				return stats[a][b];
-			}
-			for (i = 0; i < recv.botinfos.length; i++) {
-				for (j = 0; j < recv.botinfos.length; j++) {
-					let wonGames = recv.botinfos[i].vsBotIdxWon[j];
-					let winner = recv.botinfos[i].name;
-					let loser = recv.botinfos[j].name;
-					entry(winner, loser).won = wonGames;
-					entry(loser, winner).lost= wonGames;
-				}
-			}
-			let bots = recv.botinfos.map(function(a) {
-				return {
-					name: a.name,
-					enabled: a.enabled,
-					rating: a.rating,
-					race: a.race
-				};
-			}).sort(function(a,b) {
-				if (a.enabled && !b.enabled) return -1;
-				if (!a.enabled && b.enabled) return 1;
-				return b.rating - a.rating; 
-			});
-			crosstable.update({data: { bots: bots, stats: stats}});
-		};
-		let crosstable = riot.mount('*')[0];
-		let mount = function() {
-			this.basil = basil;
-			this.refs.minElo.value = 1000;
-			this.refs.maxElo.value = 4000;
-			this.showEnabledOnly = true;
-			this.toggleEnabledOnly = function(e) {
-				this.showEnabledOnly = !this.showEnabledOnly	
-				return true
-			};
-			this.ranges = [null, 7, 14, 30, 60, 90, 120, 150, 180];
-			this.trigger = function() {};
-			this.rerequest = function() {
-				let suffix = this.refs.range.value;
-				if (suffix === "everything") suffix = ""; else suffix = "_" + suffix;
-				$.getJSON("https://basilicum.bytekeeper.org/stats/botVsBot" + suffix +  ".json", onReceive);
-			};
-		};
-		mount.call(crosstable);
-		crosstable.on('update', function() {
-			let self = this;
-			let stats = this.data.stats;
-			function entry(a, b) {
-				if (!stats[a]) stats[a] = {};
-				if (!stats[a][b]) stats[a][b] = {won: 0, lost: 0};
-				return stats[a][b];
-			}
-			let relevantBots = this.data.bots.filter(function(bot) {
-				return (!self.showEnabledOnly || bot.enabled) 
-					&& (!bot.rating || bot.rating >= self.refs.minElo.value)
-					&& (!bot.rating || bot.rating <= self.refs.maxElo.value);
-			});
-			this.bots = relevantBots.map(function(a) {
-				a.row = relevantBots.map(function(b) {
-					let e = entry(a.name, b.name);
-					if (a === b) {
-						e.self = true;
-					} else {
-						let w = e.won + 1;
-						let l = e.lost + 1;
-						let red = l / w;
-						red = Math.min(1, red * red);
-						let green = w / l;
-						green = Math.min(1, green * green);
-						let blue = Math.min(green, red);
-						e.color = Math.ceil(255 * red) + "," + Math.ceil(255 * green) + "," + Math.ceil(255 * blue) + ",0.8";
-					}
-					return e;
-				});
-				return a;
-			});
-		});
-		let cells = $(crosstable.root).find("td");
-		cells.on("mouseover", function() {
-			$(this).closest("table").find("td:nth-child(" + ($(this).index() + 1) + ")").addClass("highlight");
-		});
-		cells.on("mouseout", function() {
-			$(this).closest("table").find("td:nth-child(" + ($(this).index() + 1) + ")").removeClass("highlight");
-		});
-
-		$.getJSON("https://basilicum.bytekeeper.org/stats/botVsBot.json", onReceive);
-	});
+<script type="module" src="assets/js/crosstable.js">
 </script>

@@ -164,9 +164,21 @@ table.tiny {
     font-size: 0.7em;
     white-space: nowrap;
     overflow: hidden;
-    min-width: 4em;
-    max-width: 4em;
+    min-width: 4.5em;
+    max-width: 4.5em;
     background-clip: padding-box;
+  }
+  th.rot30 {
+    div {
+      transform: rotate(-60deg);
+      transform-origin: 2.8em 1.8em;
+      text-overflow: ellipsis;
+      text-align: left;
+      overflow: hidden;
+      min-width: 7em;
+      max-width: 7em;
+    }
+    height: 6.5em;
   }
   thead tr th,
   td {
@@ -176,16 +188,17 @@ table.tiny {
   table-layout: fixed;
 }
 
-td.highlight {
-  outline: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-tr.highlight:hover td {
-  outline: 1px solid rgba(0, 0, 0, 0.5);
+.highlight {
+  outline: 4px dashed yellow;
+  z-index: 1000;
 }
 
 small.tiny {
   font-size: 0.6em;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .tooltip {

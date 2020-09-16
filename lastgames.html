@@ -3,20 +3,14 @@ layout: page
 title: Last 24h
 ---
 {% raw %}
-<script type="module">
-	import renderGameListing from '/assets/js/gamelisting.js';
-	$(function () {
-		renderGameListing();
-	});
-</script>
 <small><a href="#Legend">What do the symbols mean?</a></small>
-<table id="gamesTable">
+<table id="gamesTable" style="table-layout: fixed;">
 	<thead>
 		<tr>
-			<th>Bot A</th>
-			<th>Bot B</th>
-			<th class="filter-select">Map</th>
-			<th class="filter-false">Ended At</th>
+			<th style="width: 18em;">Bot A</th>
+			<th style="width: 18em;">Bot B</th>
+			<th style="width: 12em;" class="filter-select">Map</th>
+			<th style="width: 10em;" class="filter-false">Ended At</th>
 			<th class="filter-false" data-sorter="false">Game time</th>
 		</tr>
 	</thead>
@@ -43,4 +37,5 @@ title: Last 24h
 <small>Source: <a
 		href="https://basilicum.bytekeeper.org/stats/game_results.json">https://basilicum.bytekeeper.org/stats/game_results.json</a></small>
 </table>
+<script type="module" src="assets/js/lastgames.js"></script>
 {% endraw %}

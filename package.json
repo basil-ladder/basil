@@ -1,0 +1,39 @@
+{
+  "name": "ctr-pages",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "browserslist": [
+    "Chrome 78"
+  ],
+  "scripts": {
+    "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js --out-dir assets/js --public-url /assets/js/",
+    "build": "parcel build src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js --experimental-scope-hoisting  --out-dir assets/js --public-url /assets/js/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basil-ladder/basil.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/basil-ladder/basil/issues"
+  },
+  "homepage": "https://github.com/basil-ladder/basil#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "@fortawesome/fontawesome-free": "^5.14.0"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "chart.js": "^2.9.3",
+    "chartjs-plugin-datalabels": "^0.7.0",
+    "flatpickr": "^4.6.6",
+    "lit-html": "^1.3.0",
+    "moment": "^2.28.0",
+    "momentjs": "^2.0.0",
+    "tablesorter": "^2.31.3",
+    "vue": "^2.6.12"
+  }
+}
