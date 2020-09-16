@@ -45,7 +45,8 @@ const table = (games) => html`
         `)}
     `;
 
-function renderGameListing(filter) {
+function renderGameListing(options) {
+    let filter = options && options.filter;
     axios.get("https://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
         .then(function (result) {
             let data = eval('(' + result.data + ')');
