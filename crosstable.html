@@ -4,26 +4,8 @@ title: Crosstable
 ---
 
 <div id="form"></div>
-<div id="tablePlaceholder" style="position: absolute; left: 0;">
+<div id="tablePlaceholder" style="position: absolute; left: 0; width: 100%;">
 </div>
 
-<script type="riot/tag">
-	{% raw %}
-	<crosstable>
-	<div>Download: <span each={ days in ranges } style="margin-left: 0.5em;"><a href="https://basilicum.bytekeeper.org/stats/botVsBot{ days == null ? '' : '_' + days }.csv">botVsBot{ days == null ? "" : "_" + days }.csv</a></div></span>
-	<form onsumbit="" style="margin-top: 1em;">
-	<input type="checkbox" id="enabledOnly" name="enabledOnly" onclick= { toggleEnabledOnly } checked={ showEnabledOnly }><label for="enabledOnly"> Show enabled only</label>
-	<label for="minElo" style="margin-left: 0.8em;">Min ELO</label><input style="width: 5em;" type="number" id="minElo" ref="minElo" value={ minElo } min="0" max="5000" onchange={ trigger }>	
-	<label for="maxElo" style="margin-left: 0.8em;">Max ELO</label><input style="width: 5em;" type="number" id="maxElo" ref="maxElo" value={ maxElo } min="0" max="5000" onchange={ trigger }>	
-	<label for="range" style="margin-left: 0.8em;">Range</label>
-	<select id="range" ref="range" onchange={ rerequest }>
-		<option each={ days in ranges } value={ days }>{ days == null ? "everything" : days + " days" }</option>
-	</select>
-	</form>
-
-	</crosstable>
-
-	{% endraw %}
-</script>
 <script type="module" src="assets/js/crosstable.js">
 </script>

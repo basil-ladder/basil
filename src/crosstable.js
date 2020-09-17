@@ -5,14 +5,14 @@ import basil from './basil.js'
 function mouseEnter(x, y) {
     document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
         .classList.add("highlight");
-    document.querySelector("tr:nth-child(" + (y + 2) + ") th:nth-child(2)")
+    document.querySelector("tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.add("highlight");
 }
 
 function mouseLeave(x, y) {
     document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
         .classList.remove("highlight");
-    document.querySelector("tr:nth-child(" + (y + 2) + ") th:nth-child(2)")
+    document.querySelector("tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.remove("highlight");
 }
 

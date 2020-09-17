@@ -16,7 +16,7 @@ function rollGames() {
     renderGameListing({
         hideTableSorter: true,
         filter: games =>
-            shuffle(games.filter(g => !g.botA.crashed && !g.botB.crashed && !g.realTimeout && !g.frameTimeout))
+            shuffle(games.filter(g => !g.botA.crashed && !g.botB.crashed && !g.realTimeout))
                 .slice(0, 10)
                 .map(g => {
                     g.botA.winner = false;
