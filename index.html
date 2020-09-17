@@ -8,35 +8,5 @@ layout: home
 </div>
 
 {% raw %}
-<script>
-	function lastUpdatedTemplate(bots) {
-		return html`
-			<h2>Recent Bot Updates</h2>
-
-			<div style="max-height: 20em; overflow: auto;">
-			<ul style="list-style-type: none; margin: 0; padding: 0;">
-			${bots.map(bot => html`
-				<li>
-				${bot.lastUpdated} <i class="fas fa-caret-right"></i> <a class="normal" href="bot.html?bot=${bot.botName}">${bot.botName}</a>$${bot.won + bot.lost <= 50 ? html`<span>&#x1F195;</span>` : ""}
-				</li>
-				`)}
-			</ul>
-			</div>
-			<hr>
-			`;
-	}
-	$(function () {
-		let botsAfter = Date.now() / 1000 - 86400 * 5;
-		$.getJSON("https://basilicum.bytekeeper.org/stats/ranking.json", function (data) {
-			let bots = data.filter(function (x) {
-				return x.lastUpdated >= botsAfter && x.enabled;
-			}).sort(function (a, b) { return b.lastUpdated - a.lastUpdated; })
-				.map(function (bot) {
-					bot.lastUpdated = basil.formatDate(bot.lastUpdated);
-					return bot;
-				});
-			$("#lastUpdated").append(lastUpdatedTemplate(bots));
-		});
-	});
-</script>
+<script type="module" src="assets/js/index.js"></script>
 {% endraw %}

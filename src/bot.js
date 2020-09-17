@@ -6,7 +6,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'
 import renderGameListing from './gamelisting';
 
 const botNameAndRank = (bot) => html`
-<h1 style="line-height: 1.5em;" class=${bot.race ?
+<h1 style="font-size: 1.5em; line-height: 1.5em; margin: 0em;" class=${bot.race ?
         basil.racecol(bot.race) : ""}>
     <span style="display: inline-block; width: 3em;" class="${bot.rank ? basil.rankcol(bot.rank) : ""}">${bot.rank || ""}</span>
     ${bot.botName} 
@@ -74,7 +74,7 @@ const CSS_COLOR_NAMES = ["Black", "Blue", "BlueViolet", "Brown", "BurlyWood", "C
 
 let statsBaseUrl = "https://basilicum.bytekeeper.org/stats/";
 let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
-renderGameListing({ filter: game => game.botA.name === botName || game.botB.name == botName });
+renderGameListing({ filter: games => games.filter(game => game.botA.name === botName || game.botB.name == botName) });
 let myData;
 
 const botNameNode = document.querySelector("#botName");

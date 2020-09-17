@@ -7,8 +7,8 @@
     "Chrome 78"
   ],
   "scripts": {
-    "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js --out-dir assets/js --public-url /assets/js/",
-    "build": "parcel build src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js --experimental-scope-hoisting  --out-dir assets/js --public-url /assets/js/"
+    "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js --out-dir assets/js --public-url /assets/js/",
+    "build": "parcel build src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js --experimental-scope-hoisting  --out-dir assets/js --public-url /assets/js/"
   },
   "repository": {
     "type": "git",

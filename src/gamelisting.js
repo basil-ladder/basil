@@ -103,14 +103,13 @@ function renderGameListing(options) {
                     guardians: events[44] && events[44][2],
                     defilers: events[46] && events[46][2],
                 };
-                if (!filter || filter(game)) {
-                    games.push(game);
-                }
+                games.push(game);
             }
             // Required for index to work as expected
             games.sort(function (a, b) {
                 return b.timestamp - a.timestamp;
             });
+            games = (!filter && games) || filter(games)
             render(table(games), document.querySelector("#gamesTable tbody"));
             $("#gamesTable").tablesorter({
                 widgets: ["filter"],
