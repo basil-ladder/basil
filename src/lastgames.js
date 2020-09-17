@@ -1,5 +1,3 @@
-import axios from 'axios'
-import basil from './basil.js'
 import { html, render } from 'lit-html';
 import renderGameListing from './gamelisting';
 
@@ -16,8 +14,9 @@ function rollGames() {
         return a;
     }
     renderGameListing({
+        hideTableSorter: true,
         filter: games =>
-            shuffle(games.filter(g => g.validGame))
+            shuffle(games.filter(g => !g.botA.crashed && !g.botB.crashed && !g.realTimeout && !g.frameTimeout))
                 .slice(0, 10)
                 .map(g => {
                     g.botA.winner = false;

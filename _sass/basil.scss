@@ -280,3 +280,17 @@ input:checked ~ .trigger {
 .nowrap {
   white-space: nowrap;
 }
+
+.botbadge {
+  line-height: 2em;
+  span {
+    display: inline-block;
+    width: 2em;
+  }
+  a {
+    :first {
+      background-color: yellow;
+    }
+    @extend .normal;
+  }
+}

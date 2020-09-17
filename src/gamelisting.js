@@ -4,23 +4,38 @@ import { html, render } from 'lit-html';
 import tablesorter from 'tablesorter'
 import $ from 'jquery'
 
+
 const botBadge = (bot, game) => html`
-<td class=${basil.racecol(bot.race) + (bot.randomBot ? "_random" : "")} style="line-height: 2em">
-<span style="display: inline-block; width: 2em;" class=${basil.rankcol(bot.rank)}>${bot.rank}</span>
+<td class="botbadge ${basil.racecol(bot.race) + (bot.randomBot ? "_random" : "")}">
+<span class=${basil.rankcol(bot.rank)}>${bot.rank}</span>
 ${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}${bot.crashed ? html`<i class="fas fa-car-crash"></i>`
         : bot.loser ? html`<i class="fas fa-sad-tear"></i>` : ""} 
-<a class="normal" href="/bot.html?bot=${bot.name}">${bot.name}</a>
+<a href="/bot.html?bot=${bot.name}">${bot.name}</a>
 <div class="float-right normal">
 ${game.validGame ? html`
-<a class="normal" href=${bot.replayUrl}><i class="fas fa-download"></i></a>
-<a class="normal" href="http://www.openbw.com/replay-viewer/?rep=${bot.replayUrl}" target="_blank"><i class="fas fa-eye"></i></a>
+<a href=${bot.replayUrl}><i class="fas fa-download"></i></a>
+<a href="http://www.openbw.com/replay-viewer/?rep=${bot.replayUrl}" target="_blank"><i class="fas fa-eye"></i></a>
 ` : ""}
-<a class="normal" href="ranking.html#${bot.name}"><i class="fas fa-align-left"></i></a>
+<a href="ranking.html#${bot.name}"><i class="fas fa-align-left"></i></a>
 </div>
 </td>
 `;
 
-const table = (games) => html`
+const tableHeader = (rowStyle) => html`
+<thead>
+<tr style=${rowStyle}>
+<th style="width: 19em;">Bot</th>
+<th style="width: 19em;">Opponent</th>
+<th style="width: 15em;" class="filter-select">Map</th>
+<th style="width: 12em;" class="filter-false">Ended At</th>
+<th style="width: 7em;" class="filter-false" data-sorter="false">Game time</th>
+</tr>
+</thead>
+`;
+
+const table = (games, rowStyle) => html`
+${tableHeader(rowStyle)}
+<tbody>
     ${games.map(game => html`
         <tr>
         ${botBadge(game.botA, game)}
@@ -43,10 +58,13 @@ const table = (games) => html`
         !-->
         </tr>
         `)}
+</tbody>        
     `;
 
 function renderGameListing(options) {
-    let filter = options && options.filter;
+    const filter = options && options.filter;
+    const rowStyle = options && options.rowStyle;
+    const hideTableSorter = options && options.hideTableSorter;
     axios.get("https://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
         .then(function (result) {
             let data = eval('(' + result.data + ')');
@@ -110,12 +128,16 @@ function renderGameListing(options) {
                 return b.timestamp - a.timestamp;
             });
             games = (!filter && games) || filter(games)
-            render(table(games), document.querySelector("#gamesTable tbody"));
-            $("#gamesTable").tablesorter({
-                widgets: ["filter"],
-                widgetOptions: {
-                }
-            });
+            render(table(games, rowStyle), document.querySelector("#gamesTable"));
+            if (!hideTableSorter) {
+                $("#gamesTable").tablesorter({
+                    widgets: ["filter"],
+                    widgetOptions: {
+                    }
+                });
+            } else {
+                $.tablesorter.destroy($("#gamesTable"), true);
+            }
         });
 }
 

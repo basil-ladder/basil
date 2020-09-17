@@ -74,7 +74,10 @@ const CSS_COLOR_NAMES = ["Black", "Blue", "BlueViolet", "Brown", "BurlyWood", "C
 
 let statsBaseUrl = "https://basilicum.bytekeeper.org/stats/";
 let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
-renderGameListing({ filter: games => games.filter(game => game.botA.name === botName || game.botB.name == botName) });
+renderGameListing({
+    rowStyle: "position: sticky; top: 2em; z-index: 900;",
+    filter: games => games.filter(game => game.botA.name === botName || game.botB.name == botName)
+});
 let myData;
 
 const botNameNode = document.querySelector("#botName");
