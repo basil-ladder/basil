@@ -5,14 +5,14 @@ import basil from './basil.js'
 function mouseEnter(x, y) {
     document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
         .classList.add("highlight");
-    document.querySelector("tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
+    document.querySelector("tbody tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.add("highlight");
 }
 
 function mouseLeave(x, y) {
     document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
         .classList.remove("highlight");
-    document.querySelector("tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
+    document.querySelector("tbody tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.remove("highlight");
 }
 
@@ -21,7 +21,7 @@ const crossTable = (bots) => html`
 <thead>
 <tr>
     <th style="max-width: 1em; min-width: 1em;">#</th>
-    <th style="max-width: 8em; min-width: 8em;">Bot</th>
+    <th style="max-width: 12em; min-width: 12em;">Bot</th>
     <th style="max-width: 3em; min-width: 3em;">ELO</th>
     ${bots.map(bot => html`<th class="rot30 ${basil.racecol(bot.race)}"><div>${bot.name}</div></th>`)}
 </tr>

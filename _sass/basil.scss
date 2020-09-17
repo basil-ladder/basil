@@ -132,24 +132,29 @@ dt {
 tr.disabled {
   color: #afafaf;
 }
-
+/*
 .crosstable thead tr {
   th:not(:first-child) {
     position: sticky;
     top: 0;
   }
 }
-
+*/
 thead tr {
   th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
+
+    &:nth-child(2) {
+      left: 0;
+      z-index: 3;
+    }
   }
 }
 
-.crosstable tr {
-  th:first-child {
+.crosstable tbody tr {
+  th:nth-child(2) {
     position: sticky;
     left: 0;
     z-index: 1;
@@ -164,8 +169,8 @@ table.tiny {
     font-size: 0.7em;
     white-space: nowrap;
     overflow: hidden;
-    min-width: 4.5em;
-    max-width: 4.5em;
+    min-width: 4.9em;
+    max-width: 4.9em;
     background-clip: padding-box;
   }
   th.rot30 {
