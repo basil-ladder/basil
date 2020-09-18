@@ -99,7 +99,7 @@ async function update() {
     // Required for index to work as expected
     basil.sortByRank(data);
     render(rankingTable(data), tableNode);
-    $("#eloTable table").tablesorter();
+    $("#rankingTable table").tablesorter();
     if (location.hash) {
         const headerHeight = $("thead tr").height();
         const dest = $("td[name='" + location.hash.substring(1) + "']");
