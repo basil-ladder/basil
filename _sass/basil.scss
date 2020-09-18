@@ -194,8 +194,8 @@ table.tiny {
 }
 
 .highlight {
-  outline: 4px dashed yellow;
-  z-index: 1000;
+  outline: 4px dashed black;
+  z-index: 1000 !important;
 }
 
 small.tiny {

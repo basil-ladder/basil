@@ -3,14 +3,22 @@ import { html, render } from 'lit-html';
 import basil from './basil.js'
 
 function mouseEnter(x, y) {
-    document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
+    if (x >= 0) {
+        document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
+            .classList.add("highlight");
+    }
+    document.querySelector("tbody tr:nth-child(" + (y + 1) + ")")
         .classList.add("highlight");
     document.querySelector("tbody tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.add("highlight");
 }
 
 function mouseLeave(x, y) {
-    document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
+    if (x >= 0) {
+        document.querySelector("tr:first-child th:nth-child(" + (x + 4) + ")")
+            .classList.remove("highlight");
+    }
+    document.querySelector("tbody tr:nth-child(" + (y + 1) + ")")
         .classList.remove("highlight");
     document.querySelector("tbody tr:nth-child(" + (y + 1) + ") th:nth-child(2)")
         .classList.remove("highlight");
@@ -30,8 +38,8 @@ const crossTable = (bots) => html`
 ${bots.map((bot, index) => html`
 <tr>
     <th>${index + 1}</th>
-    <th class=${basil.racecol(bot.race)}>${bot.name}</th>
-    <th>${bot.rating}</th>
+    <th @mouseenter=${e => mouseEnter(-2, index)} @mouseleave=${e => mouseLeave(-2, index)} class=${basil.racecol(bot.race)}>${bot.name}</th>
+    <th @mouseenter=${e => mouseEnter(-1, index)} @mouseleave=${e => mouseLeave(-1, index)}>${bot.rating}</th>
     ${bot.row.map((col, i) => html`
         <td style="background-color: rgba(${col.color});" @mouseenter=${e => mouseEnter(i, index)} @mouseleave=${e => mouseLeave(i, index)}>
         ${col.self ? "" : html`<span>${col.won} - ${col.lost}</span>`}
