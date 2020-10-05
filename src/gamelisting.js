@@ -6,7 +6,7 @@ import $ from 'jquery'
 
 
 const botBadge = (bot, game) => html`
-<td class="botbadge ${basil.racecol(bot.race) + (bot.randomBot ? " _random" : "")}">
+<td class="botbadge ${basil.racecol(bot.race) + (bot.randomBot ? "_random" : "")}">
     <span class=${basil.rankcol(bot.rank)}>${bot.rank}</span>
     ${bot.winner ? html`<i class="fas fa-trophy"></i>` : ""}${bot.crashed ? html`<i class="fas fa-car-crash"></i>`
         : bot.loser ? html`<i class="fas fa-sad-tear"></i>` : ""}
