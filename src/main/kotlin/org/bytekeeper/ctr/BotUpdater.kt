@@ -20,7 +20,7 @@ class BotUpdater(private val winRatioTooLowRule: WinRatioTooLowRule,
     var nextBotUpdateTime: Long = 0
         protected set
 
-    @Scheduled(cron = "\${basil.botUpdateSchedule}")
+    @Scheduled(cron = botUpdateSchedule)
     fun updateBotList() {
         updateLock.write {
             winRatioTooLowRule.checkRule()
@@ -34,11 +34,15 @@ class BotUpdater(private val winRatioTooLowRule: WinRatioTooLowRule,
             log.info("Updating database...")
             allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
             log.info("done")
-            nextBotUpdateTime = CronSequenceGenerator(config.botUpdateSchedule).next(Date()).time * 1000
+            nextBotUpdateTime = CronSequenceGenerator(botUpdateSchedule).next(Date()).time * 1000
         }
     }
 
     fun setupBot(setup: () -> Unit) {
         updateLock.read(setup)
+    }
+
+    companion object {
+        const val botUpdateSchedule = "0 0 */6 * * *"
     }
 }
