@@ -14,6 +14,7 @@ Ranking
 * Bots get assigned ranks, similar to those in [SC:R](https://liquipedia.net/starcraft/StarCraft_Remastered_Ladder)
 * Within a rank, the place of the bot is determined by its ELO
 * If a bot climbs or drops in rank, it will be locked in that rank for the next 200 games - this prevents hysteresis and allows you to adapt to the new challenge. It also means, new bots are *UNRANKED* for their first 200 games.
+* Ranks are only updated once a day
 
 Games
 =====

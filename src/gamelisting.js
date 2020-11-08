@@ -117,9 +117,9 @@ function renderGameListing(options) {
                     m[e.event] = e.amount;
                     return acc;
                 }, {}) || {};
-
-                botA.replayUrl = basil.dataBaseUrl + "bots/" + botA.name + "/" + botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep";
-                botB.replayUrl = basil.dataBaseUrl + "bots/" + botB.name + "/" + botB.name + " vs " + botA.name + " " + map + " " + g[i].h + ".rep";
+                const gameHash = g[i].gameHash;
+                botA.replayUrl = basil.dataBaseUrl + "bots/" + botA.name + "/" + botA.name + " vs " + botB.name + " " + map + " " + gameHash + ".rep";
+                botB.replayUrl = basil.dataBaseUrl + "bots/" + botB.name + "/" + botB.name + " vs " + botA.name + " " + map + " " + gameHash + ".rep";
 
                 const game = {
                     botA: botA,
