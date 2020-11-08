@@ -1,12 +1,8 @@
 package org.bytekeeper.ctr.publish
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.json.JsonWriteFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.Publisher.Companion.bool2Short
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
@@ -23,11 +19,11 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     @CommandHandler
     @Timed
     fun handle(command: PreparePublish) {
-        val writer = jacksonObjectMapper().writer().without(JsonWriteFeature.QUOTE_FIELD_NAMES)
+        val writer = jacksonObjectMapper().writer()
 
-        publisher.globalStatsWriter("games_24h.json")
+        publisher.globalStatsWriter("games_24h.json.gz")
                 .use { out ->
-                    val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours, ChronoUnit.HOURS))
+                    val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours * 5, ChronoUnit.HOURS))
                     if (relevantGames.isEmpty()) return
                     val relevantGameEvents = unitEventsRepository.aggregateGameEventsWith8OrMoreEvents(relevantGames)
                             .groupBy { it.game }
@@ -51,17 +47,17 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                         val resultB = gameResult.botB
                                         val botA = PublishedBotResult(
                                                 bots[gameResult.botA] ?: -1,
-                                                if (gameResult.raceA != gameResult.botA.race) gameResult.raceA.short else null,
-                                                bool2Short(resultA == gameResult.winner),
-                                                bool2Short(resultA == gameResult.loser),
-                                                bool2Short(gameResult.botACrashed)
+                                                gameResult.raceA.short,
+                                                resultA == gameResult.winner,
+                                                resultA == gameResult.loser,
+                                                gameResult.botACrashed
                                         )
                                         val botB = PublishedBotResult(
                                                 bots[gameResult.botB] ?: -1,
-                                                if (gameResult.raceB != gameResult.botB.race) gameResult.raceB.short else null,
-                                                bool2Short(resultB == gameResult.winner),
-                                                bool2Short(resultB == gameResult.loser),
-                                                bool2Short(gameResult.botBCrashed)
+                                                gameResult.raceB.short,
+                                                resultB == gameResult.winner,
+                                                resultB == gameResult.loser,
+                                                gameResult.botBCrashed
                                         )
                                         val gameEvents = relevantGameEvents[gameResult.id]
                                                 ?.filter {
@@ -84,10 +80,10 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
                                         PublishedGameResult(
                                                 botA,
                                                 botB,
-                                                bool2Short(gameResult.winner == null || gameResult.realtimeTimeout),
-                                                bool2Short(gameResult.realtimeTimeout),
-                                                bool2Short(gameResult.frameTimeout),
-                                                (gameResult.time.epochSecond / 60).toString(16),
+                                                gameResult.winner == null || gameResult.realtimeTimeout,
+                                                gameResult.realtimeTimeout,
+                                                gameResult.frameTimeout ?: false,
+                                                gameResult.time.epochSecond,
                                                 playedMaps[gameResult.map] ?: -1,
                                                 gameResult.gameHash,
                                                 gameResult.frameCount,
@@ -102,24 +98,24 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     data class PublishedGameList(val bots: List<PublishedBotInfo>, val maps: List<String>, val results: List<PublishedGameResult>)
     data class PublishedBotInfo(val name: String, val race: String, val rank: String, val rating: Int)
 
-    class PublishedBotResult(@JsonProperty("b") val botIndex: Int,
-                             @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("r") val race: String?,
-                             @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("w") val winner: Short?,
-                             @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("l") val loser: Short?,
-                             @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("c") val crashed: Short?)
+    class PublishedBotResult(val botIndex: Int,
+                             val race: String,
+                             val winner: Boolean,
+                             val loser: Boolean,
+                             val crashed: Boolean)
 
-    class PublishedGameResult(@JsonProperty("a") val botA: PublishedBotResult,
-                              @JsonProperty("b") val botB: PublishedBotResult,
-                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("iv") val invalidGame: Short?,
-                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("to") val realTimeout: Short?,
-                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("fo") val frameTimeout: Short?,
-                              @JsonProperty("e") val endedAt: String,
-                              @JsonProperty("m") val map: Int,
-                              @JsonProperty("h") val gameHash: String,
-                              @JsonProperty("fc") val frameCount: Int?,
-                              @JsonInclude(JsonInclude.Include.NON_NULL) @JsonProperty("ev") val gameEvents: List<PublishedGameEvent>?)
+    class PublishedGameResult(val botA: PublishedBotResult,
+                              val botB: PublishedBotResult,
+                              val invalidGame: Boolean,
+                              val realTimeout: Boolean,
+                              val frameTimeout: Boolean,
+                              val endedAt: Long,
+                              val mapIndex: Int,
+                              val gameHash: String,
+                              val frameCount: Int?,
+                              val gameEvents: List<PublishedGameEvent>?)
 
-    data class PublishedGameEvent(@JsonProperty("u") val unit: Int,
-                                  @JsonProperty("e") val event: Int,
-                                  @JsonProperty("c") val amount: Long)
+    data class PublishedGameEvent(val unit: Int,
+                                  val event: Int,
+                                  val amount: Long)
 }

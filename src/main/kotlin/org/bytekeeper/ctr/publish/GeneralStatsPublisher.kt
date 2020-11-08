@@ -2,8 +2,14 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
-import org.bytekeeper.ctr.*
-import org.bytekeeper.ctr.repository.*
+import org.bytekeeper.ctr.BotUpdater
+import org.bytekeeper.ctr.CommandHandler
+import org.bytekeeper.ctr.PreparePublish
+import org.bytekeeper.ctr.Publisher
+import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
+import org.bytekeeper.ctr.repository.Race
+import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -34,7 +40,8 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                             vsRow(Race.ZERG),
                             vsRow(Race.RANDOM))
 
-                    val unitStats = unitEventsRepository.globalUnitStats().asSequence()
+                    val unitStats = listOf<PublishedUnitStats>()
+                    /*unitEventsRepository.globalUnitStats().asSequence()
                             .filter { it.type != UnitType.TERRAN_SIEGE_TANK_SIEGE_MODE && !it.type.name.startsWith("Spell") }
                             .groupBy(UnitStats::type).entries
                             .map { (type, stats) ->
@@ -47,6 +54,7 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                                 PublishedUnitStats(name, created, statsByType[UnitEventType.UNIT_DESTROY]?.get(0)?.amount
                                         ?: 0)
                             }.sortedBy { it.name }
+                            */
                     writer.writeValue(it,
                             PublishedStats(botUpdater.nextBotUpdateTime,
                                     gameResultRepository.count(),

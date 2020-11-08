@@ -33,7 +33,6 @@ class BotUpdater(private val winRatioTooLowRule: WinRatioTooLowRule,
             log.info("Updating database...")
             allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
             log.info("done")
-            events.post(BotListUpdated())
             nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
         }
     }

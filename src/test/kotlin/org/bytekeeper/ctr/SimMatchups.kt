@@ -164,7 +164,7 @@ class SimMatchups {
             bots.values.map { botB ->
                 val expectedGameOutcome: Double = 1.0 / (1.0 + 10.0.pow((botB.elo - botA.elo) / 400.0))
                 val strengthCloseness: Double = 1.0 - abs(0.5 - expectedGameOutcome)
-                botB to strengthCloseness + UCBMatchMaking.EXPLORATION * sqrt(ln(sumPlayed + 1.0) / (botB.played + 1)) + Math.random() * UCBMatchMaking.RANDOMIZATION
+                botB to strengthCloseness + UCBMatchMaking.EXPLORATION * sqrt(ln(sumPlayed + 1.0) / (botB.played + 1)) + Math.random() * UCBMatchMaking.RATING_SKEW
             }.sortedByDescending { it.second }.map { it.first }.asSequence()
 
     private fun playAvsB(first: String, second: String) {

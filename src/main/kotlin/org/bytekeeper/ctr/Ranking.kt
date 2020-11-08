@@ -41,11 +41,11 @@ class Ranking(
                 val bot = botsToCheck.removeLast()
                 if (bot.played >= bot.rankSince + config.ranking.games_rank_locked && bot.rank != rank.rank) {
                     bot.rankSince = bot.played
-                    bot.previousRank = bot.rank
                     bot.rank = rank.rank
                     botRepository.save(bot)
-                    botRankRepository.save(BotRank(bot = bot, time = now, rank = rank.rank))
                 }
+                bot.previousRank = bot.rank
+                botRankRepository.save(BotRank(bot = bot, time = now, rank = rank.rank))
             }
         }
     }

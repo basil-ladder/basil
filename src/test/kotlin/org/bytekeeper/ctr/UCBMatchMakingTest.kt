@@ -18,11 +18,10 @@ internal class UCBMatchMakingTest {
     fun should(bots: List<Bot>) {
         // GIVEN
         given(botRepository.findAllByEnabledTrue()).willReturn(bots)
-        sut.onEloUpdated(null)
         val counts = Array(NUM_BOTS) { 0 }
 
         // WHEN
-        for (i in 0 until 100000) {
+        for (i in 0 until 200000) {
             counts[sut.opponentSequenceFor(botA).first().id!!.toInt()]++
         }
 

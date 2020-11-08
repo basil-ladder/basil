@@ -21,7 +21,8 @@ class UCBMatchMaking(
 
         val botARating = botA.rating
         return candidates.map { botB ->
-            val expectedGameOutcome: Double = 1.0 / (1.0 + 10.0.pow((botB.rating - botARating) / 400.0))
+            val ratingSkew = rng.nextInt(-RATING_SKEW * 2, RATING_SKEW * 2)
+            val expectedGameOutcome: Double = 1.0 / (1.0 + 10.0.pow((botB.rating - botARating + ratingSkew) / 400.0))
             val strengthCloseness: Double = 1.0 - abs(0.5 - expectedGameOutcome)
             botB to strengthCloseness + EXPLORATION * sqrt(ln(sumPlayed + 1.0) / (botB.played + 1)) + rng.nextDouble() * RANDOMIZATION
         }.sortedByDescending { it.second }.map { it.first }.asSequence()
@@ -34,8 +35,13 @@ class UCBMatchMaking(
         const val EXPLORATION = 0.2
 
         /**
-         * Higher = Higher probability that a "bad" opponent might be chosen (this is not a 0-1 scale!)
+         * Higher = Higher probability that a "bad" opponent might be chosen - the actual rating difference will be changed up to this value
          */
-        const val RANDOMIZATION = 3
+        const val RATING_SKEW = 50
+
+        /**
+         * Add additional noise to the selection process, this allows games vs vast skill differences to still happen
+         */
+        const val RANDOMIZATION = 2
     }
 }

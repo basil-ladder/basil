@@ -2,6 +2,7 @@ package org.bytekeeper.ctr
 
 import org.assertj.core.api.Assertions.assertThat
 import org.bytekeeper.ctr.repository.Bot
+import org.bytekeeper.ctr.repository.BotRankRepository
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
@@ -10,7 +11,8 @@ import org.mockito.BDDMockito.given
 
 internal class RankingTest {
     private val botRepository: BotRepository = mock<BotRepository>()
-    private val sut = Ranking(botRepository, Config())
+    private val botRankRepository: BotRankRepository = mock<BotRankRepository>()
+    private val sut = Ranking(botRepository, botRankRepository, Config())
     private val bots = (0 until 84).map {
         Bot(it.toLong(), name = "$it", race = Race.TERRAN, botType = "", played = 196 + it, rating = it)
     }

@@ -75,7 +75,6 @@ data class GameWon(val game: GameResult,
 
 class EloUpdated(val bot: Bot, val newRating: Int, val timestamp: Instant = Instant.now(), val game: GameResult)
 class BotBinaryUpdated(val bot: Bot, val timestamp: Instant, val mapPools: List<String>)
-class BotListUpdated
 
 @Service
 class Events {

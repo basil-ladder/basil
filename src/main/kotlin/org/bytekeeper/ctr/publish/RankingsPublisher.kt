@@ -38,7 +38,8 @@ class RankingsPublisher(private val publisher: Publisher,
                                         it.disabledReason,
                                         listOf(SCMapPool.poolSscait.name) + it.mapPools(),
                                         it.rank.toString(),
-                                        it.previousRank.toString())
+                                        it.previousRank.toString(),
+                                        it.rankSince)
                             })
                 }
     }
@@ -58,4 +59,5 @@ class PublishedBotRanking(val botName: String,
                           val disabledReason: String?,
                           val mapPools: List<String>,
                           val rank: String,
-                          val previousRanking: String)
+                          val previousRanking: String,
+                          val rankSince: Int)

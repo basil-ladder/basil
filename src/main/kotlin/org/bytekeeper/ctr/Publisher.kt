@@ -4,12 +4,14 @@ import org.apache.logging.log4j.LogManager
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.io.BufferedWriter
+import java.io.OutputStreamWriter
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.zip.GZIPOutputStream
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 
@@ -38,10 +40,16 @@ class Publisher(private val config: Config,
     }
 
     fun botStatsWriter(bot: String, file: String): Writer =
-            Files.newBufferedWriter(botStatsPath(bot).resolve(file), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
+            if (file.endsWith(".gz")) {
+                BufferedWriter(OutputStreamWriter(GZIPOutputStream(Files.newOutputStream(botStatsPath(bot).resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))))
+            } else
+                Files.newBufferedWriter(botStatsPath(bot).resolve(file), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
 
     fun globalStatsWriter(file: String): BufferedWriter =
-            Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+            if (file.endsWith(".gz")) {
+                BufferedWriter(OutputStreamWriter(GZIPOutputStream(Files.newOutputStream(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))))
+            } else
+                Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 
 
     @Scheduled(fixedDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}", initialDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}")
