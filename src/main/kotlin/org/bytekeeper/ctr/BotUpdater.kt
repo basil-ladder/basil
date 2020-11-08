@@ -3,7 +3,9 @@ package org.bytekeeper.ctr
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.rules.WinRatioTooLowRule
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.scheduling.support.CronSequenceGenerator
 import org.springframework.stereotype.Service
+import java.util.*
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -12,14 +14,13 @@ import kotlin.concurrent.write
 class BotUpdater(private val winRatioTooLowRule: WinRatioTooLowRule,
                  private val botSources: BotSources,
                  private val botService: BotService,
-                 private val events: Events,
                  private val config: Config) {
     private val log = LogManager.getLogger()
     private val updateLock = ReentrantReadWriteLock()
     var nextBotUpdateTime: Long = 0
         protected set
 
-    @Scheduled(fixedDelayString = "#{\${basil.botUpdateTimer:6*60} * 60 * 1000}")
+    @Scheduled(cron = "\${basil.botUpdateSchedule}")
     fun updateBotList() {
         updateLock.write {
             winRatioTooLowRule.checkRule()
@@ -33,7 +34,7 @@ class BotUpdater(private val winRatioTooLowRule: WinRatioTooLowRule,
             log.info("Updating database...")
             allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
             log.info("done")
-            nextBotUpdateTime = System.currentTimeMillis() + config.botUpdateTimer * 60 * 1000
+            nextBotUpdateTime = CronSequenceGenerator(config.botUpdateSchedule).next(Date()).time * 1000
         }
     }
 

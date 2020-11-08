@@ -8,7 +8,7 @@ import java.nio.file.Path
 @ConfigurationProperties("basil")
 @Component
 class Config {
-    var botUpdateTimer: Long = 6 * 60
+    var botUpdateSchedule = "0 0 */6 * * *"
     lateinit var publishCommand: String
     lateinit var publishBasePath: Path
     var gameResultsHours: Long = 48

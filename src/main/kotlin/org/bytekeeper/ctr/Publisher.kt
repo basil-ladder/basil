@@ -52,7 +52,7 @@ class Publisher(private val config: Config,
                 Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 
 
-    @Scheduled(fixedDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}", initialDelayString = "#{\${basil.publishTimer:30} * 60 * 1000}")
+    @Scheduled(cron = "0 */30 * * * *")
     fun publish() {
         log.info("Publishing results")
         commands.handle(PreparePublish())

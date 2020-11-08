@@ -28,7 +28,7 @@ class Ranking(
         return result
     }
 
-    @Scheduled(cron = "0 0 */6 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     fun updateRankings() {
         val activeBots = botRepository.findAllByEnabledTrue()

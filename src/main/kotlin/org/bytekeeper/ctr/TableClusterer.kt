@@ -7,7 +7,7 @@ import javax.sql.DataSource
 @Component
 class TableClusterer(private val datasource: DataSource) {
 
-    @Scheduled(fixedRate = 1000 * 60 * 60 * 24, initialDelay = 1000 * 60 * 60 * 24)
+    @Scheduled(cron = "0 0 2 * * *")
     fun cluster() {
         datasource.connection.use {
             it.createStatement().executeUpdate("cluster")
