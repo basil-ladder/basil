@@ -52,7 +52,7 @@ class Publisher(private val config: Config,
                 Files.newBufferedWriter(statsPath.resolve(file), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 
 
-    @Scheduled(cron = "0 */30 * * * *")
+    @Scheduled(cron = "\${basil.publishSchedule:0 */30 * * * *}")
     fun publish() {
         log.info("Publishing results")
         commands.handle(PreparePublish())
