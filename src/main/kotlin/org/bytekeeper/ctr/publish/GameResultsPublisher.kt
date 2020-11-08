@@ -23,7 +23,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
 
         publisher.globalStatsWriter("games_24h.json")
                 .use { out ->
-                    val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours * 5, ChronoUnit.HOURS))
+                    val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours, ChronoUnit.HOURS))
                     if (relevantGames.isEmpty()) return
                     val relevantGameEvents = unitEventsRepository.aggregateGameEventsWith8OrMoreEvents(relevantGames)
                             .groupBy { it.game }
