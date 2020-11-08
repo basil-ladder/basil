@@ -21,7 +21,7 @@ class GameResultsPublisher(private val gameResultRepository: GameResultRepositor
     fun handle(command: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
-        publisher.globalStatsWriter("games_24h.json.gz")
+        publisher.globalStatsWriter("games_24h.json")
                 .use { out ->
                     val relevantGames = gameResultRepository.findByTimeGreaterThan(Instant.now().minus(config.gameResultsHours * 5, ChronoUnit.HOURS))
                     if (relevantGames.isEmpty()) return
