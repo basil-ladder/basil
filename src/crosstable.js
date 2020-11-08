@@ -86,7 +86,7 @@ render(form, formNode);
 function update() {
     let suffix = refs.range;
     if (!suffix) suffix = ""; else suffix = "_" + suffix;
-    axios.get("https://basilicum.bytekeeper.org/stats/botVsBot" + suffix + ".json")
+    axios.get(basil.dataBaseUrl + "stats/botVsBot" + suffix + ".json")
         .then(result => {
             const recv = result.data;
             let stats = {};

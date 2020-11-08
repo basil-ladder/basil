@@ -87,12 +87,17 @@ const unitStatsTableTemplate = stats => html`
     </table>	
 `;
 
+const srcUrl = basil.dataBaseUrl + "stats/stats.json";
+const srcRef = html`Source: <a href=${srcUrl}>${srcUrl}</a>`;
+render(srcRef, document.querySelector("#srcRef"));
+
 const percentFormat = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1 }).format;
 const crossTableNode = document.querySelector("#crossTable");
-const unitStatsNode = document.querySelector("#unitStats");
+//const unitStatsNode = document.querySelector("#unitStats");
 const statsTable = document.querySelector("#statsTable tbody");
 
-axios.get("https://basilicum.bytekeeper.org/stats/stats.json")
+
+axios.get(srcUrl)
     .then(result => {
         const data = result.data;
         data.nextUpdateTime = new Date(data.nextUpdateTime).toLocaleString([], { hour: "numeric" }) + " - " + new Date(data.nextUpdateTime + 60 * 60 * 1000).toLocaleString([], { hour: "numeric" });
@@ -114,7 +119,7 @@ axios.get("https://basilicum.bytekeeper.org/stats/stats.json")
         }
 
         render(crossTableTemplate(crossTableData), crossTableNode);
-        render(unitStatsTableTemplate(data.unitStats), unitStatsNode);
+//        render(unitStatsTableTemplate(data.unitStats), unitStatsNode);
         $('#unitStatsTable').tablesorter();
     });
 

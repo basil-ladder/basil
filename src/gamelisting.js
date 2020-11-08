@@ -73,13 +73,21 @@ ${tableHeader(rowStyle)}
 </tbody>
     `;
 
+const srcUrl = basil.dataBaseUrl + "stats/games_24h.json";
+const sourceRefText = document.querySelector("#srcRef");
+if (sourceRefText) {
+    const srcRef = html`Source: <a href=${srcUrl}>${srcUrl}</a>`;
+    render(srcRef, sourceRefText);
+}
+
+
 function renderGameListing(options) {
     const filter = options && options.filter;
     const rowStyle = options && options.rowStyle;
     const hideTableSorter = options && options.hideTableSorter;
-    axios.get("https://basilicum.bytekeeper.org/stats/games_24h.json", undefined, undefined, "text")
+    axios.get(srcUrl)
         .then(function (result) {
-            let data = eval('(' + result.data + ')');
+            let data = result.data;
             let g = data.results;
             let maps = data.maps;
             let bots = data.bots;
@@ -91,38 +99,38 @@ function renderGameListing(options) {
                     if (secs > 59) gameTime = Math.floor(secs / 60) + "m "; else gameTime = "";
                     gameTime += Math.ceil(secs % 60) + "s";
                 }
-                let [botA, botB] = [g[i].a, g[i].b].map(desc => {
-                    let bot = bots[desc.b];
+                let [botA, botB] = [g[i].botA, g[i].botB].map(botResult => {
+                    let bot = bots[botResult.botIndex];
                     return {
                         name: bot.name,
-                        winner: desc.w === 1,
-                        loser: desc.l === 1,
-                        crashed: desc.c === 1,
-                        race: desc.r || bot.race,
-                        randomBot: desc.r && desc.r !== bot.race,
+                        winner: botResult.winner,
+                        loser: botResult.loser,
+                        crashed: botResult.crashed,
+                        race: botResult.race || bot.race,
+                        randomBot: botResult.race && botResult.race !== bot.race,
                         rank: bot.rank
                     };
                 });
-                let map = maps[g[i].m];
-                let events = g[i].ev && g[i].ev.reduce((acc, e) => {
-                    let m = acc[e.u] = (acc[e.u] || {});
-                    m[e.e] = e.c;
+                let map = maps[g[i].mapIndex];
+                let events = g[i].gameEvents && g[i].gameEvents.reduce((acc, e) => {
+                    let m = acc[e.unit] = (acc[e.unit] || {});
+                    m[e.event] = e.amount;
                     return acc;
                 }, {}) || {};
 
-                botA.replayUrl = "https://basilicum.bytekeeper.org/bots/" + botA.name + "/" + botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep";
-                botB.replayUrl = "https://basilicum.bytekeeper.org/bots/" + botB.name + "/" + botB.name + " vs " + botA.name + " " + map + " " + g[i].h + ".rep";
+                botA.replayUrl = basil.dataBaseUrl + "bots/" + botA.name + "/" + botA.name + " vs " + botB.name + " " + map + " " + g[i].h + ".rep";
+                botB.replayUrl = basil.dataBaseUrl + "bots/" + botB.name + "/" + botB.name + " vs " + botA.name + " " + map + " " + g[i].h + ".rep";
 
                 const game = {
                     botA: botA,
                     botB: botB,
-                    time: basil.formatDateTime(parseInt(g[i].e, 16) * 60),
-                    timestamp: parseInt(g[i].e, 16),
+                    time: basil.formatDateTime(g[i].endedAt),
+                    timestamp: g[i].endedAt,
                     gameTime: gameTime,
-                    notPlayed: !g[i].fc,
-                    validGame: g[i].iv !== 1 && g[i].to != 1,
-                    realTimeout: g[i].to === 1,
-                    frameTimeout: g[i].fo === 1,
+                    notPlayed: !g[i].frameCount,
+                    validGame: !g[i].invalidGame && !g[i].realTimeout,
+                    realTimeout: g[i].realTimeout,
+                    frameTimeout: g[i].frameTimeout,
                     map: map,
                     nukes: events[14] && events[14][6],
                     mm: (events[0] ? events[0][2] : 0) + (events[34] ? events[34][2] : 0),

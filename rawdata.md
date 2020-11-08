@@ -3,4 +3,4 @@ layout: page
 title: Files
 ---
 
-Replay, game results and aggregated data is available on: [basilicum server](http://basilicum.bytekeeper.org) or [basilicum ftp](ftp://basilftp.bytekeeper.org).
+Replay, game results and aggregated data is available on: [basil data server](https://data.basil-ladder.net/).

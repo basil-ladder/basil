@@ -81,8 +81,13 @@ ${data.map((bot, index) => bot.enabled ? activeBotRow(bot, index) : "")}
 
 render(rankingTable([]), tableNode);
 
+const srcUrl = basil.dataBaseUrl + "stats/ranking.json";
+const srcRef = html`Source: <a href=${srcUrl}>${srcUrl}</a>`;
+render(srcRef, document.querySelector("#srcRef"));
+
+
 async function update() {
-    let { data } = await axios.get("https://basilicum.bytekeeper.org/stats/ranking.json");
+    let { data } = await axios.get(srcUrl);
     for (let i = 0; i < data.length; i++) {
         let played = data[i].won + data[i].lost;
         if (played > 0 && typeof data[i].won !== "undefined") {

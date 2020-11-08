@@ -30,7 +30,7 @@ const boRows = (bos) => bos.map(bo => boRow(bo));
 
 const boRowsNode = document.querySelector("#boRows");
 
-axios.get("https://basilicum.bytekeeper.org/stats/top_bos.json")
+axios.get(basil.dataBaseUrl + "stats/top_bos.json")
     .then(result => {
         let data = result.data;
 

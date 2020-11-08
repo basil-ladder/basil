@@ -19,7 +19,7 @@ const lastUpdatedTemplate = bots => html`
         `;
 
 const botsAfter = Date.now() / 1000 - 86400 * 5;
-axios.get("https://basilicum.bytekeeper.org/stats/ranking.json")
+axios.get(basil.dataBaseUrl + "stats/ranking.json")
     .then(result => {
         const data = result.data;
         const bots = data.filter(function (x) {

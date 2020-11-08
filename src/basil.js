@@ -9,6 +9,7 @@ Chart.plugins.unregister(ChartDataLabels);
 
 
 export default {
+    dataBaseUrl: "https://data.basil-ladder.net/",
     formatDateTime: function (epochSecond) {
         return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm a");
     },
