@@ -93,9 +93,10 @@ function renderGameListing(options) {
             let bots = data.bots;
             let games = [];
             for (let i = 0; i < g.length; i++) {
+                const frameCount = g[i].frameCount;
                 let gameTime = undefined;
-                if (g[i].fc) {
-                    let secs = Math.round(g[i].fc / 24);
+                if (frameCount) {
+                    let secs = Math.round(frameCount / 24);
                     if (secs > 59) gameTime = Math.floor(secs / 60) + "m "; else gameTime = "";
                     gameTime += Math.ceil(secs % 60) + "s";
                 }
@@ -127,7 +128,7 @@ function renderGameListing(options) {
                     time: basil.formatDateTime(g[i].endedAt),
                     timestamp: g[i].endedAt,
                     gameTime: gameTime,
-                    notPlayed: !g[i].frameCount,
+                    notPlayed: !frameCount,
                     validGame: !g[i].invalidGame && !g[i].realTimeout,
                     realTimeout: g[i].realTimeout,
                     frameTimeout: g[i].frameTimeout,
