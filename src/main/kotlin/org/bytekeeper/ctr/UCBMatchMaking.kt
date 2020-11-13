@@ -21,7 +21,7 @@ class UCBMatchMaking(
 
         val botARating = botA.rating
         return candidates.map { botB ->
-            val ratingSkew = rng.nextInt(-RATING_SKEW * 2, RATING_SKEW * 2)
+            val ratingSkew = rng.nextInt(-RATING_SKEW * 2, RATING_SKEW * 2 + 1)
             val expectedGameOutcome: Double = 1.0 / (1.0 + 10.0.pow((botB.rating - botARating + ratingSkew) / 400.0))
             val strengthCloseness: Double = 1.0 - abs(0.5 - expectedGameOutcome)
             botB to strengthCloseness + EXPLORATION * sqrt(ln(sumPlayed + 1.0) / (botB.played + 1)) + rng.nextDouble() * RANDOMIZATION

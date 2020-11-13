@@ -52,7 +52,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"P",rank:"B",rating:2000},{name:"botB",race:"T",rank:"S",rating:2000}],maps:["map"],results:[{botA:{botIndex:0,race:"Z",winner:true,loser:false,crashed:false},botB:{botIndex:1,race:"T",winner:false,loser:true,crashed:false},invalidGame:false,realTimeout:false,frameTimeout:false,endedAt:-31557014167219200,mapIndex:0,gameHash:"",frameCount:0,gameEvents:null}]}""")
+                .isEqualTo("""{"bots":[{"name":"botA","race":"P","rank":"B","rating":2000},{"name":"botB","race":"T","rank":"S","rating":2000}],"maps":["map"],"results":[{"botA":{"botIndex":0,"race":"Z","winner":true,"loser":false,"crashed":false},"botB":{"botIndex":1,"race":"T","winner":false,"loser":true,"crashed":false},"invalidGame":false,"realTimeout":false,"frameTimeout":false,"endedAt":-31557014167219200,"mapIndex":0,"gameHash":"","frameCount":0,"gameEvents":null}]}""")
     }
 
     @Test
@@ -69,7 +69,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R",rank:"U",rating:2000},{name:"botB",race:"Z",rank:"U",rating:2000}],maps:["map"],results:[{botA:{botIndex:0,race:"T",winner:true,loser:false,crashed:true},botB:{botIndex:1,race:"P",winner:false,loser:true,crashed:false},invalidGame:false,realTimeout:false,frameTimeout:false,endedAt:-31557014167219200,mapIndex:0,gameHash:"",frameCount:0,gameEvents:null}]}""")
+                .isEqualTo("""{"bots":[{"name":"botA","race":"R","rank":"U","rating":2000},{"name":"botB","race":"Z","rank":"U","rating":2000}],"maps":["map"],"results":[{"botA":{"botIndex":0,"race":"T","winner":true,"loser":false,"crashed":true},"botB":{"botIndex":1,"race":"P","winner":false,"loser":true,"crashed":false},"invalidGame":false,"realTimeout":false,"frameTimeout":false,"endedAt":-31557014167219200,"mapIndex":0,"gameHash":"","frameCount":0,"gameEvents":null}]}""")
     }
 
     @Test
@@ -86,7 +86,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R",rank:"U",rating:2000},{name:"botB",race:"Z",rank:"U",rating:2000}],maps:["map"],results:[{botA:{botIndex:0,race:"P",winner:false,loser:false,crashed:false},botB:{botIndex:1,race:"Z",winner:false,loser:false,crashed:false},invalidGame:true,realTimeout:true,frameTimeout:false,endedAt:-31557014167219200,mapIndex:0,gameHash:"",frameCount:0,gameEvents:null}]}""")
+                .isEqualTo("""{"bots":[{"name":"botA","race":"R","rank":"U","rating":2000},{"name":"botB","race":"Z","rank":"U","rating":2000}],"maps":["map"],"results":[{"botA":{"botIndex":0,"race":"P","winner":false,"loser":false,"crashed":false},"botB":{"botIndex":1,"race":"Z","winner":false,"loser":false,"crashed":false},"invalidGame":true,"realTimeout":true,"frameTimeout":false,"endedAt":-31557014167219200,"mapIndex":0,"gameHash":"","frameCount":0,"gameEvents":null}]}""")
     }
 
     @Test
@@ -103,7 +103,7 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R",rank:"U",rating:2000},{name:"botB",race:"Z",rank:"U",rating:2000}],maps:["map"],results:[{botA:{botIndex:0,race:"T",winner:true,loser:false,crashed:false},botB:{botIndex:1,race:"P",winner:false,loser:true,crashed:false},invalidGame:false,realTimeout:false,frameTimeout:true,endedAt:-31557014167219200,mapIndex:0,gameHash:"",frameCount:0,gameEvents:null}]}""")
+                .isEqualTo("""{"bots":[{"name":"botA","race":"R","rank":"U","rating":2000},{"name":"botB","race":"Z","rank":"U","rating":2000}],"maps":["map"],"results":[{"botA":{"botIndex":0,"race":"T","winner":true,"loser":false,"crashed":false},"botB":{"botIndex":1,"race":"P","winner":false,"loser":true,"crashed":false},"invalidGame":false,"realTimeout":false,"frameTimeout":true,"endedAt":-31557014167219200,"mapIndex":0,"gameHash":"","frameCount":0,"gameEvents":null}]}""")
     }
 
     @Test
@@ -124,6 +124,6 @@ class GameResultsPublisherTest {
 
         // THEN
         Assertions.assertThat(writer.toString())
-                .isEqualTo("""{bots:[{name:"botA",race:"R",rank:"U",rating:2000},{name:"botB",race:"Z",rank:"U",rating:2000}],maps:["map"],results:[{botA:{botIndex:0,race:"T",winner:true,loser:false,crashed:false},botB:{botIndex:1,race:"P",winner:false,loser:true,crashed:false},invalidGame:false,realTimeout:false,frameTimeout:true,endedAt:-31557014167219200,mapIndex:0,gameHash:"",frameCount:0,gameEvents:[{unit:72,event:1,amount:10}]}]}""")
+                .isEqualTo("""{"bots":[{"name":"botA","race":"R","rank":"U","rating":2000},{"name":"botB","race":"Z","rank":"U","rating":2000}],"maps":["map"],"results":[{"botA":{"botIndex":0,"race":"T","winner":true,"loser":false,"crashed":false},"botB":{"botIndex":1,"race":"P","winner":false,"loser":true,"crashed":false},"invalidGame":false,"realTimeout":false,"frameTimeout":true,"endedAt":-31557014167219200,"mapIndex":0,"gameHash":"","frameCount":0,"gameEvents":[{"unit":72,"event":1,"amount":10}]}]}""")
     }
 }
