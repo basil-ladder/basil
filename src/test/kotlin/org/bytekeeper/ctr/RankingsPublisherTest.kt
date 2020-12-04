@@ -37,6 +37,7 @@ class RankingsPublisherTest {
         sut = RankingsPublisher(publisher, botRepository, botSources, config)
 
         BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(statsWriter))
+        BDDMockito.given(config.ranking).willReturn(Config.Ranking())
     }
 
     @Test
@@ -52,7 +53,7 @@ class RankingsPublisherTest {
 
         // THEN
         Assertions.assertThat(statsWriter.toString()).isEqualTo(
-                """[{"botName":"botA","rating":1000,"played":100,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"PROTOSS","lastUpdated":-31557014167219200,"enabled":true,"disabledReason":null,"mapPools":["SSCAIT"],"rank":"UNRANKED","previousRanking":"UNRANKED","rankSince":0},{"botName":"botB","rating":3000,"played":200,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"TERRAN","lastUpdated":null,"enabled":true,"disabledReason":null,"mapPools":["SSCAIT"],"rank":"UNRANKED","previousRanking":"UNRANKED","rankSince":0},{"botName":"botC","rating":4000,"played":300,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"ZERG","lastUpdated":null,"enabled":false,"disabledReason":"I don't like it","mapPools":["SSCAIT"],"rank":"UNRANKED","previousRanking":"UNRANKED","rankSince":0}]""")
+                """[{"botName":"botA","rating":1000,"played":100,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"PROTOSS","lastUpdated":-31557014167219200,"enabled":true,"disabledReason":null,"mapPools":["SSCAIT"],"rank":"UNRANKED","previousRank":"UNRANKED","rankProtection":true},{"botName":"botB","rating":3000,"played":200,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"TERRAN","lastUpdated":null,"enabled":true,"disabledReason":null,"mapPools":["SSCAIT"],"rank":"UNRANKED","previousRank":"UNRANKED","rankProtection":false},{"botName":"botC","rating":4000,"played":300,"won":0,"lost":0,"crashed":0,"crashesSinceUpdate":0,"race":"ZERG","lastUpdated":null,"enabled":false,"disabledReason":"I don't like it","mapPools":["SSCAIT"],"rank":"UNRANKED","previousRank":"UNRANKED","rankProtection":false}]""")
     }
 
 }

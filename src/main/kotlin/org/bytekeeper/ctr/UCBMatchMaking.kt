@@ -37,11 +37,11 @@ class UCBMatchMaking(
         /**
          * Higher = Higher probability that a "bad" opponent might be chosen - the actual rating difference will be changed up to this value
          */
-        const val RATING_SKEW = 50
+        const val RATING_SKEW = 100
 
         /**
          * Add additional noise to the selection process, this allows games vs vast skill differences to still happen
          */
-        const val RANDOMIZATION = 2
+        const val RANDOMIZATION = 7
     }
 }

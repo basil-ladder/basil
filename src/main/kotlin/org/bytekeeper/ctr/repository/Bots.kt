@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr.repository
 
 import io.micrometer.core.annotation.Timed
+import org.bytekeeper.ctr.Config
 import org.bytekeeper.ctr.Ranking
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.CrudRepository
@@ -47,6 +48,7 @@ class Bot(@Id @GeneratedValue var id: Long? = null,
           @Enumerated(EnumType.STRING) var rank: Ranking.Rank = Ranking.Rank.UNRANKED,
           @Enumerated(EnumType.STRING) var previousRank: Ranking.Rank = Ranking.Rank.UNRANKED,
           var rankSince: Int = 0) {
+    fun isRankLocked(config: Config.Ranking) = rankSince + config.games_rank_locked > played
     fun mapPools() = mapPools.split(",").filter { it.isNotBlank() }
 }
 

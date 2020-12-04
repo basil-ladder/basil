@@ -8,6 +8,7 @@ import org.bytekeeper.ctr.scbw.Scbw
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.ArrayDeque
 
 @Component
 class GameService(private val scbw: Scbw,
@@ -18,12 +19,26 @@ class GameService(private val scbw: Scbw,
                   private var matchmaking: UCBMatchMaking) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Long, Long>()
+    private val botList = ArrayDeque<Long>()
 
     fun schedule1on1() {
-        val candidates = botRepository.findAllByEnabledTrue()
+        val botPos = synchronized(botList) { botList.mapIndexed { index, l -> l to index }.toMap() }
+        val candidates = botRepository.findAllByEnabledTrue().sortedWith { a, b ->
+            (botPos[a.id] ?: -1).compareTo(botPos[b.id] ?: -1)
+        }.toMutableList()
+        synchronized(botList) {
+            botList.retainAll(candidates.map { it.id }.toSet())
+        }
         if (candidates.size < 2) throw NotEnoughBotsException("Found ${candidates.size} bots, but need at least 2!")
-        withLockedBot(generateSequence { candidates.random() }) { botA ->
+
+        withLockedBot(generateSequence { candidates.removeFirst() }) { botA ->
             withLockedBot(matchmaking.opponentSequenceFor(botA)) { botB ->
+                synchronized(botList) {
+                    botList.remove(botA.id)
+                    botList.remove(botB.id)
+                    botList.addLast(botA.id!!)
+                    botList.addLast(botB.id!!)
+                }
                 try {
                     val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).toUpperCase()
 

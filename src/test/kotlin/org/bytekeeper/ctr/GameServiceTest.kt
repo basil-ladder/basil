@@ -51,9 +51,12 @@ class GameServiceTest {
 
     private val botA = Bot(id = 1, name = "A", race = Race.RANDOM, botType = "", mapPools = "pool2,pool3")
     private val botB = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "pool2")
-    private val botC = Bot(id = 2, name = "B", race = Race.RANDOM, botType = "", mapPools = "")
+    private val botC = Bot(id = 3, name = "C", race = Race.RANDOM, botType = "", mapPools = "")
+    private val botD = Bot(id = 4, name = "D", race = Race.RANDOM, botType = "", mapPools = "")
     private val botAInfo = TestBotInfo()
     private val botBInfo = TestBotInfo()
+    private val botCInfo = TestBotInfo()
+    private val botDInfo = TestBotInfo()
 
     private val pool2 = SCMapPool("pool2", emptyList())
     private val pool3 = SCMapPool("pool3", emptyList())
@@ -61,18 +64,21 @@ class GameServiceTest {
     @BeforeEach
     fun setup() {
         given(maps.mapPools).willReturn(listOf(pool2, pool3))
-        given(matchmaking.opponentSequenceFor(any())).willReturn(sequenceOf(botA, botB))
+        given(matchmaking.opponentSequenceFor(any())).willReturn(sequenceOf(botB, botC, botD))
         sut = GameService(scbw, maps, botSources, botUpdater, botRepository, matchmaking)
         willReturn(botAInfo).given(botSources).botInfoOf(botA.name)
         willReturn(botBInfo).given(botSources).botInfoOf(botB.name)
+        willReturn(botCInfo).given(botSources).botInfoOf(botC.name)
+        willReturn(botDInfo).given(botSources).botInfoOf(botD.name)
 
-        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
         given(botUpdater.setupBot(any())).willAnswer { (it.arguments[0] as () -> Unit)() }
     }
 
     @Test
     fun `should not setup source-disabled, never received bot`() {
         // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+
         botAInfo.disabled = true
         botBInfo.disabled = true
 
@@ -86,6 +92,8 @@ class GameServiceTest {
     @Test
     fun `should not setup source-disabled, but received bot`() {
         // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+
         botA.lastUpdated = Instant.MIN
         botB.lastUpdated = Instant.MIN
         botAInfo.disabled = true
@@ -101,6 +109,8 @@ class GameServiceTest {
     @Test
     fun `should schedule game for source-disabled, but locally enabled and available bot`() {
         // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+
         botA.lastUpdated = Instant.MIN
         botB.lastUpdated = Instant.MIN
         botAInfo.disabled = true
@@ -116,6 +126,8 @@ class GameServiceTest {
     @Test
     fun `should not schedule game for source-disabled, locally enabled but unavailable bot`() {
         // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+
         botAInfo.disabled = true
         botBInfo.disabled = true
 
@@ -129,6 +141,7 @@ class GameServiceTest {
     @Test
     fun `should use most recent map pool`() {
         // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
 
         // WHEN
         sut.schedule1on1()
@@ -144,7 +157,7 @@ class GameServiceTest {
     @Test
     fun `should fall back to SSCAIT map pool`() {
         // GIVEN
-        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botC))
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botC, botB))
 
         // WHEN
         sut.schedule1on1()
@@ -155,5 +168,22 @@ class GameServiceTest {
         assertThat(gameConfigCaptor.value)
                 .extracting { it.mapPool }
                 .isEqualTo(SCMapPool.poolSscait)
+    }
+
+    @Test
+    fun `Should only schedule bot later again`() {
+        // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB, botC, botD))
+        sut.schedule1on1()
+
+        // WHEN
+        sut.schedule1on1()
+
+        // THEN
+        val gameConfigCaptor = ArgumentCaptor.forClass(Scbw.GameConfig::class.java)
+        verify(scbw, times(2)).runGame(gameConfigCaptor.cap())
+        assertThat(gameConfigCaptor.value)
+                .extracting { it.bots }
+                .isEqualTo(listOf("C", "B"))
     }
 }
