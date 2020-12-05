@@ -72,6 +72,10 @@ export default {
     rankcol: function (rank) {
         return "rank_" + rank.toLowerCase();
     },
+    rankCmp(oldRank, newRank) {
+        if (!oldRank || !newRank) return 0;
+        return this.rankValue(oldRank) - this.rankValue(newRank);
+    },
     percentFormat: function (value, digits) {
         return new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: digits || 2 }).format(value);
     },

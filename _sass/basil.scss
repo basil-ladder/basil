@@ -132,14 +132,7 @@ dt {
 tr.disabled {
   color: #afafaf;
 }
-/*
-.crosstable thead tr {
-  th:not(:first-child) {
-    position: sticky;
-    top: 0;
-  }
-}
-*/
+
 thead tr {
   th {
     position: sticky;
@@ -303,4 +296,13 @@ input:checked ~ .trigger {
     }
     @extend .normal;
   }
+}
+
+div.rank_change {
+  position: absolute;
+  font-size: 0.5em;
+}
+
+td.rank {
+  padding: 0;
 }

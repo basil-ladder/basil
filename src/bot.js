@@ -4,6 +4,7 @@ import { html, render } from 'lit-html'
 import flatpickr from 'flatpickr'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import renderGameListing from './gamelisting';
+import stringify from 'csv-stringify/lib/sync'
 
 const botNameAndRank = (bot) => html`
 <h1 style="font-size: 1.5em; line-height: 1.5em; margin: 0em;" class=${bot.race ?
@@ -371,7 +372,13 @@ function setupVsChart(data) {
             if (a.lost > b.lost) return -1;
             if (a.lost < b.lost) return 1;
             return 0;
-        }).slice(0, 70);
+        })
+        const csv = stringify(bots, { columns: ['bot', 'won', 'lost'], header: true });
+        bots = bots.slice(0, 70);
+        const vsChartData = html`
+            <a download="top_contenders.csv" target="_blank" href="data:text/csv;charset=utf-8,${encodeURI(csv)}"><small>Download
+                    as CSV</small></a>`;
+        render(vsChartData, document.getElementById("vsChartData"));
         let wonData = bots.map(function (a) { return a.won; });
         let lostData = bots.map(function (a) { return a.lost; });
         let labels = bots.map(function (x) { return x.bot; });

@@ -5,13 +5,18 @@ import tablesorter from 'tablesorter'
 import $ from 'jquery'
 
 const tableNode = document.querySelector("#rankingTable");
+const rankChange = (bot) => html`<div class="rank_change">
+    ${bot.downRanked ? html`<i class="fas fa-arrow-down"></i>` : null}
+    ${bot.upRanked ?  html`<i class="fas fa-arrow-up"></i>` : null}
+    ${bot.rankProtection ? html`<i class="fas fa-lock"></i>` : null}
+</div>`;
 
 const activeBotRow = (bot, index) => html`
 <tr>
 <th>
     ${index + 1}
 </th>
-<td name=${bot.anchorName} class="${basil.rankcol(bot.rank)}">${bot.rank}</td>
+<td name=${bot.anchorName} class="rank"><div class=${basil.rankcol(bot.rank)}>${rankChange(bot)}${bot.rank}</div></td>
 <td class=${basil.racecol(bot.race)}><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
     <td>${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
 <td>${bot.played}</td>
@@ -100,6 +105,8 @@ async function update() {
         data[i].anchorName = encodeURIComponent(data[i].botName);
         data[i].showDisabled = !data[i].enabled && (data[i].won > 0 || data[i].lost > 0);
         data[i].disabledReason = data[i].disabledReason || "Disabled on SSCAIT/locally";
+        data[i].downRanked = basil.rankCmp(data[i].previousRank, data[i].rank) > 0;
+        data[i].upRanked = basil.rankCmp(data[i].previousRank, data[i].rank) < 0;
     }
     // Required for index to work as expected
     basil.sortByRank(data);
