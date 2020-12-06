@@ -10,6 +10,9 @@ Chart.plugins.unregister(ChartDataLabels);
 
 export default {
     dataBaseUrl: "https://data.basil-ladder.net/",
+    eloToMmr(elo) {
+        return elo - 1300;
+    },
     formatDateTime: function (epochSecond) {
         return moment.unix(epochSecond).format("YYYY.MM.DD hh:mm a");
     },
