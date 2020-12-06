@@ -37,7 +37,7 @@ parcelRequire=function(e){var r="function"==typeof parcelRequire&&parcelRequire,
 <th>#</th>
 <th data-sorter="false">Rank</th>
 <th>Bot</th>
-<th class="tooltip">MMR<span role="tooltip">Rough estimate of human level MMR.</span></th>
+<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
 <th>ELO</th>
 <th># Games</th>
 <th># Won</th>
