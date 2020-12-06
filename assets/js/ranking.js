@@ -9,8 +9,8 @@ parcelRequire=function(e){var r="function"==typeof parcelRequire&&parcelRequire,
 </th>
 <td name=${t.anchorName} class="rank"><div class=${ha.rankcol(t.rank)}>${Od(t)}${t.rank}</div></td>
 <td class=${ha.racecol(t.race)}><a class="normal" href="bot.html?bot=${t.botName}" target="_blank">${t.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${t.rating?ca`${Math.max(100,ha.eloToMmr(t.basilRating||t.rating))}`:ca`<small class="tiny">pending</small>`}</td>
 <td>${t.rating?ca`${t.basilRating||t.rating}`:ca`<small class="tiny">pending</small>`}</td>
+<td>${t.rating?ca`${Math.max(100,ha.eloToMmr(t.basilRating||t.rating))}`:ca`<small class="tiny">pending</small>`}</td>
 <td>${t.played}</td>
 <td>${t.won}</td>
 <td>${t.lost}</td>
@@ -37,8 +37,8 @@ parcelRequire=function(e){var r="function"==typeof parcelRequire&&parcelRequire,
 <th>#</th>
 <th data-sorter="false">Rank</th>
 <th>Bot</th>
-<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
 <th>ELO</th>
+<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
 <th># Games</th>
 <th># Won</th>
 <th># Lost</th>

@@ -18,8 +18,8 @@ const activeBotRow = (bot, index) => html`
 </th>
 <td name=${bot.anchorName} class="rank"><div class=${basil.rankcol(bot.rank)}>${rankChange(bot)}${bot.rank}</div></td>
 <td class=${basil.racecol(bot.race)}><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${bot.rating ? html`${Math.max(100, basil.eloToMmr(bot.basilRating || bot.rating))}` : html`<small class="tiny">pending</small>`}</td>
 <td>${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
+<td>${bot.rating ? html`${Math.max(100, basil.eloToMmr(bot.basilRating || bot.rating))}` : html`<small class="tiny">pending</small>`}</td>
 <td>${bot.played}</td>
 <td>${bot.won}</td>
 <td>${bot.lost}</td>
@@ -50,8 +50,8 @@ const rankingTable = (data) => html`
 <th>#</th>
 <th data-sorter="false">Rank</th>
 <th>Bot</th>
-<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
 <th>ELO</th>
+<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
 <th># Games</th>
 <th># Won</th>
 <th># Lost</th>
