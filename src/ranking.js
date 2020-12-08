@@ -7,7 +7,7 @@ import $ from 'jquery'
 const tableNode = document.querySelector("#rankingTable");
 const rankChange = (bot) => html`<div class="rank_change">
     ${bot.downRanked ? html`<i class="fas fa-arrow-down"></i>` : null}
-    ${bot.upRanked ?  html`<i class="fas fa-arrow-up"></i>` : null}
+    ${bot.upRanked ? html`<i class="fas fa-arrow-up"></i>` : null}
     ${bot.rankProtection ? html`<i class="fas fa-lock"></i>` : null}
 </div>`;
 
