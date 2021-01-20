@@ -460,8 +460,8 @@ function setupRaceMatchupChart(data) {
     });
     function updateChart() {
         let rvr = {};
-        let races = ["T", "P", "Z", "R"];
-        let raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg" };
+        let races = ["T", "P", "Z", "R", "A"];
+        let raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg", "A": "Overall" };
         races.forEach(function (a, i) {
             races.forEach(function (b, j) {
                 rvr[a + b] = { label: raceLabel[a] + " vs " + raceLabel[b], won: 0, lost: 0, data: [], a: i, b: j };
@@ -475,12 +475,26 @@ function setupRaceMatchupChart(data) {
                 if (stat.won + stat.lost > 0) {
                     stat.data.push({ x: new Date(epochSecond * 1000), y: 100 * stat.won / (stat.won + stat.lost), w: stat.won, l: stat.lost });
                 }
+                stat = rvr["A" + x.eR];
+                if (x.w === 1) stat.won++; else stat.lost++;
+                if (stat.won + stat.lost > 0) {
+                    stat.data.push({ x: new Date(epochSecond * 1000), y: 100 * stat.won / (stat.won + stat.lost), w: stat.won, l: stat.lost });
+                }
+                stat = rvr[x.r + "A"];
+                if (x.w === 1) stat.won++; else stat.lost++;
+                if (stat.won + stat.lost > 0) {
+                    stat.data.push({ x: new Date(epochSecond * 1000), y: 100 * stat.won / (stat.won + stat.lost), w: stat.won, l: stat.lost });
+                }
             }
         }, {});
         let rvrList = [];
         races.forEach(function (a) {
             races.forEach(function (b) {
-                rvrList.push(rvr[a + b]);
+                let stat = rvr[a + b];
+                if (a != "A" || rvr["T" + b].won != stat.won && rvr["P" + b].won != stat.won && rvr["Z" + b].won != stat.won && rvr["R" + b].won != stat.won
+                    || rvr["T" + b].lost != stat.lost && rvr["P" + b].lost != stat.lost && rvr["Z" + b].lost != stat.lost && rvr["R" + b].lost != stat.lost) {
+                    rvrList.push(stat);
+                }
             });
         });
 
