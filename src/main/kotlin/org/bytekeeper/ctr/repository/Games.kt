@@ -44,6 +44,12 @@ class BotStat(val bot: Bot, val won: Long, val lost: Long) {
     }
 }
 
+interface BS {
+    val bot: Long
+    val won: Long
+    val lost: Long
+}
+
 data class MapRaceWinStat(val race: Race, val map: String, val won: Long)
 
 class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
@@ -52,13 +58,15 @@ class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: 
     }
 }
 
-data class BotGameResult(val time: Instant,
-                         val bot: String,
-                         val botRace: Race,
-                         val enemy: String,
-                         val enemyRace: Race,
-                         val won: Boolean,
-                         val map: String)
+data class BotGameResult(
+    val time: Instant,
+    val bot: String,
+    val botRace: Race,
+    val enemy: String,
+    val enemyRace: Race,
+    val won: Boolean,
+    val map: String
+)
 
 interface GameResultRepository : CrudRepository<GameResult, Long> {
     @EntityGraph(attributePaths = ["botA", "botB", "winner", "loser"])
@@ -100,17 +108,31 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun listBotRaceVsRace(): List<BotRaceVsRace>
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, b.name," +
-            " CASE WHEN b = r.winner THEN r.raceA else r.raceB END," +
-            " CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
-            " CASE WHEN b = r.winner THEN r.raceB else r.raceA END, b = r.winner, r.map)" +
-            " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b")
+    @Query(
+        "SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, b.name," +
+                " CASE WHEN b = r.winner THEN r.raceA else r.raceB END," +
+                " CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
+                " CASE WHEN b = r.winner THEN r.raceB else r.raceA END, b = r.winner, r.map)" +
+                " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b"
+    )
     @Timed
     fun findAllGamesSummarized(): Stream<BotGameResult>
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.MapRaceWinStat(r.raceA, r.map, count(*))" +
-            " FROM GameResult r where r.winner = r.botA" +
-            " GROUP BY r.map, r.raceA")
+    @Query(
+        "SELECT new org.bytekeeper.ctr.repository.MapRaceWinStat(r.raceA, r.map, count(*))" +
+                " FROM GameResult r where r.winner = r.botA" +
+                " GROUP BY r.map, r.raceA"
+    )
     @Timed
     fun mapRaceWinStats(): List<MapRaceWinStat>
+
+    @Timed
+    @Query(
+        nativeQuery = true, value = """select b.id as bot, 
+        count(*) FILTER (WHERE x.winner_id = b.id) as won, 
+        count(*) FILTER (WHERE x.loser_id = b.id) as lost 
+        from (select * from game_result where time > ?1) x 
+        join bot b on x.winner_id = b.id or x.loser_id = b.id group by b.id"""
+    )
+    fun listWinsAndLosses(after: Instant): List<BS>
 }

@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions
 import org.bytekeeper.ctr.publish.RankingsPublisher
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.bytekeeper.ctr.repository.Race
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -17,8 +18,12 @@ import java.time.Instant
 
 @ExtendWith(MockitoExtension::class)
 class RankingsPublisherTest {
+
     @Mock
     private lateinit var botRepository: BotRepository
+
+    @Mock
+    private lateinit var gameResultRepository: GameResultRepository
     private lateinit var sut: RankingsPublisher
 
     @Mock
@@ -34,7 +39,7 @@ class RankingsPublisherTest {
 
     @BeforeEach
     fun setup() {
-        sut = RankingsPublisher(publisher, botRepository, botSources, config)
+        sut = RankingsPublisher(publisher, botRepository, gameResultRepository, botSources, config)
 
         BDDMockito.given(publisher.globalStatsWriter(BDDMockito.anyString())).willReturn(BufferedWriter(statsWriter))
         BDDMockito.given(config.ranking).willReturn(Config.Ranking())

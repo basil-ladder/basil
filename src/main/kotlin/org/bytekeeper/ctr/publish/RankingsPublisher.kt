@@ -4,13 +4,19 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.BotRepository
+import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
+import java.time.Duration
+import java.time.Instant
 
 @Component
-class RankingsPublisher(private val publisher: Publisher,
-                        private val botRepository: BotRepository,
-                        private val botSources: BotSources,
-                        private val config: Config) {
+class RankingsPublisher(
+    private val publisher: Publisher,
+    private val botRepository: BotRepository,
+    private val gameResultRepository: GameResultRepository,
+    private val botSources: BotSources,
+    private val config: Config
+) {
 
     @CommandHandler
     @Timed
@@ -18,28 +24,34 @@ class RankingsPublisher(private val publisher: Publisher,
         val writer = jacksonObjectMapper().writer()
 
         val allBots = botRepository.findAll()
+        val botStats = gameResultRepository.listWinsAndLosses(Instant.now() - Duration.ofDays(7))
+            .map { it.bot to Pair(it.won, it.lost) }.toMap()
         publisher.globalStatsWriter("ranking.json")
-                .use { out ->
-                    writer.writeValue(out, allBots
-                            .map {
-                                val lastUpdated = botSources.botInfoOf(it.name)?.lastUpdated ?: it.lastUpdated
+            .use { out ->
+                writer.writeValue(
+                    out, allBots
+                        .map {
+                            val lastUpdated = botSources.botInfoOf(it.name)?.lastUpdated ?: it.lastUpdated
 
-                                PublishedBotRanking(
-                                        it.name,
-                                        it.rating,
-                                        it.played,
-                                        it.won,
-                                        it.lost,
-                                        it.crashed,
-                                        it.crashesSinceUpdate,
-                                        it.race.name,
-                                        lastUpdated?.epochSecond,
-                                        it.enabled,
-                                        it.disabledReason,
-                                        listOf(SCMapPool.poolSscait.name) + it.mapPools(),
-                                        it.rank.toString(),
-                                        it.previousRank.toString(),
-                                        it.isRankLocked(config.ranking))
+                            PublishedBotRanking(
+                                it.name,
+                                it.rating,
+                                it.played,
+                                it.won,
+                                it.lost,
+                                it.crashed,
+                                it.crashesSinceUpdate,
+                                it.race.name,
+                                lastUpdated?.epochSecond,
+                                it.enabled,
+                                it.disabledReason,
+                                listOf(SCMapPool.poolSscait.name) + it.mapPools(),
+                                it.rank.toString(),
+                                it.previousRank.toString(),
+                                it.isRankLocked(config.ranking),
+                                botStats[it.id]?.first ?: 0,
+                                botStats[it.id]?.second ?: 0
+                            )
                             })
                 }
     }
@@ -60,4 +72,7 @@ class PublishedBotRanking(val botName: String,
                           val mapPools: List<String>,
                           val rank: String,
                           val previousRank: String,
-                          val rankProtection: Boolean)
+                          val rankProtection: Boolean,
+                          val wonInWindow: Long,
+                          val lostInWindow: Long
+)
