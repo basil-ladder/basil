@@ -55,6 +55,14 @@ max-ELO
 ${bot.maxElo}
 </div>
 </div>
+<div class="row">
+<div class="col-1">
+Win rate
+</div>
+<div class="col-1">
+${(bot.won + bot.lost > 0) ? basil.percentFormat(bot.won / (bot.won + bot.lost)) : ""}
+</div>
+</div>
 </div>
 `;
 

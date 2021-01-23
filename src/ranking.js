@@ -13,75 +13,80 @@ const rankChange = (bot) => html`<div class="rank_change">
 
 const activeBotRow = (bot, index) => html`
 <tr>
-<th>
-    ${index + 1}
-</th>
-<td name=${bot.anchorName} class="rank"><div class=${basil.rankcol(bot.rank)}>${rankChange(bot)}${bot.rank}</div></td>
-<td class=${basil.racecol(bot.race)}><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
-<td>${bot.rating ? html`${Math.max(100, basil.eloToMmr(bot.basilRating || bot.rating))}` : html`<small class="tiny">pending</small>`}</td>
-<td>${bot.played}</td>
-<td>${bot.won}</td>
-<td>${bot.lost}</td>
-<td>${bot.winRate}</td>
-<td>${bot.crashesSinceUpdate}</td>
-<td>${bot.lastUpdated}</td>
+    <th>
+        ${index + 1}
+    </th>
+    <td name=${bot.anchorName} class="rank">
+        <div class=${basil.rankcol(bot.rank)}>${rankChange(bot)}${bot.rank}</div>
+    </td>
+    <td class=${basil.racecol(bot.race)}><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}
+            <div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+    <td>${bot.rating ? html`${bot.basilRating || bot.rating}` : html`<small class="tiny">pending</small>`}</td>
+    <td>${bot.rating ? html`${Math.max(100, basil.eloToMmr(bot.basilRating || bot.rating))}` : html`<small
+            class="tiny">pending</small>`}</td>
+    <td>${bot.played}</td>
+    <td>${bot.won}</td>
+    <td>${bot.lost}</td>
+    <td>${bot.winRate}</td>
+    <td>${bot.crashesSinceUpdate}</td>
+    <td>${bot.lastUpdated}</td>
 </tr>`;
 
 const disabledBotRow = (bot, index) => html`
-<tr
-<th>
+<tr <th>
     ${index + 1}
-</th>
-<td name=${bot.anchorName} class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}" target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
-<td>${bot.played}</td>
-<td>${bot.won}</td>
-<td>${bot.lost}</td>
-<td>${bot.winRate}</td>
-<td>${bot.crashed}</td>
-<td><small>${bot.disabledReason}</small></td>
+    </th>
+    <td name=${bot.anchorName} class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}"
+            target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+    <td>${bot.rating ? html`${bot.rating}` : html`<small class="tiny">pending</small>`}</td>
+    <td>${bot.played}</td>
+    <td>${bot.won}</td>
+    <td>${bot.lost}</td>
+    <td>${bot.winRate}</td>
+    <td>${bot.crashed}</td>
+    <td><small>${bot.disabledReason}</small></td>
 </tr>`;
 
 const rankingTable = (data) => html`
 <table>
-<thead>
-<tr>
-<th>#</th>
-<th data-sorter="false">Rank</th>
-<th>Bot</th>
-<th>ELO</th>
-<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
-<th># Games</th>
-<th># Won</th>
-<th># Lost</th>
-<th>% Win</th>
-<th class="tooltip">&Delta; Crashes<span role="tooltip">Crashes since last update. Reset after the first game after an update.</span></th>
-<th>Last updated</th>
-</tr>
-</thead>
-<tbody>
-${data.map((bot, index) => bot.enabled ? activeBotRow(bot, index) : "")}
-</tbody >
-</table >
+    <thead>
+        <tr>
+            <th>#</th>
+            <th data-sorter="false">Rank</th>
+            <th>Bot</th>
+            <th>ELO</th>
+            <th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
+            <th># Games</th>
+            <th># Won</th>
+            <th># Lost</th>
+            <th class="tooltip">% Win7<span role="tooltip">Win rate in the last 7 days.</span></th>
+            <th class="tooltip">&Delta; Crashes<span role="tooltip">Crashes since last update. Reset after the first
+                    game after an update.</span></th>
+            <th>Last updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${data.map((bot, index) => bot.enabled ? activeBotRow(bot, index) : "")}
+    </tbody>
+    </table>
 <h3>Disabled bots</h3>
 <table>
-<thead>
-    <tr>
-        <th>#</th>
-        <th>Bot</th>
-        <th>ELO</th>
-        <th># Games</th>
-        <th># Won</th>
-        <th># Lost</th>
-        <th>% Win</th>
-        <th># Crashes</th>
-        <th data-sorter="false">Reason</th>
-    </tr>
-</thead>
-<tbody>
-    ${data.map((bot, index) => bot.showDisabled ? disabledBotRow(bot, index) : "")}
-</tbody>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Bot</th>
+            <th>ELO</th>
+            <th># Games</th>
+            <th># Won</th>
+            <th># Lost</th>
+            <th>% Win</th>
+            <th># Crashes</th>
+            <th data-sorter="false">Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${data.map((bot, index) => bot.showDisabled ? disabledBotRow(bot, index) : "")}
+    </tbody>
 </table>
 
 `;
@@ -97,8 +102,9 @@ async function update() {
     let { data } = await axios.get(srcUrl);
     for (let i = 0; i < data.length; i++) {
         let played = data[i].won + data[i].lost;
-        if (played > 0 && typeof data[i].won !== "undefined") {
-            data[i].winRate = basil.percentFormat(data[i].won / played);
+        let playedInWindow = data[i].wonInWindow + data[i].lostInWindow;
+        if (playedInWindow > 0) {
+            data[i].winRate = basil.percentFormat(data[i].wonInWindow / playedInWindow);
         } else {
             data[i].winRate = "-";
         }

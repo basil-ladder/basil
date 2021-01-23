@@ -103,6 +103,14 @@ max-ELO
 ${e.maxElo}
 </div>
 </div>
+<div class="row">
+<div class="col-1">
+Win rate
+</div>
+<div class="col-1">
+${e.won+e.lost>0?ja.percentFormat(e.won/(e.won+e.lost)):""}
+</div>
+</div>
 </div>
 `,header=e=>da`
 ${e.won?statsSection(e):""}

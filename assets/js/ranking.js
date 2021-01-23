@@ -4,71 +4,76 @@ parcelRequire=function(e){var r="function"==typeof parcelRequire&&parcelRequire,
     ${t.rankProtection?ca`<i class="fas fa-lock"></i>`:null}
 </div>`,Kd=(t,a)=>ca`
 <tr>
-<th>
-    ${a+1}
-</th>
-<td name=${t.anchorName} class="rank"><div class=${ha.rankcol(t.rank)}>${Od(t)}${t.rank}</div></td>
-<td class=${ha.racecol(t.race)}><a class="normal" href="bot.html?bot=${t.botName}" target="_blank">${t.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${t.rating?ca`${t.basilRating||t.rating}`:ca`<small class="tiny">pending</small>`}</td>
-<td>${t.rating?ca`${Math.max(100,ha.eloToMmr(t.basilRating||t.rating))}`:ca`<small class="tiny">pending</small>`}</td>
-<td>${t.played}</td>
-<td>${t.won}</td>
-<td>${t.lost}</td>
-<td>${t.winRate}</td>
-<td>${t.crashesSinceUpdate}</td>
-<td>${t.lastUpdated}</td>
+    <th>
+        ${a+1}
+    </th>
+    <td name=${t.anchorName} class="rank">
+        <div class=${ha.rankcol(t.rank)}>${Od(t)}${t.rank}</div>
+    </td>
+    <td class=${ha.racecol(t.race)}><a class="normal" href="bot.html?bot=${t.botName}" target="_blank">${t.botName}
+            <div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+    <td>${t.rating?ca`${t.basilRating||t.rating}`:ca`<small class="tiny">pending</small>`}</td>
+    <td>${t.rating?ca`${Math.max(100,ha.eloToMmr(t.basilRating||t.rating))}`:ca`<small
+            class="tiny">pending</small>`}</td>
+    <td>${t.played}</td>
+    <td>${t.won}</td>
+    <td>${t.lost}</td>
+    <td>${t.winRate}</td>
+    <td>${t.crashesSinceUpdate}</td>
+    <td>${t.lastUpdated}</td>
 </tr>`,Jd=(t,a)=>ca`
-<tr
-<th>
+<tr <th>
     ${a+1}
-</th>
-<td name=${t.anchorName} class="${ha.racecol(t.race)}"><a class="normal" href="bot.html?bot=${t.botName}" target="_blank">${t.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
-<td>${t.rating?ca`${t.rating}`:ca`<small class="tiny">pending</small>`}</td>
-<td>${t.played}</td>
-<td>${t.won}</td>
-<td>${t.lost}</td>
-<td>${t.winRate}</td>
-<td>${t.crashed}</td>
-<td><small>${t.disabledReason}</small></td>
+    </th>
+    <td name=${t.anchorName} class="${ha.racecol(t.race)}"><a class="normal" href="bot.html?bot=${t.botName}"
+            target="_blank">${t.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
+    <td>${t.rating?ca`${t.rating}`:ca`<small class="tiny">pending</small>`}</td>
+    <td>${t.played}</td>
+    <td>${t.won}</td>
+    <td>${t.lost}</td>
+    <td>${t.winRate}</td>
+    <td>${t.crashed}</td>
+    <td><small>${t.disabledReason}</small></td>
 </tr>`,vb=t=>ca`
 <table>
-<thead>
-<tr>
-<th>#</th>
-<th data-sorter="false">Rank</th>
-<th>Bot</th>
-<th>ELO</th>
-<th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
-<th># Games</th>
-<th># Won</th>
-<th># Lost</th>
-<th>% Win</th>
-<th class="tooltip">&Delta; Crashes<span role="tooltip">Crashes since last update. Reset after the first game after an update.</span></th>
-<th>Last updated</th>
-</tr>
-</thead>
-<tbody>
-${t.map((t,a)=>t.enabled?Kd(t,a):"")}
-</tbody >
-</table >
+    <thead>
+        <tr>
+            <th>#</th>
+            <th data-sorter="false">Rank</th>
+            <th>Bot</th>
+            <th>ELO</th>
+            <th class="tooltip">MMRvH<span role="tooltip">Rough estimate of human level MMR.</span></th>
+            <th># Games</th>
+            <th># Won</th>
+            <th># Lost</th>
+            <th class="tooltip">% Win7<span role="tooltip">Win rate in the last 7 days.</span></th>
+            <th class="tooltip">&Delta; Crashes<span role="tooltip">Crashes since last update. Reset after the first
+                    game after an update.</span></th>
+            <th>Last updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${t.map((t,a)=>t.enabled?Kd(t,a):"")}
+    </tbody>
+    </table>
 <h3>Disabled bots</h3>
 <table>
-<thead>
-    <tr>
-        <th>#</th>
-        <th>Bot</th>
-        <th>ELO</th>
-        <th># Games</th>
-        <th># Won</th>
-        <th># Lost</th>
-        <th>% Win</th>
-        <th># Crashes</th>
-        <th data-sorter="false">Reason</th>
-    </tr>
-</thead>
-<tbody>
-    ${t.map((t,a)=>t.showDisabled?Jd(t,a):"")}
-</tbody>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Bot</th>
+            <th>ELO</th>
+            <th># Games</th>
+            <th># Won</th>
+            <th># Lost</th>
+            <th>% Win</th>
+            <th># Crashes</th>
+            <th data-sorter="false">Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${t.map((t,a)=>t.showDisabled?Jd(t,a):"")}
+    </tbody>
 </table>
 
-`;Fa(vb([]),Nb);const Pa=ha.dataBaseUrl+"stats/ranking.json",Fc=ca`Source: <a href=${Pa}>${Pa}</a>`;async function Pd(){var $dZBD$$interop$default=ta(Yb);let{data:t}=await $dZBD$$interop$default.d.get(Pa);for(let a=0;a<t.length;a++){let $=t[a].won+t[a].lost;$>0&&void 0!==t[a].won?t[a].winRate=ha.percentFormat(t[a].won/$):t[a].winRate="-",$<30&&(t[a].rating=null),t[a].lastUpdated&&(t[a].lastUpdated=ha.formatDateTime(t[a].lastUpdated)),t[a].anchorName=encodeURIComponent(t[a].botName),t[a].showDisabled=!t[a].enabled&&(t[a].won>0||t[a].lost>0),t[a].disabledReason=t[a].disabledReason||"Disabled on SSCAIT/locally",t[a].downRanked=ha.rankCmp(t[a].previousRank,t[a].rank)>0,t[a].upRanked=ha.rankCmp(t[a].previousRank,t[a].rank)<0}var $juYr$$interop$default=ta(va);if(ha.sortByRank(t),Fa(vb(t),Nb),$juYr$$interop$default.d("#rankingTable table").tablesorter(),location.hash){const t=$juYr$$interop$default.d("thead tr").height(),a=$juYr$$interop$default.d("td[name='"+location.hash.substring(1)+"']");$juYr$$interop$default.d("html, body").animate({scrollTop:a.offset().top-t},"slow")}}Fa(Fc,document.querySelector("#srcRef")),Pd();Va.__esModule=true;aa.__esModule=true;return{"DRjU":{},"dZBD":Yb,"pBGv":(ib(),$a),"mtJo":Va,"xuOk":La,"vfsJ":Na,"SPDu":aa,"FekL":Lb,"juYr":(jb(),va)};});
+`;Fa(vb([]),Nb);const Pa=ha.dataBaseUrl+"stats/ranking.json",Fc=ca`Source: <a href=${Pa}>${Pa}</a>`;async function Pd(){var $dZBD$$interop$default=ta(Yb);let{data:t}=await $dZBD$$interop$default.d.get(Pa);for(let a=0;a<t.length;a++){let $=t[a].won+t[a].lost,r=t[a].wonInWindow+t[a].lostInWindow;t[a].winRate=r>0?ha.percentFormat(t[a].wonInWindow/r):"-",$<30&&(t[a].rating=null),t[a].lastUpdated&&(t[a].lastUpdated=ha.formatDateTime(t[a].lastUpdated)),t[a].anchorName=encodeURIComponent(t[a].botName),t[a].showDisabled=!t[a].enabled&&(t[a].won>0||t[a].lost>0),t[a].disabledReason=t[a].disabledReason||"Disabled on SSCAIT/locally",t[a].downRanked=ha.rankCmp(t[a].previousRank,t[a].rank)>0,t[a].upRanked=ha.rankCmp(t[a].previousRank,t[a].rank)<0}var $juYr$$interop$default=ta(va);if(ha.sortByRank(t),Fa(vb(t),Nb),$juYr$$interop$default.d("#rankingTable table").tablesorter(),location.hash){const t=$juYr$$interop$default.d("thead tr").height(),a=$juYr$$interop$default.d("td[name='"+location.hash.substring(1)+"']");$juYr$$interop$default.d("html, body").animate({scrollTop:a.offset().top-t},"slow")}}Fa(Fc,document.querySelector("#srcRef")),Pd();Va.__esModule=true;aa.__esModule=true;return{"DRjU":{},"dZBD":Yb,"pBGv":(ib(),$a),"mtJo":Va,"xuOk":La,"vfsJ":Na,"SPDu":aa,"FekL":Lb,"juYr":(jb(),va)};});

@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "browserslist": [
-    "Chrome 78"
+    "last 3 chrome versions",
+    "last 3 firefox versions",
+    "last 3 ios_saf versions"
   ],
   "scripts": {
     "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js --out-dir assets/js --public-url /assets/js/",
@@ -23,7 +25,8 @@
   "homepage": "https://github.com/basil-ladder/basil#readme",
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
-    "@fortawesome/fontawesome-free": "^5.14.0"
+    "@fortawesome/fontawesome-free": "^5.14.0",
+    "browserslist": "^4.14.5"
   },
   "dependencies": {
     "axios": "^0.19.2",
