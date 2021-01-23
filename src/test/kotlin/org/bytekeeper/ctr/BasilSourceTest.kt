@@ -12,6 +12,7 @@ import org.mockito.Mockito.verify
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
@@ -55,6 +56,7 @@ class BasilSourceTest() {
         given(webClient.get(any())).willAnswer {
             val uri = it.arguments[0] as URI
             val clientResponse = mock<ClientResponse>()
+            given(clientResponse.statusCode()).willReturn(HttpStatus.OK)
             given(clientResponse.bodyToMono(any<Class<DataBuffer>>())).willReturn(bufferProvider(uri))
             clientResponse.toMono()
         }
