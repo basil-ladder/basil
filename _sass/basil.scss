@@ -133,21 +133,19 @@ tr.disabled {
   color: #afafaf;
 }
 
-thead tr {
-  th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-
-    &:nth-child(2) {
-      left: 0;
-      z-index: 3;
-    }
-  }
+thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
-.crosstable tbody tr {
-  th:nth-child(2) {
+.crosstable {
+  thead tr th:nth-child(2) {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+  }
+  tbody tr th:nth-child(2) {
     position: sticky;
     left: 0;
     z-index: 1;
