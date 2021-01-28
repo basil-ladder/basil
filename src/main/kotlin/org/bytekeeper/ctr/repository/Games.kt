@@ -52,12 +52,6 @@ interface BS {
 
 data class MapRaceWinStat(val race: Race, val map: String, val won: Long)
 
-class BotRaceVsRace(val bot: Bot, val race: Race, val enemyRace: Race, val won: Long, val lost: Long) {
-    init {
-        Hibernate.initialize(bot)
-    }
-}
-
 data class BotGameResult(
     val time: Instant,
     val bot: String,
@@ -98,22 +92,12 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun gamesSinceLastUpdate(): List<BotStat>
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.BotRaceVsRace(bot, " +
-            "CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END," +
-            "CASE WHEN (r.botA = bot) THEN r.raceB else r.raceA END," +
-            " SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
-            " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END))" +
-            " FROM GameResult r, Bot bot where (r.botA = bot OR r.botB = bot) AND bot.enabled = TRUE" +
-            " GROUP by bot, CASE WHEN (r.botA = bot) THEN r.raceA else r.raceB END, CASE WHEN (r.botA = bot) THEN r.raceB else r.raceA END")
-    @Timed
-    fun listBotRaceVsRace(): List<BotRaceVsRace>
-
     @Query(
         "SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, b.name," +
                 " CASE WHEN b = r.winner THEN r.raceA else r.raceB END," +
                 " CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
                 " CASE WHEN b = r.winner THEN r.raceB else r.raceA END, b = r.winner, r.map)" +
-                " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b"
+                " FROM GameResult r join Bot b on r.winner = b or r.loser = b ORDER BY b, r.time"
     )
     @Timed
     fun findAllGamesSummarized(): Stream<BotGameResult>

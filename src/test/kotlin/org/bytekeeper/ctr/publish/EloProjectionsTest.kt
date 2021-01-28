@@ -47,7 +47,7 @@ class EloPublisherTest {
 
     @BeforeEach
     fun setup() {
-        sut = EloPublisher(botEloRepository, botRepository, publisher, botHistoryRepository)
+        sut = EloPublisher(botEloRepository, publisher, botHistoryRepository)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
     }

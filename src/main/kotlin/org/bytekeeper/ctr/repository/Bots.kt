@@ -4,8 +4,10 @@ import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.Config
 import org.bytekeeper.ctr.Ranking
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
+import java.util.stream.Stream
 import javax.persistence.*
 
 enum class Race(val short: String) {
@@ -94,6 +96,10 @@ fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
 interface BotEloRepository : CrudRepository<BotElo, Long> {
     @Timed
     fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotElo>
+
+    @Timed
+    @Query("select be from BotElo be, Bot b where b = be.bot and b.enabled = true order by b, be.time")
+    fun findEnabledOrderByBotAndTimeAsc(): Stream<BotElo>
 }
 
 interface BotRankRepository : CrudRepository<BotRank, Long>
