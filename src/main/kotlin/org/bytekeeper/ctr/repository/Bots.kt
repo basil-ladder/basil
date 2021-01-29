@@ -106,5 +106,5 @@ interface BotRankRepository : CrudRepository<BotRank, Long>
 
 interface BotHistoryRepository : CrudRepository<BotHistory, Long> {
     @Timed
-    fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotHistory>
+    fun findAllByOrderByTimeAsc(): List<BotHistory>
 }

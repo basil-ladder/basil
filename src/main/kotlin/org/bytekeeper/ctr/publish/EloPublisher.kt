@@ -7,10 +7,7 @@ import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
-import org.bytekeeper.ctr.repository.Bot
-import org.bytekeeper.ctr.repository.BotElo
-import org.bytekeeper.ctr.repository.BotEloRepository
-import org.bytekeeper.ctr.repository.BotHistoryRepository
+import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
 import javax.transaction.Transactional
 
@@ -27,6 +24,7 @@ class EloPublisher(
     fun handle(preparePublish: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
+        val updateHistory = botHistoryRepository.findAllByOrderByTimeAsc()
         val allElos = botEloRepository.findEnabledOrderByBotAndTimeAsc().iterator()
         val elos = mutableListOf<BotElo>()
         while (allElos.hasNext()) {
@@ -34,18 +32,21 @@ class EloPublisher(
             if (elos.isEmpty() || elos.first().bot == next.bot) {
                 elos += next
             } else {
-                publish(elos.first().bot, elos, writer)
+                val bot = elos.first().bot
+                publish(bot, elos, updateHistory.filter { it.bot == bot }, writer)
                 elos.clear()
                 elos.add(next)
             }
         }
-        if (elos.isNotEmpty()) publish(elos.first().bot, elos, writer)
+        if (elos.isNotEmpty()) {
+            val bot = elos.first().bot
+            publish(bot, elos, updateHistory.filter { it.bot == bot }, writer)
+        }
     }
 
-    private fun publish(bot: Bot, elos: List<BotElo>, writer: ObjectWriter) {
+    private fun publish(bot: Bot, elos: List<BotElo>, updateHistory: List<BotHistory>, writer: ObjectWriter) {
         publisher.botStatsWriter(bot.name, "eloHistory.json")
             .use { out ->
-                val updateHistory = botHistoryRepository.findAllByBotOrderByTimeAsc(bot)
                 val histIt = updateHistory.iterator()
                 var historyEntry = if (histIt.hasNext()) histIt.next() else null
                 val result = mutableListOf<PublishedBotEloHistoryEntry>()

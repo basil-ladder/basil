@@ -79,12 +79,13 @@ class EloPublisherTest {
                 BotElo(-1, testBot, Instant.ofEpochSecond(5000), 2, gameResult)
             )
         )
-        given(botHistoryRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(
+        given(botHistoryRepository.findAllByOrderByTimeAsc()).willReturn(
             listOf(
                 BotHistory(testBot, Instant.ofEpochSecond(1100), ""),
                 BotHistory(testBot, Instant.ofEpochSecond(1200), ""),
                 BotHistory(testBot, Instant.ofEpochSecond(4000), "")
-        ))
+            )
+        )
 
         // WHEN
         sut.handle(PreparePublish())
