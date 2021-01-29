@@ -28,19 +28,18 @@ class EloPublisher(
         val writer = jacksonObjectMapper().writer()
 
         val allElos = botEloRepository.findEnabledOrderByBotAndTimeAsc().iterator()
-        do {
-            val elos = mutableListOf<BotElo>()
-            while (allElos.hasNext()) {
-                val next = allElos.next()
-                if (elos.isEmpty() || elos.first().bot == next.bot) {
-                    elos += next
-                } else {
-                    publish(elos.first().bot, elos, writer)
-                    elos.clear()
-                    elos.add(next)
-                }
+        val elos = mutableListOf<BotElo>()
+        while (allElos.hasNext()) {
+            val next = allElos.next()
+            if (elos.isEmpty() || elos.first().bot == next.bot) {
+                elos += next
+            } else {
+                publish(elos.first().bot, elos, writer)
+                elos.clear()
+                elos.add(next)
             }
-        } while (elos.isNotEmpty())
+        }
+        if (elos.isNotEmpty()) publish(elos.first().bot, elos, writer)
     }
 
     private fun publish(bot: Bot, elos: List<BotElo>, writer: ObjectWriter) {

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.io.StringWriter
 import java.time.Instant
 import java.util.*
+import java.util.stream.Stream
 
 @ExtendWith(MockitoExtension::class)
 class EloPublisherTest {
@@ -23,9 +24,6 @@ class EloPublisherTest {
     @Mock
     private lateinit var botHistoryRepository: BotHistoryRepository
     private lateinit var sut: EloPublisher
-
-    @Mock
-    private lateinit var botRepository: BotRepository
 
     @Mock
     private lateinit var publisher: Publisher
@@ -55,11 +53,12 @@ class EloPublisherTest {
     @Test
     fun shouldPublishBotEloHistory() {
         // GIVEN
-        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
-        given(botEloRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
+        given(botEloRepository.findEnabledOrderByBotAndTimeAsc()).willReturn(
+            Stream.of(
                 BotElo(-1, testBot, Instant.MIN, 0, gameResult),
                 BotElo(-1, testBot, Instant.MIN, 1, gameResult)
-        ))
+            )
+        )
 
         // WHEN
         sut.handle(PreparePublish())
@@ -71,15 +70,17 @@ class EloPublisherTest {
     @Test
     fun shouldShowUpdates() {
         // GIVEN
-        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
-        given(botEloRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
+        given(botEloRepository.findEnabledOrderByBotAndTimeAsc()).willReturn(
+            Stream.of(
                 BotElo(-1, testBot, Instant.ofEpochSecond(1000), 0, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(2000), 1, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(3000), 2, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(4000), 2, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(5000), 2, gameResult)
-        ))
-        given(botHistoryRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(listOf(
+            )
+        )
+        given(botHistoryRepository.findAllByBotOrderByTimeAsc(testBot)).willReturn(
+            listOf(
                 BotHistory(testBot, Instant.ofEpochSecond(1100), ""),
                 BotHistory(testBot, Instant.ofEpochSecond(1200), ""),
                 BotHistory(testBot, Instant.ofEpochSecond(4000), "")

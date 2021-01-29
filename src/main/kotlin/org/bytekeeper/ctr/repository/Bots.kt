@@ -98,7 +98,7 @@ interface BotEloRepository : CrudRepository<BotElo, Long> {
     fun findAllByBotOrderByTimeAsc(bot: Bot): List<BotElo>
 
     @Timed
-    @Query("select be from BotElo be, Bot b where b = be.bot and b.enabled = true order by b, be.time")
+    @Query("select be from BotElo be join fetch be.bot b where b.enabled = true order by b, be.time")
     fun findEnabledOrderByBotAndTimeAsc(): Stream<BotElo>
 }
 

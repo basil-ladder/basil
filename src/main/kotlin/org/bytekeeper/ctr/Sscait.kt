@@ -61,11 +61,11 @@ class SscaitSource : BotSource {
     override fun downloadBinary(info: org.bytekeeper.ctr.BotInfo): InputStream? {
         return (info as? BotInfo)?.let { botInfo ->
             webClient.get().uri(botInfo.botBinary)
-                    .accept(MediaType.APPLICATION_OCTET_STREAM)
-                    .retrieve()
-                    .bodyToMono<DataBuffer>()
-                    .block(Duration.ofSeconds(30))!!
-                    .asInputStream(true)
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .bodyToMono<DataBuffer>()
+                .block(Duration.ofSeconds(30))
+                ?.asInputStream(true)
                     ?: throw FailedToDownloadBot("Could not download bot binary for bot ${botInfo.name}")
         }
     }
