@@ -1,0 +1,1 @@
+create index bot_elo_bot_time_index on bot_elo (bot_id, time);

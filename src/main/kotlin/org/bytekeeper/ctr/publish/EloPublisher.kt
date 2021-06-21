@@ -15,6 +15,7 @@ import javax.transaction.Transactional
 class EloPublisher(
     private val botEloRepository: BotEloRepository,
     private val publisher: Publisher,
+    private val botRepository: BotRepository,
     private val botHistoryRepository: BotHistoryRepository
 ) {
 
@@ -25,21 +26,8 @@ class EloPublisher(
         val writer = jacksonObjectMapper().writer()
 
         val updateHistory = botHistoryRepository.findAllByOrderByTimeAsc()
-        val allElos = botEloRepository.findEnabledOrderByBotAndTimeAsc().iterator()
-        val elos = mutableListOf<BotElo>()
-        while (allElos.hasNext()) {
-            val next = allElos.next()
-            if (elos.isEmpty() || elos.first().bot == next.bot) {
-                elos += next
-            } else {
-                val bot = elos.first().bot
-                publish(bot, elos, updateHistory.filter { it.bot == bot }, writer)
-                elos.clear()
-                elos.add(next)
-            }
-        }
-        if (elos.isNotEmpty()) {
-            val bot = elos.first().bot
+        for (bot in botRepository.findAllByEnabledTrue()) {
+            val elos = botEloRepository.findByBotOrderByTime(bot)
             publish(bot, elos, updateHistory.filter { it.bot == bot }, writer)
         }
     }
