@@ -33,8 +33,9 @@ const activeBotRow = (bot, index) => html`
 </tr>`;
 
 const disabledBotRow = (bot, index) => html`
-<tr <th>
-    ${index + 1}
+<tr>
+    <th>
+       ${index + 1}
     </th>
     <td name=${bot.anchorName} class="${basil.racecol(bot.race)}"><a class="normal" href="bot.html?bot=${bot.botName}"
             target="_blank">${bot.botName}<div class="float-right"><i class="fas fa-chart-line"></i></div></a></td>
