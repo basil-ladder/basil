@@ -583,6 +583,91 @@ function setupBotMatchupChart(data) {
     updateChart();
     updaters.push(updateChart);
 }
+
+function setupPerPlayLengthChart(data) {
+    let chart = new Chart(document.getElementById("gameLenChart"), {
+        type: "bar",
+        plugins: [ChartDataLabels],
+        options: {
+            plugins: {
+                datalabels: {
+                    align: "top",
+                    formatter: function (value, context) {
+                        let wins = context.chart.data.datasets[0].data[context.dataIndex];
+                        let losses = context.chart.data.datasets[1].data[context.dataIndex];
+                        let wr = wins / Math.max(1, wins + losses);
+                        return basil.percentFormat(wr, 1);
+                    }
+                }
+            },
+            tooltips: {
+                mode: "index",
+                callbacks: {
+                    footer: function (tooltipItems, data) {
+                        let wins = tooltipItems[0].yLabel;
+                        let losses = tooltipItems[1].yLabel;
+                        let wr = wins / Math.max(1, wins + losses);
+                        return "WR: " + basil.percentFormat(wr);
+                    }
+                }
+            }
+        }
+    });
+    function updateChart() {
+        let chartData = new Array(60);
+        for (let i = 0; i < chartData.length; i++) {
+            chartData[i] = {won: 0, lost: 0};
+        }
+        data.results.forEach(function (x) {
+            let epochSecond = x.t;
+            if (epochSecond >= selectedRange.startSecond && epochSecond <= selectedRange.endSecond) {
+                if (x.fc && x.fc < 60 * 1429) {
+                    let stat = chartData[Math.trunc(x.fc / 1429)];
+                    if (x.w === 1) stat.won++; else stat.lost++;
+                }
+            }
+        }, {});
+        let wonData = chartData.map(function (a) { return a.won; });
+        let lostData = chartData.map(function (a) { return a.lost; });
+        let labels = chartData.map((_, i) => i);
+        chart.data.datasets = [{
+            label: "Won",
+            data: wonData,
+            backgroundColor: "#88AAEB",
+            datalabels: {
+                rotation: -85,
+                font: {
+                    size: 10
+                }
+            }
+        }, {
+            label: "Lost",
+            data: lostData,
+            backgroundColor: "#EBAAAA",
+            datalabels: {
+                display: false
+            }
+        }];
+        chart.options.scales = {
+            xAxes: [{
+                stacked: true,
+                type: "category",
+                labels: labels,
+                ticks: {
+                    autoSkip: false
+                }
+            }],
+            yAxes: [{
+                stacked: true
+            }]
+        };
+
+        chart.update();
+    }
+    updateChart();
+    updaters.push(updateChart);
+}
+
 axios.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
     .then(function (response) {
         let data = eval('(' + response.data + ')');
@@ -595,4 +680,5 @@ axios.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined,
         setupVsChart(data);
         setupRaceMatchupChart(data);
         setupBotMatchupChart(data);
+	setupPerPlayLengthChart(data);
     });
