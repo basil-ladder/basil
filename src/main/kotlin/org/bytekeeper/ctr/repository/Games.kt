@@ -11,27 +11,31 @@ import java.util.stream.Stream
 import javax.persistence.*
 
 @Entity
-data class GameResult(@Id val id: UUID,
-                      val time: Instant,
-                      val gameRealtime: Double,
-                      val realtimeTimeout: Boolean = false,
-                      val frameTimeout: Boolean? = false,
-                      val mapPool: String,
-                      val map: String,
-                      @ManyToOne(fetch = FetchType.LAZY) val botA: Bot,
-                      @Enumerated(EnumType.STRING) val raceA: Race,
-                      @ManyToOne(fetch = FetchType.LAZY) val botB: Bot,
-                      @Enumerated(EnumType.STRING) val raceB: Race,
-                      @ManyToOne(fetch = FetchType.LAZY) val winner: Bot? = null,
-                      @ManyToOne(fetch = FetchType.LAZY) val loser: Bot? = null,
-                      val botACrashed: Boolean = false,
-                      val botBCrashed: Boolean = false,
-                      val gameHash: String,
-                      val frameCount: Int? = null)
+data class GameResult(
+    @Id val id: UUID,
+    val time: Instant,
+    val gameRealtime: Double,
+    val realtimeTimeout: Boolean = false,
+    val frameTimeout: Boolean? = false,
+    val mapPool: String,
+    val map: String,
+    @ManyToOne(fetch = FetchType.LAZY) val botA: Bot,
+    @Enumerated(EnumType.STRING) val raceA: Race,
+    @ManyToOne(fetch = FetchType.LAZY) val botB: Bot,
+    @Enumerated(EnumType.STRING) val raceB: Race,
+    @ManyToOne(fetch = FetchType.LAZY) val winner: Bot? = null,
+    @ManyToOne(fetch = FetchType.LAZY) val loser: Bot? = null,
+    val botACrashed: Boolean = false,
+    val botBCrashed: Boolean = false,
+    val gameHash: String,
+    val frameCount: Int? = null
+)
 
-class BotVsBotWonGames(val botA: Bot,
-                       val botB: Bot,
-                       val won: Long) {
+class BotVsBotWonGames(
+    val botA: Bot,
+    val botB: Bot,
+    val won: Long
+) {
     init {
         Hibernate.initialize(botA)
         Hibernate.initialize(botB)
@@ -54,6 +58,7 @@ data class MapRaceWinStat(val race: Race, val map: String, val won: Long)
 
 data class BotGameResult(
     val time: Instant,
+    val frameCount: Int?,
     val bot: String,
     val botRace: Race,
     val enemy: String,
@@ -77,23 +82,27 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun averageGameRealtime(): Double
 
-    @Query("""SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(winner, loser, COUNT(r))
+    @Query(
+        """SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(winner, loser, COUNT(r))
         FROM GameResult r
         JOIN r.winner winner
         JOIN r.loser loser
         WHERE r.time >= ?1
-        GROUP BY winner, loser""")
+        GROUP BY winner, loser"""
+    )
     @Timed
     fun listBotVsBotWonGames(after: Instant): List<BotVsBotWonGames>
 
-    @Query("SELECT new org.bytekeeper.ctr.repository.BotStat(bot, SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
-            " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END)) FROM GameResult r, Bot bot WHERE r.time > bot.lastUpdated AND (r.winner = bot OR r.loser = bot) AND bot.enabled = TRUE" +
-            " GROUP BY bot")
+    @Query(
+        "SELECT new org.bytekeeper.ctr.repository.BotStat(bot, SUM(CASE WHEN (r.winner = bot) THEN 1 ELSE 0 END)," +
+                " SUM(CASE WHEN (r.loser = bot) THEN 1 else 0 END)) FROM GameResult r, Bot bot WHERE r.time > bot.lastUpdated AND (r.winner = bot OR r.loser = bot) AND bot.enabled = TRUE" +
+                " GROUP BY bot"
+    )
     @Timed
     fun gamesSinceLastUpdate(): List<BotStat>
 
     @Query(
-        "SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, b.name," +
+        "SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, r.frameCount, b.name," +
                 " CASE WHEN b = r.winner THEN r.raceA else r.raceB END," +
                 " CASE WHEN b = r.winner THEN r.loser.name else r.winner.name END," +
                 " CASE WHEN b = r.winner THEN r.raceB else r.raceA END, b = r.winner, r.map)" +

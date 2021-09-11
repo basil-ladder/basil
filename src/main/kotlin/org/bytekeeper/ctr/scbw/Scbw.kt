@@ -344,7 +344,7 @@ class Scbw(private val botRepository: BotRepository,
 
                 return@mapIndexed BotResult(scores, frameCount, unitEvents)
             }
-            val frameCount = botResults.mapNotNull { it.frames?.frameCount }.min()
+            val frameCount = botResults.mapNotNull { it.frames?.frameCount }.minOrNull()
             val resultFile = gamePath.resolve("result.json").toFile()
             val gameId = UUID.randomUUID()
             persistUnitEvents(gameId, botA, botResults[0].unitEvents, botB, botResults[1].unitEvents)

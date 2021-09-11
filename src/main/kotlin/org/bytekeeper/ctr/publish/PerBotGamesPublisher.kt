@@ -42,7 +42,7 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
                 maxBotIndex
             }
             aggregate += PublishedBotGameResult(result.botRace.short, botIndex, result.enemyRace.short, maptoIndex[result.map]
-                    ?: 0, (result.time.epochSecond / 3600).toString(16), bool2Short(result.won))
+                    ?: 0, (result.time.epochSecond / 3600).toString(16), result.frameCount, bool2Short(result.won))
         }
         publish(lastBot, writer, aggregate, botToIndex)
     }
@@ -66,5 +66,6 @@ class PerBotGamesPublisher(private val gameResultRepository: GameResultRepositor
                                       @JsonProperty("eR") val enemyRace: String,
                                       @JsonProperty("m") val map: Int,
                                       @JsonProperty("t") val epochHours: String,
+                                      @JsonProperty("fc") @JsonInclude(JsonInclude.Include.NON_NULL) val frameCount: Int?,
                                       @JsonProperty("w") @JsonInclude(JsonInclude.Include.NON_NULL) val won: Short?)
 }
