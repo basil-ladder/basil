@@ -101,7 +101,7 @@ fun BotRepository.getBotsForUpdate(bots: List<Bot>) =
 
 interface BotEloRepository : CrudRepository<BotElo, Long> {
     @Timed
-    fun findByBotOrderByTime(bot: Bot): List<BotElo>
+    fun findByBotOrderByTime(bot: Bot?): List<BotElo>
 }
 
 interface BotRankRepository : CrudRepository<BotRank, Long>

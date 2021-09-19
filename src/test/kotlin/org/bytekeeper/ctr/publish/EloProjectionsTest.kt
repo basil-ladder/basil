@@ -14,12 +14,14 @@ import org.mockito.junit.jupiter.MockitoExtension
 import java.io.StringWriter
 import java.time.Instant
 import java.util.*
-import java.util.stream.Stream
 
 @ExtendWith(MockitoExtension::class)
 class EloPublisherTest {
     @Mock
     private lateinit var botEloRepository: BotEloRepository
+
+    @Mock
+    private lateinit var botRepository: BotRepository
 
     @Mock
     private lateinit var botHistoryRepository: BotHistoryRepository
@@ -31,21 +33,21 @@ class EloPublisherTest {
     private val botStatsWriter: StringWriter = StringWriter()
     val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
     private val gameResult = GameResult(
-            id = UUID.randomUUID(),
-            gameRealtime = 0.0,
-            time = Instant.now(),
-            mapPool = "",
-            map = "",
-            botA = testBot,
-            raceA = Race.PROTOSS,
-            botB = testBot,
-            raceB = Race.PROTOSS,
-            gameHash = ""
+        id = UUID.randomUUID(),
+        gameRealtime = 0.0,
+        time = Instant.now(),
+        mapPool = "",
+        map = "",
+        botA = testBot,
+        raceA = Race.PROTOSS,
+        botB = testBot,
+        raceB = Race.PROTOSS,
+        gameHash = ""
     )
 
     @BeforeEach
     fun setup() {
-        sut = EloPublisher(botEloRepository, publisher, botHistoryRepository)
+        sut = EloPublisher(botEloRepository, publisher, botRepository, botHistoryRepository)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
     }
@@ -53,8 +55,8 @@ class EloPublisherTest {
     @Test
     fun shouldPublishBotEloHistory() {
         // GIVEN
-        given(botEloRepository.findEnabledOrderByBotAndTimeAsc()).willReturn(
-            Stream.of(
+        given(botEloRepository.findByBotOrderByTime(null)).willReturn(
+            listOf(
                 BotElo(-1, testBot, Instant.MIN, 0, gameResult),
                 BotElo(-1, testBot, Instant.MIN, 1, gameResult)
             )
@@ -70,8 +72,8 @@ class EloPublisherTest {
     @Test
     fun shouldShowUpdates() {
         // GIVEN
-        given(botEloRepository.findEnabledOrderByBotAndTimeAsc()).willReturn(
-            Stream.of(
+        given(botEloRepository.findByBotOrderByTime(null)).willReturn(
+            listOf(
                 BotElo(-1, testBot, Instant.ofEpochSecond(1000), 0, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(2000), 1, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(3000), 2, gameResult),
