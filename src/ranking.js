@@ -126,8 +126,6 @@ async function update() {
         const dest = $("td[name='" + location.hash.substring(1) + "']");
         $("html, body").animate({ scrollTop: dest.offset().top - headerHeight }, 'slow');
     }
-
-
 }
 
 update()

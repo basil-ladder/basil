@@ -596,7 +596,7 @@ function setupPerPlayLengthChart(data) {
                         let wins = context.chart.data.datasets[0].data[context.dataIndex];
                         let losses = context.chart.data.datasets[1].data[context.dataIndex];
                         let wr = wins / Math.max(1, wins + losses);
-                        return basil.percentFormat(wr, 1);
+                        return wr > 0.0 && wr < 1.0 ? basil.percentFormat(wr, 1) : "";
                     }
                 }
             },
