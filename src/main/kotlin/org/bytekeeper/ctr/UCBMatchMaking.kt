@@ -11,13 +11,13 @@ import kotlin.math.sqrt
 
 @Component
 class UCBMatchMaking(
-        private val botRepository: BotRepository
+    private val botRepository: BotRepository
 ) {
     private val rng = SplittableRandom()
 
     fun opponentSequenceFor(botA: Bot): Sequence<Bot> {
         val candidates = botRepository.findAllByEnabledTrue()
-        val sumPlayed = candidates.sumBy { it.played }
+        val sumPlayed = candidates.sumOf { it.played }
 
         val botARating = botA.rating
         return candidates.map { botB ->

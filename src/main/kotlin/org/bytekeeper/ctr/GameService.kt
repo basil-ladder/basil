@@ -11,12 +11,14 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.ArrayDeque
 
 @Component
-class GameService(private val scbw: Scbw,
-                  private val maps: Maps,
-                  private val botSources: BotSources,
-                  private val botUpdater: BotUpdater,
-                  private val botRepository: BotRepository,
-                  private var matchmaking: UCBMatchMaking) {
+class GameService(
+    private val scbw: Scbw,
+    private val maps: Maps,
+    private val botSources: BotSources,
+    private val botUpdater: BotUpdater,
+    private val botRepository: BotRepository,
+    private var matchmaking: UCBMatchMaking
+) {
     private val log = LogManager.getLogger()
     private val locks = ConcurrentHashMap<Long, Long>()
     private val botList = ArrayDeque<Long>()
@@ -40,7 +42,7 @@ class GameService(private val scbw: Scbw,
                     botList.addLast(botB.id!!)
                 }
                 try {
-                    val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).toUpperCase()
+                    val hash = Integer.toHexString(Objects.hash(botA.name, botB.name, Date())).uppercase()
 
                     // It is possible that a bot gets "deleted" between selecting it and setting it up.
                     // But it should not matter and just result in an exception in setupBot(...)
@@ -50,8 +52,10 @@ class GameService(private val scbw: Scbw,
                         setupBot(botB)
                     }
 
-                    val pool = maps.mapPools.lastOrNull { botA.mapPools().contains(it.name) && botB.mapPools().contains(it.name) }
-                            ?: SCMapPool.poolSscait
+                    val pool = maps.mapPools.lastOrNull {
+                        botA.mapPools().contains(it.name) && botB.mapPools().contains(it.name)
+                    }
+                        ?: SCMapPool.poolSscait
                     scbw.runGame(Scbw.GameConfig(listOf(botA.name, botB.name), pool, "CTR_$hash"))
 //                    println("${botA.name} : ${botA.rating} vs ${botB.name} : ${botB.rating}")
                     Thread.sleep(1000)
@@ -78,10 +82,10 @@ class GameService(private val scbw: Scbw,
 
     private fun withLockedBot(selector: Sequence<Bot>, block: (Bot) -> Unit) {
         val bot = selector
-                .mapNotNull { bot ->
-                    locks.putIfAbsent(bot.id!!, bot.id!!) ?: return@mapNotNull bot
-                    null
-                }.first()
+            .mapNotNull { bot ->
+                locks.putIfAbsent(bot.id!!, bot.id!!) ?: return@mapNotNull bot
+                null
+            }.first()
         try {
             block(bot)
         } finally {
