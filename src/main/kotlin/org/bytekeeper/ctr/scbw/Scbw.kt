@@ -23,17 +23,20 @@ const val killTimeout = 20L
 const val LOG_LIMIT = 200 * 1024
 
 @Service
-class Scbw(private val botRepository: BotRepository,
-           private val unitEventRepository: UnitEventsRepository,
-           private val entityManager: EntityManager,
-           private val botSources: BotSources,
-           private val scbwConfig: ScbwConfig,
-           private val config: Config,
-           private val events: Events,
-           private val publisher: Publisher,
-           private val maps: Maps,
-           private val botService: BotService) {
+class Scbw(
+    private val botRepository: BotRepository,
+    private val unitEventRepository: UnitEventsRepository,
+    private val entityManager: EntityManager,
+    private val botSources: BotSources,
+    private val scbwConfig: ScbwConfig,
+    private val config: Config,
+    private val events: Events,
+    private val publisher: Publisher,
+    private val maps: Maps,
+    private val botService: BotService
+) {
     private val log = LogManager.getLogger()
+
     @Volatile
     private var shuttingDown: Boolean = false
 
@@ -43,8 +46,8 @@ class Scbw(private val botRepository: BotRepository,
         log.info("Killing remaining containers...")
         shuttingDown = true
         Docker.retrieveContainersWithName("GAME_CTR")
-                .parallelStream()
-                .forEach { Docker.killContainer(it) }
+            .parallelStream()
+            .forEach { Docker.killContainer(it) }
     }
 
     fun checkBotDirectory(bot: Bot) {
@@ -57,7 +60,8 @@ class Scbw(private val botRepository: BotRepository,
         val bwapiDll = botDir.resolve("BWAPI.dll")
 
         val extension = BotType.valueOf(bot.botType).extension
-        val missingFiles = arrayOf(botDir, aiDir, readDir, writeDir, botJsonDef, bwapiDll).filter { !it.toFile().exists() }
+        val missingFiles =
+            arrayOf(botDir, aiDir, readDir, writeDir, botJsonDef, bwapiDll).filter { !it.toFile().exists() }
         val aiFiles = if (aiDir.toFile().exists()) Files.list(aiDir).use {
             it.asSequence().map {
                 it.last().toString()
@@ -116,37 +120,45 @@ class Scbw(private val botRepository: BotRepository,
         }
         log.info("Downloading $name's binary")
         botSources.downloadBinary(botInfo)
-                .use { stream ->
-                    val timestamp = Instant.now().toEpochMilli() / 1000
-                    config.botBinariesHistoryPath?.resolve(name)?.resolve("binary_$timestamp.zip")
-                            ?.let {
-                                log.info("Saving bot history to $it")
-                                Files.createDirectories(it.parent)
-                                Files.copy(stream, it, StandardCopyOption.REPLACE_EXISTING)
-                                Files.newInputStream(it)
-                            } ?: run {
-                        log.info("No history path was given, passing download through")
-                        stream
-                    }
-                }.let {
-                    ZipInputStream(it)
-                }.use { zipIn ->
-                    while (true) {
-                        val nextEntry = zipIn.nextEntry ?: return@use
-                        if (nextEntry.isDirectory) {
-                            Files.createDirectories(aiDir.resolve(nextEntry.name))
-                        } else {
-                            Files.copy(zipIn, aiDir.resolve(nextEntry.name), StandardCopyOption.REPLACE_EXISTING)
-                        }
+            .use { stream ->
+                val timestamp = Instant.now().toEpochMilli() / 1000
+                config.botBinariesHistoryPath?.resolve(name)?.resolve("binary_$timestamp.zip")
+                    ?.let {
+                        log.info("Saving bot history to $it")
+                        Files.createDirectories(it.parent)
+                        Files.copy(stream, it, StandardCopyOption.REPLACE_EXISTING)
+                        Files.newInputStream(it)
+                    } ?: run {
+                    log.info("No history path was given, passing download through")
+                    stream
+                }
+            }.let {
+                ZipInputStream(it)
+            }.use { zipIn ->
+                while (true) {
+                    val nextEntry = zipIn.nextEntry ?: return@use
+                    val path = aiDir.resolve(nextEntry.name).normalize()
+                    if (!path.startsWith(path))
+                        throw InvalidBotfileException("Bot zip contains invalid paths (exploitation attempt?)")
+                    if (nextEntry.isDirectory) {
+                        Files.createDirectories(aiDir.resolve(nextEntry.name))
+                    } else {
+                        Files.createDirectories(path.parent)
+                        Files.copy(zipIn, aiDir.resolve(nextEntry.name), StandardCopyOption.REPLACE_EXISTING)
                     }
                 }
-        jacksonObjectMapper().writeValue(botJsonDef.toFile(), BotJson(name,
+            }
+        jacksonObjectMapper().writeValue(
+            botJsonDef.toFile(), BotJson(
+                name,
                 when (botInfo.race) {
                     Race.TERRAN -> "Terran"
                     Race.ZERG -> "Zerg"
                     Race.PROTOSS -> "Protoss"
                     Race.RANDOM -> "Random"
-                }, botInfo.botType))
+                }, botInfo.botType
+            )
+        )
         if (additionalReadPath.toFile().exists() && Files.isDirectory(additionalReadPath)) {
             log.info("There are additional 'read' files that will be copied to the read directory")
             Files.newDirectoryStream(additionalReadPath).use {
@@ -220,8 +232,8 @@ class Scbw(private val botRepository: BotRepository,
 //            cmd += "DEBUG"
             if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
-                    .redirectErrorStream(true)
-                    .start()
+                .redirectErrorStream(true)
+                .start()
             thread(true) {
                 process.inputStream.bufferedReader().use { reader ->
                     reader.lineSequence().forEach { log.info("$gameName - $it") }
@@ -266,17 +278,25 @@ class Scbw(private val botRepository: BotRepository,
 
         private fun cleanUpBotContainers() {
             Docker.retrieveContainersWithName(dockerPrefix)
-                    .forEach {
-                        log.info("Killing game ${gameConfig.gameName}, bot container $it")
-                        val killed = Docker.killContainer(it)
-                                .waitFor(killTimeout, TimeUnit.SECONDS)
-                        if (!killed) {
-                            throw FailedToKillContainer("Couldn't kill container $it after $killTimeout seconds")
-                        }
+                .forEach {
+                    log.info("Killing game ${gameConfig.gameName}, bot container $it")
+                    val killed = Docker.killContainer(it)
+                        .waitFor(killTimeout, TimeUnit.SECONDS)
+                    if (!killed) {
+                        throw FailedToKillContainer("Couldn't kill container $it after $killTimeout seconds")
                     }
+                }
         }
 
-        private fun moveResult(gameDir: Path, gameName: String, bots: List<String>, botA: Bot, botARace: Race, botB: Bot, botBRace: Race) {
+        private fun moveResult(
+            gameDir: Path,
+            gameName: String,
+            bots: List<String>,
+            botA: Bot,
+            botARace: Race,
+            botB: Bot,
+            botBRace: Race
+        ) {
             val mapper = jacksonObjectMapper()
             val gamePath = gameDir.resolve("GAME_$gameName")
             val botsPath = config.dataBasePath.resolve("bots")
@@ -315,12 +335,13 @@ class Scbw(private val botRepository: BotRepository,
 
                             }
                             FrameResult(
-                                    try {
-                                        lastLine.substringBefore(',').toInt()
-                                    } catch (e: NumberFormatException) {
-                                        0
-                                    },
-                                    sumFrameTime ?: 0.0)
+                                try {
+                                    lastLine.substringBefore(',').toInt()
+                                } catch (e: NumberFormatException) {
+                                    0
+                                },
+                                sumFrameTime ?: 0.0
+                            )
                         }
                     } else null
                 }
@@ -353,7 +374,8 @@ class Scbw(private val botRepository: BotRepository,
                 if (result.winner != null && result.loser != null) {
                     val winnerBot = if (result.winner == botA.name) botA else botB
                     val loserBot = if (result.winner == botA.name) botB else botA
-                    events.post(GameEnded(
+                    events.post(
+                        GameEnded(
                             gameId,
                             winnerBot,
                             if (winnerBot == botA) botARace else botBRace,
@@ -364,10 +386,13 @@ class Scbw(private val botRepository: BotRepository,
                             Instant.now(),
                             result.game_time,
                             gameConfig.gameName,
-                            frameCount))
+                            frameCount
+                        )
+                    )
                 } else {
                     if (result.is_crashed) {
-                        events.post(GameCrashed(
+                        events.post(
+                            GameCrashed(
                                 gameId,
                                 botA,
                                 botARace,
@@ -380,30 +405,33 @@ class Scbw(private val botRepository: BotRepository,
                                 Instant.now(),
                                 result.game_time,
                                 gameConfig.gameName,
-                                frameCount))
+                                frameCount
+                            )
+                        )
                     } else {
                         require(result.is_gametime_outed || result.is_realtime_outed)
 
                         events.post(GameTimedOut(
-                                gameId,
-                                botA,
-                                botARace,
-                                botB,
-                                botBRace,
-                                botResults[0].scores?.let { it.kill_score + it.razing_score } ?: 0,
-                                botResults[1].scores?.let { it.kill_score + it.razing_score } ?: 0,
-                                gameConfig.mapPool,
-                                map,
-                                Instant.now(),
-                                result.is_realtime_outed,
-                                result.is_gametime_outed,
-                                result.game_time,
-                                gameConfig.gameName,
-                                frameCount))
+                            gameId,
+                            botA,
+                            botARace,
+                            botB,
+                            botBRace,
+                            botResults[0].scores?.let { it.kill_score + it.razing_score } ?: 0,
+                            botResults[1].scores?.let { it.kill_score + it.razing_score } ?: 0,
+                            gameConfig.mapPool,
+                            map,
+                            Instant.now(),
+                            result.is_realtime_outed,
+                            result.is_gametime_outed,
+                            result.game_time,
+                            gameConfig.gameName,
+                            frameCount))
                     }
                 }
             } else {
-                events.post(GameFailedToStart(
+                events.post(
+                    GameFailedToStart(
                         gameId,
                         botA,
                         botARace,
@@ -412,11 +440,19 @@ class Scbw(private val botRepository: BotRepository,
                         gameConfig.mapPool,
                         map,
                         Instant.now(),
-                        gameConfig.gameName))
+                        gameConfig.gameName
+                    )
+                )
             }
         }
 
-        private fun persistUnitEvents(gameId: UUID, botA: Bot, botAEvents: List<String>, botB: Bot, botBEvents: List<String>) {
+        private fun persistUnitEvents(
+            gameId: UUID,
+            botA: Bot,
+            botAEvents: List<String>,
+            botB: Bot,
+            botBEvents: List<String>
+        ) {
             val game = entityManager.getReference(GameResult::class.java, gameId)
             fun preprocess(bot: Bot, events: List<String>): List<UnitEvent> {
                 fun toUnitEvent(fld: List<String>): UnitEvent? {
@@ -426,23 +462,25 @@ class Scbw(private val botRepository: BotRepository,
                     val unitType = UnitType.fromLogEvent(unitTypeString)
                     if (unitType == UnitType.UNKNOWN)
                         log.error("Could not found unit type for $unitTypeString!")
-                    return UnitEvent(fld[0].toInt(),
-                            UnitEventType.fromLogEvent(fld[1]),
-                            game,
-                            bot,
-                            fld[3].toShort(),
-                            unitType,
-                            pos[1].toShort(), pos[2].toShort())
+                    return UnitEvent(
+                        fld[0].toInt(),
+                        UnitEventType.fromLogEvent(fld[1]),
+                        game,
+                        bot,
+                        fld[3].toShort(),
+                        unitType,
+                        pos[1].toShort(), pos[2].toShort()
+                    )
                 }
                 return events.map(CSV::parseLine)
-                        .mapNotNull(::toUnitEvent)
-                        .filter {
-                            it.event != UnitEventType.UNIT_RENEGADE &&
-                                    when (it.unitType) {
-                                        UnitType.SPELL_DARK_SWARM, UnitType.SPELL_DISRUPTION_WEB, UnitType.SPELL_SCANNER_SWEEP -> it.event == UnitEventType.UNIT_CREATE
-                                        else -> true
-                                    }
-                        }
+                    .mapNotNull(::toUnitEvent)
+                    .filter {
+                        it.event != UnitEventType.UNIT_RENEGADE &&
+                                when (it.unitType) {
+                                    UnitType.SPELL_DARK_SWARM, UnitType.SPELL_DISRUPTION_WEB, UnitType.SPELL_SCANNER_SWEEP -> it.event == UnitEventType.UNIT_CREATE
+                                    else -> true
+                                }
+                    }
             }
 
             val botAProcessedEvents = preprocess(botA, botAEvents)
@@ -470,30 +508,30 @@ class Scbw(private val botRepository: BotRepository,
 }
 
 class BotJson(
-        val name: String,
-        val race: String,
-        val botType: String
+    val name: String,
+    val race: String,
+    val botType: String
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ResultJson(
-        val bots: List<String>,
-        val is_crashed: Boolean = false,
-        val is_gametime_outed: Boolean,
-        val is_realtime_outed: Boolean,
-        val game_time: Double,
-        val winner: String? = null,
-        val loser: String? = null
+    val bots: List<String>,
+    val is_crashed: Boolean = false,
+    val is_gametime_outed: Boolean,
+    val is_realtime_outed: Boolean,
+    val game_time: Double,
+    val winner: String? = null,
+    val loser: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ScoresJson(
-        val is_winner: Boolean,
-        val is_crashed: Boolean,
-        val building_score: Int,
-        val kill_score: Int,
-        val razing_score: Int,
-        val unit_score: Int
+    val is_winner: Boolean,
+    val is_crashed: Boolean,
+    val building_score: Int,
+    val kill_score: Int,
+    val razing_score: Int,
+    val unit_score: Int
 )
 
 class FrameResult(val frameCount: Int, val sumFrameTime: Double)
@@ -504,3 +542,4 @@ class FailedToLimitResources(message: String) : RuntimeException(message)
 class FailedToKillContainer(message: String) : RuntimeException(message)
 class FailedToKillSCBW(message: String) : RuntimeException(message)
 class BotNotFoundException(message: String) : RuntimeException(message)
+class InvalidBotfileException(message: String) : RuntimeException(message)
