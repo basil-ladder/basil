@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.scheduling.support.CronExpression
 import org.springframework.stereotype.Service
-import java.time.Instant
+import java.time.OffsetDateTime
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -39,7 +39,8 @@ class BotUpdater(
             log.info("Updating database...")
             allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
             log.info("done")
-            nextBotUpdateTime = CronExpression.parse(updateSchedule).next(Instant.now())?.toEpochMilli() ?: 0
+            nextBotUpdateTime =
+                CronExpression.parse(updateSchedule).next(OffsetDateTime.now())?.toInstant()?.toEpochMilli() ?: 0
         }
     }
 

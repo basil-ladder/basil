@@ -9,18 +9,18 @@ import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.bytekeeper.ctr.repository.Race
-import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 
 @Component
-class GeneralStatsPublisher(private val botUpdater: BotUpdater,
-                            private val gameResultRepository: GameResultRepository,
-                            private val botRepository: BotRepository,
-                            private val unitEventsRepository: UnitEventsRepository,
-                            private val publisher: Publisher) {
+class GeneralStatsPublisher(
+    private val botUpdater: BotUpdater,
+    private val gameResultRepository: GameResultRepository,
+    private val botRepository: BotRepository,
+    private val publisher: Publisher
+) {
     private var lastPublish: LocalDateTime? = null
 
     @CommandHandler
@@ -66,26 +66,31 @@ class GeneralStatsPublisher(private val botUpdater: BotUpdater,
                                     gameResultRepository.averageGameRealtime(),
                                     raceCrossTable,
                                     unitStats
-                            ))
+                            )
+                    )
                 }
     }
 
     private fun vsRow(winner: Race): VsRow =
-            VsRow(gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.TERRAN),
-                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.PROTOSS),
-                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.ZERG),
-                    gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.RANDOM))
+        VsRow(
+            gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.TERRAN),
+            gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.PROTOSS),
+            gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.ZERG),
+            gameResultRepository.countByWinnerRaceAndLoserRace(winner, Race.RANDOM)
+        )
 
-    data class PublishedStats(val nextUpdateTime: Long,
-                              val gamesPlayed: Long,
-                              val terranBots: Int,
-                              val zergBots: Int,
-                              val protossBots: Int,
-                              val randomBots: Int,
-                              val crashes: Int,
-                              val averageGameRealtime: Double,
-                              val raceCrossTable: RaceCrossTable,
-                              val unitStats: List<PublishedUnitStats>)
+    data class PublishedStats(
+        val nextUpdateTime: Long,
+        val gamesPlayed: Long,
+        val terranBots: Int,
+        val zergBots: Int,
+        val protossBots: Int,
+        val randomBots: Int,
+        val crashes: Int,
+        val averageGameRealtime: Double?,
+        val raceCrossTable: RaceCrossTable,
+        val unitStats: List<PublishedUnitStats>
+    )
 
     data class PublishedUnitStats(val name: String, val created: Long, val destroyed: Long)
 

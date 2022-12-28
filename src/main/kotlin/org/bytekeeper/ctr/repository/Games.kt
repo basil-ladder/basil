@@ -80,7 +80,7 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
 
     @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
     @Timed
-    fun averageGameRealtime(): Double
+    fun averageGameRealtime(): Double?
 
     @Query(
         """SELECT new org.bytekeeper.ctr.repository.BotVsBotWonGames(winner, loser, COUNT(r))

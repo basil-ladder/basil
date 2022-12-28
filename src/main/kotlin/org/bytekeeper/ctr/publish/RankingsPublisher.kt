@@ -2,6 +2,7 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
+import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.GameResultRepository
@@ -17,6 +18,7 @@ class RankingsPublisher(
     private val botSources: BotSources,
     private val config: Config
 ) {
+    private val log = LogManager.getLogger()
 
     @CommandHandler
     @Timed
@@ -32,7 +34,10 @@ class RankingsPublisher(
                     out, allBots
                         .map {
                             val lastUpdated = botSources.botInfoOf(it.name)?.lastUpdated ?: it.lastUpdated
-
+                            val lastUpdatedEpoch = lastUpdated?.epochSecond
+                            if (lastUpdatedEpoch != null && lastUpdatedEpoch < 0) {
+                                log.warn("Update timestamp of '{it.name}' is invalid: {lastUpdated} -> {lastUpdatedEpoch}")
+                            }
                             PublishedBotRanking(
                                 it.name,
                                 it.rating,

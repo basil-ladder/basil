@@ -43,7 +43,7 @@ class GeneralStatsPublisherTest {
 
     @BeforeEach
     fun setup() {
-        sut = GeneralStatsPublisher(botUpdater, gameResultRepository, botRepository, unitEventsRepository, publisher)
+        sut = GeneralStatsPublisher(botUpdater, gameResultRepository, botRepository, publisher)
 
         given(publisher.globalStatsWriter(ArgumentMatchers.anyString()))
                 .willReturn(BufferedWriter(writer))

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.net.URI
 import java.nio.file.*
@@ -41,8 +42,11 @@ class BasilSource(private val config: Config,
     override fun refresh() {
         botCache = try {
             mapper.readValue<List<BotInfo>>(config.basilBotSource.toFile())
-                    .map { it.name to it }
-                    .toMap()
+                .map { it.name to it }
+                .toMap()
+        } catch (e: FileNotFoundException) {
+            log.info("No local bot config")
+            emptyMap()
         } catch (e: java.lang.Exception) {
             log.error("Could not update bot cache (File format ok?)", e)
             emptyMap()
