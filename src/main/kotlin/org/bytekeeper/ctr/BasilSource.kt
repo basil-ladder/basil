@@ -81,7 +81,7 @@ class BasilSource(private val config: Config,
                                     botInfo.lastUpdated = updated
                                 }
                     } catch (e: Exception) {
-                        log.error("Couldn't download ${botInfo.name}", e)
+                        log.warn("Couldn't download ${botInfo.name}", e)
                         null
                     }
                     if (path == null) null else botInfo.name to path
