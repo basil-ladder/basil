@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.scheduling.support.CronExpression
 import org.springframework.stereotype.Service
-import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -20,7 +20,7 @@ class BotUpdater(
     private val log = LogManager.getLogger()
     private val updateLock = ReentrantReadWriteLock()
 
-    @Value("\${basil.botUpdateSchedule:'0 0 */6 * * *'}")
+    @Value("\${basil.botUpdateSchedule:0 0 */6 * * *}")
     private val updateSchedule = ""
     var nextBotUpdateTime: Long = 0
         protected set
@@ -40,7 +40,7 @@ class BotUpdater(
             allBots.forEach { botInfo -> botService.registerOrUpdateBot(botInfo) }
             log.info("done")
             nextBotUpdateTime =
-                CronExpression.parse(updateSchedule).next(OffsetDateTime.now())?.toInstant()?.toEpochMilli() ?: 0
+                CronExpression.parse(updateSchedule).next(ZonedDateTime.now())?.toInstant()?.toEpochMilli() ?: 0
         }
     }
 
