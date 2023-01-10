@@ -36,7 +36,7 @@ class RankingsPublisher(
                             val lastUpdated = botSources.botInfoOf(it.name)?.lastUpdated ?: it.lastUpdated
                             val lastUpdatedEpoch = lastUpdated?.epochSecond
                             if (lastUpdatedEpoch != null && lastUpdatedEpoch < 0) {
-                                log.warn("Update timestamp of '{it.name}' is invalid: {lastUpdated} -> {lastUpdatedEpoch}")
+                                log.warn("Update timestamp of '${it.name}' is invalid: ${lastUpdated} -> ${lastUpdatedEpoch}")
                             }
                             PublishedBotRanking(
                                 it.name,
