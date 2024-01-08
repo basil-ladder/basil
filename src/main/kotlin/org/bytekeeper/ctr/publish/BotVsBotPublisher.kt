@@ -30,7 +30,7 @@ class BotVsBotPublisher(private val gameResultRepository: GameResultRepository,
     }
 
     private fun publish(writer: ObjectWriter, daysBeforeNow: Long? = null) {
-        val after = daysBeforeNow?.let { Instant.now() - Duration.ofDays(it) } ?: Instant.EPOCH;
+        val after = daysBeforeNow?.let { Instant.now() - Duration.ofDays(it) } ?: Instant.EPOCH
         val wonGames = gameResultRepository.listBotVsBotWonGames(after)
         val sortedBotList = wonGames
                 .flatMap { listOf(it.botA, it.botB) }

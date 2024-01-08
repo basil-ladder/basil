@@ -134,7 +134,7 @@ class Times(private val times: Int, private val child: StateDescriptor) : StateD
     override fun apply(entry: State): State {
         var out = entry
         repeat(times) {
-            out = child.apply(out);
+            out = child.apply(out)
         }
         return out
     }

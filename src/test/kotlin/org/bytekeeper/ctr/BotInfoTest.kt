@@ -11,6 +11,8 @@ import org.bytekeeper.ctr.SscaitSource.BotInfo.Companion.commands
 import org.junit.jupiter.api.Test
 
 class BotInfoTest {
+    val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
     @Test
     fun shouldMatchBasilCommand() {
         assertThat("BASIL: DESTROY, ALL, HUMAN").containsPattern(BASIL_COMMAND_MATCHER)
@@ -34,7 +36,7 @@ class BotInfoTest {
         // GIVEN
 
         // WHEN
-        val botInfo = BotInfo("bot", "Random", "0", "0", null, null, "binary", "bwapi", "TYPE", "BASIL: DISABLED")
+        val botInfo = BotInfo("bot", "Random", null, null, "binary", "bwapi", "TYPE", "BASIL: DISABLED")
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("disabled", true)
@@ -45,7 +47,8 @@ class BotInfoTest {
         // GIVEN
 
         // WHEN
-        val botInfo = BotInfo("bot", "Zerg", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: RESET whatever!")
+        val botInfo =
+            BotInfo("bot", "Zerg", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: RESET whatever!")
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("clearReadDirectory", true)
@@ -56,7 +59,16 @@ class BotInfoTest {
         // GIVEN
 
         // WHEN
-        val botInfo = BotInfo("bot", "Protoss", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PUBLISH-READ whatever!")
+        val botInfo = BotInfo(
+            "bot",
+            "Protoss",
+            null,
+            null,
+            "binary",
+            "bwapi",
+            "TYPE",
+            "Some text here BASIL: PUBLISH-READ whatever!"
+        )
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
@@ -67,7 +79,16 @@ class BotInfoTest {
         // GIVEN
 
         // WHEN
-        val botInfo = BotInfo("bot", "Terran", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PUBLISH-READ,RESET whatever!")
+        val botInfo = BotInfo(
+            "bot",
+            "Terran",
+            null,
+            null,
+            "binary",
+            "bwapi",
+            "TYPE",
+            "Some text here BASIL: PUBLISH-READ,RESET whatever!"
+        )
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
@@ -77,7 +98,16 @@ class BotInfoTest {
     @Test
     fun `should parse public key id`() {
         // WHEN
-        val botInfo = BotInfo("bot", "Terran", "0", "0", null, null, "binary", "bwapi", "TYPE", "Some text here BASIL: PB-KEY-12345678,RESET whatever!")
+        val botInfo = BotInfo(
+            "bot",
+            "Terran",
+            null,
+            null,
+            "binary",
+            "bwapi",
+            "TYPE",
+            "Some text here BASIL: PB-KEY-12345678,RESET whatever!"
+        )
 
         // THEN
         assertThat(botInfo).hasFieldOrPropertyWithValue("publishReadDirectory", true)
@@ -87,10 +117,9 @@ class BotInfoTest {
 
     @Test
     fun `should find bot with BASIL command`() {
-        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
         // WHEN
-        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json"))
+        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json")!!)
 
         // THEN
         assertThat(botInfoList).extracting("authorKey", "publishReadDirectory")
@@ -100,14 +129,31 @@ class BotInfoTest {
 
     @Test
     fun `should parse supported map pools`() {
-        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
         // WHEN
-        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json"))
+        val botInfoList = mapper.readValue<List<BotInfo>>(BotInfoTest::class.java.getResource("/bots.json")!!)
 
         // THEN
         assertThat(botInfoList).extracting("supportedMapPools")
                 .contains(listOf("a", "b", "c"))
 
+    }
+
+    @Test
+    fun `should parse basil sourced bot`() {
+        // GIVEN
+        val botConfig = """ {"name": "Brainiac",
+                "disabled": false,
+                "botBinary": "testUrl",
+                "race": "Random",
+                "botType": "AI_MODULE",
+                "publishReadDirectory": true
+        }"""
+
+        // WHEN
+        val botInfo = mapper.readValue<BasilSource.BotInfo>(botConfig)
+
+        // THEN
+        assertThat(botInfo).extracting("publishReadDirectory").isEqualTo(true)
     }
 }

@@ -32,7 +32,7 @@ class GameResultsProjectionsTest {
     private val pool = poolSscait
 
     private val map = pool.maps[0]
-    private lateinit var gameResult: GameResult;
+    private lateinit var gameResult: GameResult
 
     @BeforeEach
     fun setup() {

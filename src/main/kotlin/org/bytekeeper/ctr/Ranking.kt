@@ -49,7 +49,7 @@ class Ranking(
                 bot.previousRank = bot.rank
                 if (!bot.isRankLocked(config.ranking) && bot.rank != rank.rank) {
                     botRankRepository.save(BotRank(bot = bot, time = now, rank = rank.rank))
-                    bot.rank = rank.rank;
+                    bot.rank = rank.rank
                     bot.rankSince = bot.played
                 }
                 botRepository.save(bot)

@@ -31,7 +31,7 @@ class EloPublisherTest {
     private lateinit var publisher: Publisher
 
     private val botStatsWriter: StringWriter = StringWriter()
-    val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
+    private val testBot = Bot(-1, true, null, "test", Race.PROTOSS, "MIRROR", null)
     private val gameResult = GameResult(
         id = UUID.randomUUID(),
         gameRealtime = 0.0,
@@ -50,12 +50,13 @@ class EloPublisherTest {
         sut = EloPublisher(botEloRepository, publisher, botRepository, botHistoryRepository)
 
         given(publisher.botStatsWriter(anyString(), anyString())).willReturn(botStatsWriter)
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(testBot))
     }
 
     @Test
     fun shouldPublishBotEloHistory() {
         // GIVEN
-        given(botEloRepository.findByBotOrderByTime(null)).willReturn(
+        given(botEloRepository.findByBotOrderByTime(testBot)).willReturn(
             listOf(
                 BotElo(-1, testBot, Instant.MIN, 0, gameResult),
                 BotElo(-1, testBot, Instant.MIN, 1, gameResult)
@@ -72,7 +73,7 @@ class EloPublisherTest {
     @Test
     fun shouldShowUpdates() {
         // GIVEN
-        given(botEloRepository.findByBotOrderByTime(null)).willReturn(
+        given(botEloRepository.findByBotOrderByTime(testBot)).willReturn(
             listOf(
                 BotElo(-1, testBot, Instant.ofEpochSecond(1000), 0, gameResult),
                 BotElo(-1, testBot, Instant.ofEpochSecond(2000), 1, gameResult),

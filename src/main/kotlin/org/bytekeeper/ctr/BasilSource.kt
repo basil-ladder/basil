@@ -173,6 +173,7 @@ class BasilSource(private val config: Config,
                   @JsonProperty("race")
                   val raceValue: String,
                   override val botType: String = "",
+                  override val publishReadDirectory: Boolean = authorKey != null,
                   override val supportedMapPools: List<String> = emptyList()) : org.bytekeeper.ctr.BotInfo {
         @JsonIgnore
         override var lastUpdated: Instant = Instant.MIN
@@ -181,9 +182,6 @@ class BasilSource(private val config: Config,
 
         @JsonIgnore
         override val race: Race = parseRace(raceValue)
-
-        override val publishReadDirectory: Boolean
-            @JsonIgnore get() = authorKey != null
 
         private fun parseRace(race: String): Race =
                 when (race) {

@@ -38,7 +38,7 @@ class SscaitSource : BotSource {
                 .retrieve()
                 .bodyToFlux<BotInfo>()
                 .onErrorResume { ex ->
-                    log.error("Could not retrieve list of bots!", ex)
+                    log.warn("Could not retrieve list of bots!", ex)
                     Mono.empty()
                 }
                 .collectList()
@@ -81,9 +81,7 @@ class SscaitSource : BotSource {
             override val name: String,
             @JsonProperty("race")
             val raceValue: String,
-            val wins: String? = "0",
-            val losses: String? = "0",
-            val status: String? = "Disabled",
+            status: String? = "Disabled",
             private val update: String? = null,
             val botBinary: String,
             val bwapiDLL: String,
