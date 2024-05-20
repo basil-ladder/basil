@@ -7,12 +7,14 @@ import org.bytekeeper.ctr.repository.Race
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToFlux
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import reactor.netty.http.client.HttpClient
 import java.io.InputStream
 import java.time.Duration
 import java.time.Instant
@@ -28,6 +30,7 @@ class SscaitSource : BotSource {
             .exchangeStrategies(ExchangeStrategies.builder()
                     .codecs { config -> config.defaultCodecs().maxInMemorySize(1024 * 1024 * 100) }
                     .build())
+        .clientConnector(ReactorClientHttpConnector(HttpClient.create().secure().followRedirect(true)))
             .baseUrl("https://sscaitournament.com/").build()
 
     private var botCache: Map<String, org.bytekeeper.ctr.BotInfo> = emptyMap()

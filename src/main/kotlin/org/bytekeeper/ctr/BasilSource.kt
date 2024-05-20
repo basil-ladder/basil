@@ -100,7 +100,7 @@ class BasilSource(private val config: Config,
         if (info !is BotInfo) return null
         val binary = lastDownload[info.name] ?: return null
         try {
-            FileSystems.newFileSystem(binary, null)
+            FileSystems.newFileSystem(binary, null as ClassLoader?)
                     .use { zipFile ->
                         val bwapi = Files.createTempFile("bwapi", ".dll")
                         val compressedBwapi = zipFile.rootDirectories.asSequence()
