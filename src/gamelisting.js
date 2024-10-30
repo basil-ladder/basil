@@ -14,7 +14,8 @@ const botBadge = (bot, game) => html`
     <div class="float-right normal">
         ${game.validGame ? html`
         <a href=${bot.replayUrl}><i class="fas fa-download"></i></a>
-        <a href="http://www.openbw.com/replay-viewer/?rep=${bot.replayUrl}" target="_blank"><i
+        <!--<a href="http://www.openbw.com/replay-viewer/?rep=${bot.replayUrl}" target="_blank"><i-->
+        <a href="https://bmnielsen.github.io/openbw-replay-viewer/?rep=${bot.replayUrl}" target="_blank"><i
                 class="fas fa-eye"></i></a>
         ` : ""}
         <a href="ranking.html#${bot.name}"><i class="fas fa-align-left"></i></a>
@@ -66,7 +67,7 @@ ${tableHeader(rowStyle)}
         </td>
         <!--
         <td>${game.validGame ? html`<a href="${game.replayUrl}"><i class="fas fa-download"></i></a>` : ""}</td>
-        <td>${game.validGame ? html`<a href="http://www.openbw.com/replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
+        <td>${game.validGame ? html`<a href="https://bmnielsen.github.io/openbw-replay-viewer/?rep=${game.replayUrl}" target="_blank">OpenBW</a>` : ""}</td>
         !-->
     </tr>
     `)}
