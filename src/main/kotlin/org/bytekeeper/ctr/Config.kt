@@ -50,4 +50,6 @@ class ScbwConfig(@Value("\${user.home}") private val userHome: Path) {
     var dockerImage: String = "starcraft:game"
     var readOverWrite: Boolean = true
     var deleteGamesInGameDir: Boolean = true
+    var botCpuNanosLimit = 1200000000
+    var botMemoryLimit = "2G"
 }

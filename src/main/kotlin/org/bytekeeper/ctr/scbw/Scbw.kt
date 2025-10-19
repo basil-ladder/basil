@@ -32,7 +32,6 @@ class Scbw(
     private val config: Config,
     private val events: Events,
     private val publisher: Publisher,
-    private val maps: Maps,
     private val botService: BotService
 ) {
     private val log = LogManager.getLogger()
@@ -226,8 +225,8 @@ class Scbw(
             addParameter("--game_name", gameName)
             addParameter("--docker_image", scbwConfig.dockerImage)
             addParameter("--timeout_at_frame", scbwConfig.frameTimeout)
-            addParameter("--nano_cpus", 1000000000)
-            addParameter("--mem_limit", "1G")
+            addParameter("--nano_cpus", scbwConfig.botCpuNanosLimit)
+            addParameter("--mem_limit", scbwConfig.botMemoryLimit)
 //            cmd += "--log_level"
 //            cmd += "DEBUG"
             if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
@@ -337,7 +336,7 @@ class Scbw(
                             FrameResult(
                                 try {
                                     lastLine.substringBefore(',').toInt()
-                                } catch (e: NumberFormatException) {
+                                } catch (_: NumberFormatException) {
                                     0
                                 },
                                 sumFrameTime ?: 0.0

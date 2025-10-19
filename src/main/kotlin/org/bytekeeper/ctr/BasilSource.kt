@@ -41,9 +41,7 @@ class BasilSource(private val config: Config,
 
     override fun refresh() {
         botCache = try {
-            mapper.readValue<List<BotInfo>>(config.basilBotSource.toFile())
-                .map { it.name to it }
-                .toMap()
+            mapper.readValue<List<BotInfo>>(config.basilBotSource.toFile()).associateBy { it.name }
         } catch (e: FileNotFoundException) {
             log.info("No local bot config")
             emptyMap()
