@@ -18,7 +18,7 @@ $my-orange-color: #ef9f10;
 $grey-color-very-dark: darken($grey-color, 40%) !default;
 
 .race_unknown {
-  background-color: #ff4444;
+  background-color: var(--race-unknown-bg);
 }
 
 @each $rank,
@@ -46,12 +46,12 @@ $grey-color-very-dark: darken($grey-color, 40%) !default;
 
 @each $race, $color in (protoss: $protoss-color, terran: $terran-color, zerg: $zerg-color, random: $random-color) {
   .race_#{$race} {
-    background-color: $color;
+    background-color: var(--race-#{$race}-bg);
   }
 
   @if $race != random {
     .race_#{$race}_random {
-      background: linear-gradient(150deg, $random-color 30%, $color 30%);
+      background: linear-gradient(150deg, var(--race-random-bg) 30%, var(--race-#{$race}-bg) 30%);
     }
   }
 }
@@ -130,7 +130,7 @@ dt {
 }
 
 tr.disabled {
-  color: #afafaf;
+  color: var(--disabled-text);
 }
 
 thead tr th {
@@ -156,7 +156,7 @@ table.tiny {
   th,
   td {
     padding: 0;
-    border: 1px solid #aeaeae;
+    border: 1px solid var(--crosstable-border);
     font-size: 0.7em;
     white-space: nowrap;
     overflow: hidden;
@@ -185,7 +185,7 @@ table.tiny {
 }
 
 .highlight {
-  outline: 4px dashed black;
+  outline: 4px dashed var(--highlight-outline);
   z-index: 1000 !important;
 }
 
@@ -303,4 +303,129 @@ div.rank_change {
 
 td.rank {
   padding: 0;
+}
+
+body {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+a {
+  color: var(--link-color);
+  &:visited {
+    color: var(--link-visited);
+  }
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+table {
+  color: var(--text-primary);
+  border-color: var(--table-border);
+  tr:nth-child(even) {
+    background-color: var(--table-stripe-bg);
+  }
+  th {
+    background-color: var(--table-header-bg);
+    border-color: var(--table-border);
+  }
+  td {
+    border-color: var(--table-border);
+  }
+}
+
+thead tr th {
+  background-color: var(--table-header-bg);
+}
+
+input, select {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+pre, code {
+  background-color: var(--code-bg);
+  border-color: var(--border-color);
+}
+
+.site-header {
+  border-bottom-color: var(--border-color);
+}
+
+.site-footer {
+  border-top-color: var(--border-color);
+}
+
+.footer-col-wrapper {
+  color: var(--footer-text);
+}
+
+:root[data-theme="dark"] .crosstable td {
+  color: #e0e0e0;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="dark"] {
+  .flatpickr-calendar {
+    background: #2a2a4a;
+    border-color: #4a4a6a;
+    box-shadow: none;
+  }
+  .flatpickr-day {
+    color: #e0e0e0;
+    &:hover {
+      background: #3a3a5c;
+      border-color: #3a3a5c;
+    }
+    &.selected {
+      background: #5b9bf5;
+      border-color: #5b9bf5;
+    }
+  }
+  .flatpickr-months .flatpickr-month,
+  .flatpickr-weekdays {
+    background: #1f1f3a;
+  }
+  .flatpickr-current-month .flatpickr-monthDropdown-months,
+  .flatpickr-current-month input.cur-year {
+    color: #e0e0e0;
+  }
+  span.flatpickr-weekday {
+    color: #aaa;
+    background: #1f1f3a;
+  }
+  .flatpickr-months .flatpickr-prev-month,
+  .flatpickr-months .flatpickr-next-month {
+    fill: #e0e0e0;
+    color: #e0e0e0;
+  }
+  .flatpickr-day.inRange,
+  .flatpickr-day.prevMonthDay,
+  .flatpickr-day.nextMonthDay {
+    background: #16213e;
+    border-color: #16213e;
+  }
+}
+
+.theme-toggle {
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0.3em 0.5em;
+  line-height: 1;
+  z-index: 10;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #fff;
+  }
 }

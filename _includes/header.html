@@ -31,5 +31,23 @@
         </div>
       </nav>
     {%- endif -%}
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+    <script>
+    (function(){
+      var btn=document.getElementById('theme-toggle');
+      var icon=btn.querySelector('i');
+      var html=document.documentElement;
+      if(html.getAttribute('data-theme')==='dark') icon.className='fas fa-sun';
+      btn.addEventListener('click',function(){
+        var next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+        html.setAttribute('data-theme',next);
+        localStorage.setItem('basil-theme',next);
+        icon.className=next==='dark'?'fas fa-sun':'fas fa-moon';
+        if(window.basilUpdateChartsTheme) window.basilUpdateChartsTheme(next);
+      });
+    })();
+    </script>
   </div>
 </header>

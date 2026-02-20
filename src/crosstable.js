@@ -41,7 +41,7 @@ ${bots.map((bot, index) => html`
     <th @mouseenter=${e => mouseEnter(-2, index)} @mouseleave=${e => mouseLeave(-2, index)} class=${basil.racecol(bot.race)}>${bot.name}</th>
     <th @mouseenter=${e => mouseEnter(-1, index)} @mouseleave=${e => mouseLeave(-1, index)}>${bot.rating}</th>
     ${bot.row.map((col, i) => html`
-        <td style="background-color: rgba(${col.color});" @mouseenter=${e => mouseEnter(i, index)} @mouseleave=${e => mouseLeave(i, index)}>
+        <td style="background-color: rgb(${col.color});" @mouseenter=${e => mouseEnter(i, index)} @mouseleave=${e => mouseLeave(i, index)}>
         ${col.self ? "" : html`<span>${col.won} - ${col.lost}</span>`}
         </td>
     `)}
@@ -134,7 +134,13 @@ function update() {
                         let green = w / l;
                         green = Math.min(1, green * green);
                         let blue = Math.min(green, red);
-                        e.color = Math.ceil(255 * red) + "," + Math.ceil(255 * green) + "," + Math.ceil(255 * blue) + ",0.8";
+                        let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        let base = isDark ? [26, 26, 46] : [255, 255, 255];
+                        let alpha = 0.8;
+                        let cr = Math.ceil(255 * red);
+                        let cg = Math.ceil(255 * green);
+                        let cb = Math.ceil(255 * blue);
+                        e.color = Math.round(alpha * cr + (1 - alpha) * base[0]) + "," + Math.round(alpha * cg + (1 - alpha) * base[1]) + "," + Math.round(alpha * cb + (1 - alpha) * base[2]);
                     }
                     return e;
                 });
@@ -145,6 +151,7 @@ function update() {
 }
 
 update();
+basil.registerChartUpdater(update);
 
 /*
 let cells = $(crosstable.root).find("td");

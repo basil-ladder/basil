@@ -80,6 +80,12 @@ ${bot.disabledReason}
 `: ""}`;
 
 const CSS_COLOR_NAMES = ["Black", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGrey", "DodgerBlue", "FireBrick", "ForestGreen", "Fuchsia", "Gainsboro", "Gold", "GoldenRod", "Grey", "Green", "GreenYellow", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MistyRose", "Moccasin", "Navy", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "RebeccaPurple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "Yellow", "YellowGreen"];
+const DARK_INVISIBLE = {"black":1,"navy":1,"darkblue":1,"midnightblue":1};
+function getLineColor(i) {
+    var color = CSS_COLOR_NAMES[i % CSS_COLOR_NAMES.length];
+    if (basil.chartThemeColors().isDark && DARK_INVISIBLE[color.toLowerCase()]) return "White";
+    return color;
+}
 
 let statsBaseUrl = basil.dataBaseUrl + "stats/";
 let botName = decodeURIComponent(window.location.search.substring(1).split("=")[1]);
@@ -140,14 +146,24 @@ axios.get(statsBaseUrl + "ranking.json")
                 .then(function (response) { let data = response.data; return { name: bot, data: data }; }
                 )));
     }).then(function (bots) {
-        const colors = [
-            "rgba(200, 0, 0, 0.8)",
-            "rgba(0, 200, 0, 0.4)",
-            "rgba(200, 200, 0, 0.4)",
-            "rgba(0, 0, 200, 0.4)",
-            "rgba(200, 0, 200, 0.4)",
-            "rgba(200, 200, 200, 0.4)",
-        ];
+        function eloChartColors() {
+            var isDark = basil.chartThemeColors().isDark;
+            return isDark ? [
+                "rgba(255, 80, 80, 0.9)",
+                "rgba(80, 220, 80, 0.7)",
+                "rgba(220, 220, 80, 0.7)",
+                "rgba(100, 100, 255, 0.8)",
+                "rgba(220, 80, 220, 0.7)",
+                "rgba(200, 200, 200, 0.7)",
+            ] : [
+                "rgba(200, 0, 0, 0.8)",
+                "rgba(0, 200, 0, 0.4)",
+                "rgba(200, 200, 0, 0.4)",
+                "rgba(0, 0, 200, 0.4)",
+                "rgba(200, 0, 200, 0.4)",
+                "rgba(200, 200, 200, 0.4)",
+            ];
+        }
         let maxElo = 0;
         let myElos = bots[0].data;
         for (let i = 0; i < myElos.length; i++) {
@@ -159,6 +175,7 @@ axios.get(statsBaseUrl + "ranking.json")
         render(header(myData), botDataNode);
 
         function prepareDataSets() {
+            let colors = eloChartColors();
             let startSecond = selectedRange.startSecond;
             let endSecond = selectedRange.endSecond;
             if (typeof startSecond === "undefined" || typeof endSecond === "undefined" || startSecond >= endSecond)
@@ -217,7 +234,6 @@ axios.get(statsBaseUrl + "ranking.json")
                         footer: function (tooltipItems, data) {
                             const item = tooltipItems[0];
                             const updated = data.datasets[item.datasetIndex].data[item.index].updated;
-                            let elo = item.yLabel;
                             return updated ? "Updated version" : null;
                         }
                     }
@@ -225,8 +241,16 @@ axios.get(statsBaseUrl + "ranking.json")
                 }
             }
         });
+        basil.applyThemeToChart(eloChart);
+        eloChart.update();
         updaters.push(function () {
             eloChart.data.datasets = prepareDataSets();
+            basil.applyThemeToChart(eloChart);
+            eloChart.update();
+        });
+        basil.registerChartUpdater(function() {
+            eloChart.data.datasets = prepareDataSets();
+            basil.applyThemeToChart(eloChart);
             eloChart.update();
         });
     });
@@ -307,10 +331,15 @@ function setupPerMapWinsChart(data) {
             }]
         };
 
+        basil.applyThemeToChart(winCharts);
         winCharts.update();
     }
     updateChart();
     updaters.push(updateChart);
+    basil.registerChartUpdater(function() {
+        basil.applyThemeToChart(winCharts);
+        winCharts.update();
+    });
 }
 function setupVsChart(data) {
     let vsChart = new Chart(document.getElementById("vsChart"), {
@@ -415,10 +444,15 @@ function setupVsChart(data) {
                 stacked: true
             }]
         };
+        basil.applyThemeToChart(vsChart);
         vsChart.update();
     }
     updateChart();
     updaters.push(updateChart);
+    basil.registerChartUpdater(function() {
+        basil.applyThemeToChart(vsChart);
+        vsChart.update();
+    });
 }
 function aggWinLossFilter(data) {
     let steplen = Math.ceil(data.length / 30);
@@ -513,14 +547,16 @@ function setupRaceMatchupChart(data) {
                     label: r.label,
                     data: aggWinLossFilter(r.data),
                     fill: false,
-                    borderColor: CSS_COLOR_NAMES[i],
+                    borderColor: getLineColor(i),
                     cubicInterpolationMode: "monotone",
                 }
             });
+        basil.applyThemeToChart(chart);
         chart.update();
     }
     updateChart();
     updaters.push(updateChart);
+    basil.registerChartUpdater(function() { updateChart(); });
 }
 function setupBotMatchupChart(data) {
     let chart = new Chart(document.getElementById("vs2Chart"), {
@@ -574,14 +610,16 @@ function setupBotMatchupChart(data) {
                     label: r.label,
                     data: aggWinLossFilter(r.data),
                     fill: false,
-                    borderColor: CSS_COLOR_NAMES[i],
+                    borderColor: getLineColor(i),
                     cubicInterpolationMode: "monotone",
                 }
             });
+        basil.applyThemeToChart(chart);
         chart.update();
     }
     updateChart();
     updaters.push(updateChart);
+    basil.registerChartUpdater(function() { updateChart(); });
 }
 
 function setupPerPlayLengthChart(data) {
@@ -662,10 +700,15 @@ function setupPerPlayLengthChart(data) {
             }]
         };
 
+        basil.applyThemeToChart(chart);
         chart.update();
     }
     updateChart();
     updaters.push(updateChart);
+    basil.registerChartUpdater(function() {
+        basil.applyThemeToChart(chart);
+        chart.update();
+    });
 }
 
 axios.get(statsBaseUrl + botName + "/allGameResults.json", undefined, undefined, "text")
