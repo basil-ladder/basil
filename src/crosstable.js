@@ -129,18 +129,41 @@ function update() {
                     } else {
                         let w = e.won + 1;
                         let l = e.lost + 1;
-                        let red = l / w;
-                        red = Math.min(1, red * red);
-                        let green = w / l;
-                        green = Math.min(1, green * green);
-                        let blue = Math.min(green, red);
+                        let lossStr = Math.min(1, (l / w) * (l / w));
+                        let winStr = Math.min(1, (w / l) * (w / l));
+
                         let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        let cr, cg, cb;
+                        if (isDark) {
+                            // Dark mode: blue/orange
+                            // r/g was too bright + this pairing is colorblind friendly
+                            let winColor = [51, 133, 255];
+                            let lossColor = [255, 153, 51];
+                            let evenColor = [160, 160, 170];
+                            if (w >= l) {
+                                let t = lossStr;
+                                cr = winColor[0] * (1 - t) + evenColor[0] * t;
+                                cg = winColor[1] * (1 - t) + evenColor[1] * t;
+                                cb = winColor[2] * (1 - t) + evenColor[2] * t;
+                            } else {
+                                let t = winStr;
+                                cr = lossColor[0] * (1 - t) + evenColor[0] * t;
+                                cg = lossColor[1] * (1 - t) + evenColor[1] * t;
+                                cb = lossColor[2] * (1 - t) + evenColor[2] * t;
+                            }
+                        } else {
+                            // Light mode: red/green
+                            cr = Math.ceil(255 * lossStr);
+                            cg = Math.ceil(255 * winStr);
+                            cb = Math.ceil(255 * Math.min(winStr, lossStr));
+                        }
+
                         let base = isDark ? [26, 26, 46] : [255, 255, 255];
                         let alpha = 0.8;
-                        let cr = Math.ceil(255 * red);
-                        let cg = Math.ceil(255 * green);
-                        let cb = Math.ceil(255 * blue);
-                        e.color = Math.round(alpha * cr + (1 - alpha) * base[0]) + "," + Math.round(alpha * cg + (1 - alpha) * base[1]) + "," + Math.round(alpha * cb + (1 - alpha) * base[2]);
+                        let fr = Math.round(alpha * cr + (1 - alpha) * base[0]);
+                        let fg = Math.round(alpha * cg + (1 - alpha) * base[1]);
+                        let fb = Math.round(alpha * cb + (1 - alpha) * base[2]);
+                        e.color = fr + "," + fg + "," + fb;
                     }
                     return e;
                 });

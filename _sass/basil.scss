@@ -144,11 +144,18 @@ thead tr th {
     position: sticky;
     left: 0;
     z-index: 3;
+    background-color: var(--sticky-bg);
   }
   tbody tr th:nth-child(2) {
     position: sticky;
     left: 0;
     z-index: 1;
+    background-color: var(--sticky-bg);
+    &.race_protoss { box-shadow: inset 0 0 0 9999px var(--race-protoss-bg); }
+    &.race_terran { box-shadow: inset 0 0 0 9999px var(--race-terran-bg); }
+    &.race_zerg { box-shadow: inset 0 0 0 9999px var(--race-zerg-bg); }
+    &.race_random { box-shadow: inset 0 0 0 9999px var(--race-random-bg); }
+    &.race_unknown { box-shadow: inset 0 0 0 9999px var(--race-unknown-bg); }
   }
 }
 
@@ -362,9 +369,13 @@ pre, code {
   color: var(--footer-text);
 }
 
+.crosstable td {
+  color: #111;
+}
+
 :root[data-theme="dark"] .crosstable td {
-  color: #e0e0e0;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 :root[data-theme="dark"] {
