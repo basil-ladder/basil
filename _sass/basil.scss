@@ -420,10 +420,8 @@ pre, code {
 }
 
 .theme-toggle {
-  position: absolute;
-  right: 1em;
-  top: 50%;
-  transform: translateY(-50%);
+  display: inline-block;
+  vertical-align: middle;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
@@ -432,10 +430,46 @@ pre, code {
   font-size: 1.2em;
   padding: 0.3em 0.5em;
   line-height: 1;
-  z-index: 10;
+  margin-left: 10px;
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.6);
     color: #fff;
+  }
+}
+
+// Improve the mobile experience
+@media screen and (min-width: 601px) {
+  .site-nav .trigger {
+    display: inline;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .theme-toggle {
+    position: absolute;
+    top: 0;
+    right: 42px; // 36px hamburger + 6px gap
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
+    line-height: 1;
+  }
+
+  :root[data-theme="dark"] .site-nav {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+  }
+
+  :root[data-theme="dark"] .site-nav .menu-icon svg {
+    fill: var(--text-primary);
+  }
+
+  :root[data-theme="dark"] .site-nav .trigger .page-link {
+    color: var(--text-primary);
   }
 }
