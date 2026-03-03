@@ -29,11 +29,12 @@
             {%- endif -%}
           {%- endfor -%}
         </div>
+
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
       </nav>
     {%- endif -%}
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-      <i class="fas fa-moon"></i>
-    </button>
     <script>
     (function(){
       var btn=document.getElementById('theme-toggle');
