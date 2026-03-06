@@ -81,6 +81,15 @@ const form = html`
 const formNode = document.querySelector("#form");
 const crossTableNode = document.querySelector("#tablePlaceholder");
 
+function positionTableFullWidth() {
+    const visibleWidth = document.documentElement.clientWidth;
+    const parentLeft = crossTableNode.parentElement.getBoundingClientRect().left;
+    crossTableNode.style.marginLeft = `-${parentLeft}px`;
+    crossTableNode.style.width = `${visibleWidth}px`;
+}
+window.addEventListener('resize', positionTableFullWidth);
+
+
 render(form, formNode);
 
 function update() {
@@ -170,6 +179,8 @@ function update() {
                 return a;
             });
             render(crossTable(bots), crossTableNode);
+            
+            requestAnimationFrame(positionTableFullWidth);
         });
 }
 
