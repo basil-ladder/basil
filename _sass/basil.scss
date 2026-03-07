@@ -137,6 +137,11 @@ thead tr th {
   position: sticky;
   top: 0;
   z-index: 2;
+  &.race_protoss { background: linear-gradient(var(--race-protoss-bg), var(--race-protoss-bg)), var(--sticky-bg); }
+  &.race_terran { background: linear-gradient(var(--race-terran-bg), var(--race-terran-bg)), var(--sticky-bg); }
+  &.race_zerg { background: linear-gradient(var(--race-zerg-bg), var(--race-zerg-bg)), var(--sticky-bg); }
+  &.race_random { background: linear-gradient(var(--race-random-bg), var(--race-random-bg)), var(--sticky-bg); }
+  &.race_unknown { background: linear-gradient(var(--race-unknown-bg), var(--race-unknown-bg)), var(--sticky-bg); }
 }
 
 .crosstable {
@@ -145,17 +150,17 @@ thead tr th {
     left: 0;
     z-index: 3;
     background-color: var(--sticky-bg);
-  }
+}
   tbody tr th:nth-child(2) {
     position: sticky;
     left: 0;
     z-index: 1;
     background-color: var(--sticky-bg);
-    &.race_protoss { background-color: var(--race-protoss-bg); }
-    &.race_terran { background-color: var(--race-terran-bg); }
-    &.race_zerg { background-color: var(--race-zerg-bg); }
-    &.race_random { background-color: var(--race-random-bg); }
-    &.race_unknown { background-color: var(--race-unknown-bg); }
+    &.race_protoss { background: linear-gradient(var(--race-protoss-bg), var(--race-protoss-bg)), var(--sticky-bg); }
+    &.race_terran { background: linear-gradient(var(--race-terran-bg), var(--race-terran-bg)), var(--sticky-bg); }
+    &.race_zerg { background: linear-gradient(var(--race-zerg-bg), var(--race-zerg-bg)), var(--sticky-bg); }
+    &.race_random { background: linear-gradient(var(--race-random-bg), var(--race-random-bg)), var(--sticky-bg); }
+    &.race_unknown { background: linear-gradient(var(--race-unknown-bg), var(--race-unknown-bg)), var(--sticky-bg); }
   }
 }
 
