@@ -4,7 +4,7 @@ import org.bytekeeper.ctr.repository.BasilSourceBot
 import org.bytekeeper.ctr.repository.BasilSourceBotRepository
 import org.springframework.stereotype.Service
 import java.time.Instant
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 
 @Service

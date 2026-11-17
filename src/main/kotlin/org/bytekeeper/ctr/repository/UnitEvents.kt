@@ -9,7 +9,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import java.util.*
 import java.util.stream.Stream
-import javax.persistence.*
+import jakarta.persistence.*
 
 
 enum class UnitEventType {

@@ -1,15 +1,15 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectWriter
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
+import tools.jackson.databind.ObjectWriter
 
 @Component
 class EloPublisher(

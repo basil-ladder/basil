@@ -6,7 +6,7 @@ import org.bytekeeper.ctr.Ranking
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.CrudRepository
 import java.time.Instant
-import javax.persistence.*
+import jakarta.persistence.*
 
 enum class Race(val short: String) {
     ZERG("Z"),
@@ -86,7 +86,7 @@ interface BotRepository : CrudRepository<Bot, Long> {
     @Timed
     fun countByRace(race: Race): Int
 
-    override fun <S : Bot?> save(entity: S): S
+    override fun <S : Bot> save(entity: S): S
 }
 
 fun BotRepository.getBotsForUpdate(bots: List<Bot>) =

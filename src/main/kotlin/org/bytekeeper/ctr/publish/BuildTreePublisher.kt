@@ -1,7 +1,7 @@
 package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.PreparePublish
@@ -16,8 +16,8 @@ import org.bytekeeper.ctr.repository.UnitEventsRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import javax.persistence.EntityManager
-import javax.persistence.EntityNotFoundException
+import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityNotFoundException
 import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.math.min

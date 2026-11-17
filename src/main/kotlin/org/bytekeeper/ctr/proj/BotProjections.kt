@@ -8,7 +8,7 @@ import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.getBotsForUpdate
 import org.springframework.stereotype.Component
 import java.time.Instant
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @Component
 class BotProjections(private val botRepository: BotRepository,

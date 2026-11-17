@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository
 import java.time.Instant
 import java.util.*
 import java.util.stream.Stream
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 data class GameResult(

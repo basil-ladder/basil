@@ -5,7 +5,7 @@ import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.springframework.stereotype.Service
 import java.time.Instant
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @Service
 class BotService(private val botRepository: BotRepository,

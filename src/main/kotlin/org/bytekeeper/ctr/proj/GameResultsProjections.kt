@@ -5,7 +5,7 @@ import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.GameResult
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @Component
 class GameResultsProjections(private val gameResultRepository: GameResultRepository,

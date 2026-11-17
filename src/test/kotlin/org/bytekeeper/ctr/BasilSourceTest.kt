@@ -1,6 +1,6 @@
 package org.bytekeeper.ctr
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +14,8 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.io.BufferedReader
@@ -53,13 +55,14 @@ class BasilSourceTest() {
         Files.write(config.basilBotSource, listOf(writer.writeValueAsString(listOf(
                 BasilSource.BotInfo(name = "testBot", botBinary = botZip.toString(), botType = "MIRROR", raceValue = "Terran")))))
         given(basilBotService.update(eq("testBot"), anyString(), any())).willAnswer { it.arguments[2] }
-        given(webClient.get(any())).willAnswer {
-            val uri = it.arguments[0] as URI
-            val clientResponse = mock<ClientResponse>()
-            given(clientResponse.statusCode()).willReturn(HttpStatus.OK)
-            given(clientResponse.bodyToMono(any<Class<DataBuffer>>())).willReturn(bufferProvider(uri))
-            clientResponse.toMono()
-        }
+        given(webClient.webClient).willReturn(WebClient.builder()
+                .exchangeFunction { request ->
+                    ClientResponse.create(HttpStatus.OK)
+                            .body(Flux.from(bufferProvider(request.url())))
+                            .build()
+                            .toMono()
+                }
+                .build())
 
         sut = BasilSource(config, basilBotService, webClient)
         sut.refresh()

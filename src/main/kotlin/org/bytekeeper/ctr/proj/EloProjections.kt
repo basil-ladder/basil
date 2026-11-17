@@ -5,7 +5,7 @@ import org.bytekeeper.ctr.EventHandler
 import org.bytekeeper.ctr.repository.BotElo
 import org.bytekeeper.ctr.repository.BotEloRepository
 import org.springframework.stereotype.Component
-import javax.transaction.Transactional
+import jakarta.transaction.Transactional
 
 @Component
 class EloProjections(private val botEloRepository: BotEloRepository) {

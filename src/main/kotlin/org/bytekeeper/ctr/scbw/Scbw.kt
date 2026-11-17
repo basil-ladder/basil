@@ -1,8 +1,6 @@
 package org.bytekeeper.ctr.scbw
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
@@ -14,8 +12,10 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipInputStream
-import javax.annotation.PreDestroy
-import javax.persistence.EntityManager
+import jakarta.annotation.PreDestroy
+import jakarta.persistence.EntityManager
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import kotlin.concurrent.thread
 import kotlin.streams.asSequence
 

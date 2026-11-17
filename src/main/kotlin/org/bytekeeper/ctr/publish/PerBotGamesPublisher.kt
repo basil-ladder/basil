@@ -2,9 +2,8 @@ package org.bytekeeper.ctr.publish
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.json.JsonWriteFeature
-import com.fasterxml.jackson.databind.ObjectWriter
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.ObjectWriter
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.CommandHandler
 import org.bytekeeper.ctr.Maps
@@ -14,6 +13,7 @@ import org.bytekeeper.ctr.Publisher.Companion.bool2Short
 import org.bytekeeper.ctr.repository.GameResultRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.core.json.JsonWriteFeature
 
 @Component
 class PerBotGamesPublisher(
@@ -25,7 +25,7 @@ class PerBotGamesPublisher(
     @Timed
     @Transactional(readOnly = true)
     fun handle(command: PreparePublish) {
-        val writer = jacksonObjectMapper().writer().without(JsonWriteFeature.QUOTE_FIELD_NAMES)
+        val writer = jacksonObjectMapper().writer().without(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
 
         val maptoIndex = maps.allMaps().mapIndexed { index, s -> s.fileName to index }.toMap()
         val botToIndex = mutableMapOf<String, Int>()

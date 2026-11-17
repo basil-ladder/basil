@@ -1,6 +1,6 @@
 package org.bytekeeper.ctr.publish
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.GameResultRepository

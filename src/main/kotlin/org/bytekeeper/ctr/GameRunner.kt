@@ -10,7 +10,7 @@ class GameRunner(private val gameService: GameService,
                  private val config: Config) : CommandLineRunner {
     private val log = LogManager.getLogger()
 
-    override fun run(vararg args: String?) {
+    override fun run(vararg args: String) {
         log.info("Let's play! Starting ${config.parallelGamesCount} concurrent games")
 
         repeat(config.parallelGamesCount) {

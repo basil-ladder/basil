@@ -2,17 +2,15 @@ package org.bytekeeper.ctr
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.repository.Race
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.net.URI
@@ -123,26 +121,21 @@ class BasilSource(private val config: Config,
         val tempFile = Files.createTempFile("bot-binary", ".zip")
         Files.newOutputStream(tempFile)
                 .use { out ->
-                    val response = webClient
-                            .get(URI.create(botInfo.botBinary))
-                            .flatMap {
-                                if (lastUpdate != null && !Instant.ofEpochMilli(it.headers().asHttpHeaders().lastModified).isAfter(lastUpdate)) {
-                                    Mono.empty<ClientResponse>()
+                    val downloaded = webClient.webClient
+                            .get()
+                            .uri(URI.create(botInfo.botBinary))
+                            .exchangeToMono { response ->
+                                if (response.statusCode().is2xxSuccessful) {
+                                    DataBufferUtils.write(response.bodyToMono(DataBuffer::class.java), out)
+                                            .map(DataBufferUtils::release)
+                                            .then(Mono.just(true))
+                                } else {
+                                    log.warn("${botInfo.name} download failure with code ${response.statusCode()}")
+                                    Mono.just(false)
                                 }
-                                it.toMono()
                             }
                             .block()!!
-                    if (response.statusCode().is2xxSuccessful) {
-                        val body = response
-                                .bodyToMono(DataBuffer::class.java)
-                        DataBufferUtils.write(body, out)
-                                .map(DataBufferUtils::release)
-                                .then()
-                                .block()
-                    } else {
-                        log.warn("${botInfo.name} download failure with code ${response.statusCode()}")
-                        return null
-                    }
+                    if (!downloaded) return null
                 }
         if (Files.size(tempFile) == 0L || Files.size(tempFile) > 100 * 1024 * 1024) {
             log.warn("${botInfo.name} returned file of size ${Files.size(tempFile)}, deleting and ignoring.")

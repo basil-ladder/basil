@@ -1,7 +1,7 @@
 package org.bytekeeper.ctr.publish
 
-import com.fasterxml.jackson.databind.ObjectWriter
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.databind.ObjectWriter
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.annotation.Timed
 import org.apache.logging.log4j.LogManager
 import org.bytekeeper.ctr.CommandHandler
