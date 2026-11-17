@@ -14,6 +14,7 @@ import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -41,6 +42,10 @@ class BasilSourceTest() {
 
     private val webClient: RedirectingWebClient = mock<RedirectingWebClient>()
 
+    private val productionStrategies = ExchangeStrategies.builder()
+            .codecs { it.defaultCodecs().maxInMemorySize(1024 * 1024 * 100) }
+            .build()
+
     private var bufferProvider: (uri: URI) -> Mono<DataBuffer> = { uri ->
         DataBufferUtils.readInputStream({ uri.toURL().openStream() },
                 DefaultDataBufferFactory(),
@@ -57,8 +62,9 @@ class BasilSourceTest() {
         given(basilBotService.update(eq("testBot"), anyString(), any())).willAnswer { it.arguments[2] }
         given(webClient.webClient).willReturn(WebClient.builder()
                 .exchangeFunction { request ->
-                    ClientResponse.create(HttpStatus.OK)
-                            .body(Flux.from(bufferProvider(request.url())))
+                    // cache(): like a real HTTP body, build it once, even when WebClient reads it again to release it.
+                    ClientResponse.create(HttpStatus.OK, productionStrategies)
+                            .body(Flux.from(bufferProvider(request.url())).cache())
                             .build()
                             .toMono()
                 }

@@ -48,6 +48,12 @@ class BotStat(val bot: Bot, val won: Long, val lost: Long) {
     }
 }
 
+class BotCrashStat(val bot: Bot, val games: Long, val crashed: Long) {
+    init {
+        Hibernate.initialize(bot)
+    }
+}
+
 interface BS {
     val bot: Long
     val won: Long
@@ -100,6 +106,17 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     )
     @Timed
     fun gamesSinceLastUpdate(): List<BotStat>
+
+    // Games that failed to start are stored as "both crashed" with a game time of 0; they are not the bot's fault.
+    @Query(
+        "SELECT new org.bytekeeper.ctr.repository.BotCrashStat(bot, COUNT(r)," +
+                " SUM(CASE WHEN (r.botA = bot AND r.botACrashed = TRUE) OR (r.botB = bot AND r.botBCrashed = TRUE) THEN 1 ELSE 0 END))" +
+                " FROM GameResult r, Bot bot WHERE r.time > bot.lastUpdated AND (r.botA = bot OR r.botB = bot)" +
+                " AND bot.enabled = TRUE AND r.gameRealtime > 0" +
+                " GROUP BY bot"
+    )
+    @Timed
+    fun crashesSinceLastUpdate(): List<BotCrashStat>
 
     @Query(
         "SELECT new org.bytekeeper.ctr.repository.BotGameResult(r.time, r.frameCount, b.name," +

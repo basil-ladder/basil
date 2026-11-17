@@ -21,10 +21,16 @@ class Config {
 
     class Rules {
         var winRatio = WinRatioTooLowRuleConfig()
+        var crashRatio = CrashRatioTooHighRuleConfig()
 
         class WinRatioTooLowRuleConfig {
             var minGames = 100
             var minRatio = 0.15
+        }
+
+        class CrashRatioTooHighRuleConfig {
+            var minGames = 20
+            var maxRatio = 0.25
         }
     }
 

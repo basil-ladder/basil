@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.apache.logging.log4j.LogManager
+import org.bytekeeper.ctr.rules.CrashRatioTooHighRule
 import org.bytekeeper.ctr.rules.WinRatioTooLowRule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -14,6 +15,7 @@ import kotlin.concurrent.write
 @Service
 class BotUpdater(
     private val winRatioTooLowRule: WinRatioTooLowRule,
+    private val crashRatioTooHighRule: CrashRatioTooHighRule,
     private val botSources: BotSources,
     private val botService: BotService,
 ) {
@@ -29,6 +31,7 @@ class BotUpdater(
     fun updateBotList() {
         updateLock.write {
             winRatioTooLowRule.checkRule()
+            crashRatioTooHighRule.checkRule()
 
             log.info("Retrieving list of bots")
             botSources.refresh()
