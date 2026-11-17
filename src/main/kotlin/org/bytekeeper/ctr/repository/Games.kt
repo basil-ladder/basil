@@ -84,7 +84,7 @@ interface GameResultRepository : CrudRepository<GameResult, Long> {
     @Timed
     fun countByBotACrashedIsTrueOrBotBCrashedIsTrue(): Int
 
-    @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner <> NULL")
+    @Query("SELECT AVG(g.gameRealtime) FROM GameResult g WHERE g.winner IS NOT NULL")
     @Timed
     fun averageGameRealtime(): Double?
 

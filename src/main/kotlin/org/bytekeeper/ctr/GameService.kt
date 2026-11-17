@@ -33,7 +33,7 @@ class GameService(
         }
         if (candidates.size < 2) throw NotEnoughBotsException("Found ${candidates.size} bots, but need at least 2!")
 
-        withLockedBot(generateSequence { candidates.removeFirst() }) { botA ->
+        withLockedBot(generateSequence { candidates.removeFirstOrNull() }) { botA ->
             withLockedBot(matchmaking.opponentSequenceFor(botA)) { botB ->
                 synchronized(botList) {
                     botList.remove(botA.id)
@@ -85,7 +85,7 @@ class GameService(
             .mapNotNull { bot ->
                 locks.putIfAbsent(bot.id!!, bot.id!!) ?: return@mapNotNull bot
                 null
-            }.first()
+            }.firstOrNull() ?: throw NotEnoughBotsException("All bots are busy.")
         try {
             block(bot)
         } finally {

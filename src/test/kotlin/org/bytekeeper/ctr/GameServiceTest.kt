@@ -1,6 +1,7 @@
 package org.bytekeeper.ctr
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.bytekeeper.ctr.repository.Bot
 import org.bytekeeper.ctr.repository.BotRepository
 import org.bytekeeper.ctr.repository.Race
@@ -185,5 +186,15 @@ class GameServiceTest {
         assertThat(gameConfigCaptor.value)
                 .extracting { it.bots }
                 .isEqualTo(listOf("C", "B"))
+    }
+
+    @Test
+    fun `should report missing free opponent as not enough bots`() {
+        // GIVEN
+        given(botRepository.findAllByEnabledTrue()).willReturn(listOf(botA, botB))
+        given(matchmaking.opponentSequenceFor(any())).willReturn(sequenceOf(botA))
+
+        // WHEN, THEN
+        assertThatThrownBy { sut.schedule1on1() }.isInstanceOf(NotEnoughBotsException::class.java)
     }
 }

@@ -16,16 +16,16 @@ class GameRunner(private val gameService: GameService,
         repeat(config.parallelGamesCount) {
             log.info("Starting worker thread")
             thread {
-                try {
-                    while (true) {
+                while (true) {
+                    try {
                         gameService.schedule1on1()
+                    } catch (e: NotEnoughBotsException) {
+                        log.debug("${e.message} Pausing...")
+                        Thread.sleep(1000)
+                    } catch (e: Exception) {
+                        log.error("Failed to schedule a game, retrying in 10s", e)
+                        Thread.sleep(10_000)
                     }
-                } catch (e: NotEnoughBotsException) {
-                    log.debug("No bots to schedule, pausing...")
-                    Thread.sleep(1000)
-                } catch (e: Exception) {
-                    log.error("Worker thread DIED!", e)
-                    throw e
                 }
             }
         }

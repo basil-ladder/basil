@@ -118,35 +118,15 @@ class Scbw(
             Files.copy(it, bwapiDll, StandardCopyOption.REPLACE_EXISTING)
         }
         log.info("Downloading $name's binary")
-        botSources.downloadBinary(botInfo)
-            .use { stream ->
-                val timestamp = Instant.now().toEpochMilli() / 1000
-                config.botBinariesHistoryPath?.resolve(name)?.resolve("binary_$timestamp.zip")
-                    ?.let {
-                        log.info("Saving bot history to $it")
-                        Files.createDirectories(it.parent)
-                        Files.copy(stream, it, StandardCopyOption.REPLACE_EXISTING)
-                        Files.newInputStream(it)
-                    } ?: run {
-                    log.info("No history path was given, passing download through")
-                    stream
-                }
-            }.let {
-                ZipInputStream(it)
-            }.use { zipIn ->
-                while (true) {
-                    val nextEntry = zipIn.nextEntry ?: return@use
-                    val path = aiDir.resolve(nextEntry.name).normalize()
-                    if (!path.startsWith(path))
-                        throw InvalidBotfileException("Bot zip contains invalid paths (exploitation attempt?)")
-                    if (nextEntry.isDirectory) {
-                        Files.createDirectories(aiDir.resolve(nextEntry.name))
-                    } else {
-                        Files.createDirectories(path.parent)
-                        Files.copy(zipIn, aiDir.resolve(nextEntry.name), StandardCopyOption.REPLACE_EXISTING)
-                    }
-                }
-            }
+        val download = botSources.downloadBinary(botInfo)
+        val zipSource = config.botBinariesHistoryPath?.resolve(name)?.resolve("binary_${Instant.now().epochSecond}.zip")
+            ?.let { historyFile ->
+                log.info("Saving bot history to $historyFile")
+                Files.createDirectories(historyFile.parent)
+                download.use { Files.copy(it, historyFile, StandardCopyOption.REPLACE_EXISTING) }
+                Files.newInputStream(historyFile)
+            } ?: download.also { log.info("No history path was given, passing download through") }
+        ZipInputStream(zipSource).use { unzipBot(it, aiDir) }
         jacksonObjectMapper().writeValue(
             botJsonDef.toFile(), BotJson(
                 name,
@@ -542,3 +522,20 @@ class FailedToKillContainer(message: String) : RuntimeException(message)
 class FailedToKillSCBW(message: String) : RuntimeException(message)
 class BotNotFoundException(message: String) : RuntimeException(message)
 class InvalidBotfileException(message: String) : RuntimeException(message)
+
+// Bot zips come from untrusted authors, so no entry may end up outside targetDir.
+fun unzipBot(zipIn: ZipInputStream, targetDir: Path) {
+    val root = targetDir.toAbsolutePath().normalize()
+    while (true) {
+        val entry = zipIn.nextEntry ?: return
+        val path = root.resolve(entry.name).normalize()
+        if (!path.startsWith(root))
+            throw InvalidBotfileException("Bot zip contains invalid path '${entry.name}' (exploitation attempt?)")
+        if (entry.isDirectory) {
+            Files.createDirectories(path)
+        } else {
+            Files.createDirectories(path.parent)
+            Files.copy(zipIn, path, StandardCopyOption.REPLACE_EXISTING)
+        }
+    }
+}

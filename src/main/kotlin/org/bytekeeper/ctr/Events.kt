@@ -88,9 +88,15 @@ class Events {
     fun post(event: Any) {
         postsRunning++
         val listeners = listeners[event.javaClass] ?: run { log.error("Event $event was not handled!"); return }
-        executorService.submit {
+        executorService.execute {
             try {
-                listeners.forEach { it(event) }
+                listeners.forEach { listener ->
+                    try {
+                        listener(event)
+                    } catch (e: Exception) {
+                        log.error("Handler for event $event failed", e)
+                    }
+                }
             } finally {
                 postsRunning--
             }
@@ -107,12 +113,19 @@ class PreparePublish(val now: LocalDateTime = LocalDateTime.now())
 
 @Service
 class Commands {
+    private val log = LogManager.getLogger()
     private val handlers = ConcurrentHashMap<Class<*>, MutableList<(Any) -> Unit>>()
 
 
     fun handle(command: Any) {
         val handlers = handlers[command.javaClass] ?: throw IllegalStateException("Command $command was not handled!")
-        handlers.forEach { it(command) }
+        handlers.forEach { handler ->
+            try {
+                handler(command)
+            } catch (e: Exception) {
+                log.error("Handler for command $command failed", e)
+            }
+        }
     }
 
     fun <T> register(type: Class<T>, handler: (T) -> Unit) {
