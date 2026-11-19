@@ -6,6 +6,7 @@ import org.bytekeeper.ctr.*
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Service
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.time.Instant
@@ -21,6 +22,8 @@ import kotlin.streams.asSequence
 
 const val killTimeout = 20L
 const val LOG_LIMIT = 200 * 1024
+const val MAX_GAME_FILE_SIZE = 50L * 1024 * 1024
+const val MAX_UNZIPPED_BOT_SIZE = 1024L * 1024 * 1024
 
 @Service
 class Scbw(
@@ -51,6 +54,10 @@ class Scbw(
 
     fun checkBotDirectory(bot: Bot) {
         val name = bot.name
+        if (!isValidBotName(name)) {
+            botService.disableBot(bot, "Invalid bot name!")
+            throw BotFolderInvalid("Bot name '$name' is not allowed.")
+        }
         val botDir = scbwConfig.botsDir.resolve(name)
         val aiDir = botDir.resolve("AI")
         val readDir = botDir.resolve("read")
@@ -209,7 +216,6 @@ class Scbw(
             addParameter("--mem_limit", scbwConfig.botMemoryLimit)
 //            cmd += "--log_level"
 //            cmd += "DEBUG"
-            if (scbwConfig.readOverWrite) cmd += "--read_overwrite"
             val process = ProcessBuilder(cmd)
                 .redirectErrorStream(true)
                 .start()
@@ -282,8 +288,8 @@ class Scbw(
             val botResults = bots.mapIndexed { index, name ->
                 val botPath = botsPath.resolve(name)
                 Files.createDirectories(botPath)
-                val replayPath = gamePath.resolve("player_$index.rep")
-                if (replayPath.toFile().exists()) {
+                val replayPath = gameFile(gamePath.resolve("player_$index.rep"))
+                if (replayPath != null) {
                     val enemies = bots.filterNot { it == name }.joinToString(" ")
                     val mapName = map.mapName
                     Files.move(replayPath, botPath.resolve("$name vs $enemies $mapName $gameName.rep"))
@@ -301,8 +307,8 @@ class Scbw(
                     }
                 }
                 val logDir = gamePath.resolve("logs_$index")
-                val frameCount = logDir.resolve("frames.csv").let { frameFile ->
-                    if (frameFile.toFile().exists()) {
+                val frameCount = gameFile(logDir.resolve("frames.csv"))?.let { frameFile ->
+                    try {
                         Files.newBufferedReader(frameFile).useLines { lines ->
                             var lastLine = ""
                             var sumFrameTime: Double? = null
@@ -322,24 +328,33 @@ class Scbw(
                                 sumFrameTime ?: 0.0
                             )
                         }
-                    } else null
+                    } catch (e: Exception) {
+                        log.warn("Ignoring invalid frames.csv of $name in $gameName: ${e.message}")
+                        null
+                    }
                 }
 
-                val unitEvents = logDir.resolve("unit_events.csv").let { unitEventFile ->
-                    if (unitEventFile.toFile().exists()) {
+                val unitEvents = gameFile(logDir.resolve("unit_events.csv"))?.let { unitEventFile ->
+                    try {
                         Files.readAllLines(unitEventFile).drop(1)
-                    } else emptyList()
-                }
+                    } catch (e: Exception) {
+                        log.warn("Ignoring invalid unit_events.csv of $name in $gameName: ${e.message}")
+                        null
+                    }
+                } ?: emptyList()
 
-                val scores = logDir.resolve("scores.json").let { scoresFile ->
-                    if (scoresFile.toFile().exists()) {
-                        val scores = mapper.readValue<ScoresJson>(scoresFile.toFile())
-                        if (scores.is_crashed) {
-                            moveLog(logDir.resolve("game.log"), targetLogsPath.resolve("${gameName}_game.log"))
-                            moveLog(logDir.resolve("bot.log"), targetLogsPath.resolve("${gameName}_bot.log"))
-                        }
-                        scores
-                    } else null
+                // A missing or unreadable scores file counts as a crash of this bot.
+                val scores = gameFile(logDir.resolve("scores.json"))?.let { scoresFile ->
+                    try {
+                        mapper.readValue<ScoresJson>(scoresFile.toFile())
+                    } catch (e: Exception) {
+                        log.warn("Ignoring invalid scores.json of $name in $gameName: ${e.message}")
+                        null
+                    }
+                }
+                if (scores?.is_crashed != false) {
+                    moveLog(logDir.resolve("game.log"), targetLogsPath.resolve("${gameName}_game.log"))
+                    moveLog(logDir.resolve("bot.log"), targetLogsPath.resolve("${gameName}_bot.log"))
                 }
 
                 return@mapIndexed BotResult(scores, frameCount, unitEvents)
@@ -347,9 +362,23 @@ class Scbw(
             val frameCount = botResults.mapNotNull { it.frames?.frameCount }.minOrNull()
             val resultFile = gamePath.resolve("result.json").toFile()
             val gameId = UUID.randomUUID()
-            persistUnitEvents(gameId, botA, botResults[0].unitEvents, botB, botResults[1].unitEvents)
+            try {
+                persistUnitEvents(gameId, botA, botResults[0].unitEvents, botB, botResults[1].unitEvents)
+            } catch (e: Exception) {
+                log.error("Could not save unit events of $gameName", e)
+            }
             if (resultFile.exists()) {
                 val result = mapper.readValue<ResultJson>(resultFile)
+                // Same condition as scbw.play's own copy: only when the containers did not time out.
+                if (scbwConfig.readOverWrite && !result.is_realtime_outed) {
+                    bots.forEachIndexed { index, name ->
+                        try {
+                            copyWriteDir(gamePath.resolve("write_$index"), scbwConfig.botsDir.resolve(name).resolve("read"))
+                        } catch (e: Exception) {
+                            log.error("Could not copy the write directory of $name to its read directory", e)
+                        }
+                    }
+                }
                 if (result.winner != null && result.loser != null) {
                     val winnerBot = if (result.winner == botA.name) botA else botB
                     val loserBot = if (result.winner == botA.name) botB else botA
@@ -451,8 +480,17 @@ class Scbw(
                         pos[1].toShort(), pos[2].toShort()
                     )
                 }
-                return events.map(CSV::parseLine)
-                    .mapNotNull(::toUnitEvent)
+                var invalidLines = 0
+                val parsed = events.mapNotNull { line ->
+                    try {
+                        toUnitEvent(CSV.parseLine(line))
+                    } catch (e: Exception) {
+                        invalidLines++
+                        null
+                    }
+                }
+                if (invalidLines > 0) log.warn("Ignored $invalidLines invalid unit event lines of ${bot.name}")
+                return parsed
                     .filter {
                         it.event != UnitEventType.UNIT_RENEGADE &&
                                 when (it.unitType) {
@@ -478,6 +516,7 @@ class Scbw(
         }
 
         private fun moveLog(source: Path, dest: Path) {
+            if (!Files.isRegularFile(source, LinkOption.NOFOLLOW_LINKS)) return
             if (Files.size(source) > LOG_LIMIT) {
                 dest.toFile().writeText("Log file exceeds limit of $LOG_LIMIT bytes!")
             } else
@@ -523,9 +562,11 @@ class FailedToKillSCBW(message: String) : RuntimeException(message)
 class BotNotFoundException(message: String) : RuntimeException(message)
 class InvalidBotfileException(message: String) : RuntimeException(message)
 
-// Bot zips come from untrusted authors, so no entry may end up outside targetDir.
-fun unzipBot(zipIn: ZipInputStream, targetDir: Path) {
+// Bot zips come from untrusted authors, so no entry may end up outside targetDir or fill the disk.
+fun unzipBot(zipIn: ZipInputStream, targetDir: Path, maxBytes: Long = MAX_UNZIPPED_BOT_SIZE) {
     val root = targetDir.toAbsolutePath().normalize()
+    val buffer = ByteArray(64 * 1024)
+    var totalBytes = 0L
     while (true) {
         val entry = zipIn.nextEntry ?: return
         val path = root.resolve(entry.name).normalize()
@@ -535,7 +576,35 @@ fun unzipBot(zipIn: ZipInputStream, targetDir: Path) {
             Files.createDirectories(path)
         } else {
             Files.createDirectories(path.parent)
-            Files.copy(zipIn, path, StandardCopyOption.REPLACE_EXISTING)
+            Files.newOutputStream(path).use { out ->
+                while (true) {
+                    val read = zipIn.read(buffer)
+                    if (read < 0) break
+                    totalBytes += read
+                    if (totalBytes > maxBytes)
+                        throw InvalidBotfileException("Bot zip unpacks to more than $maxBytes bytes")
+                    out.write(buffer, 0, read)
+                }
+            }
+        }
+    }
+}
+
+// Bots write into the game folder, so a file there could be a link to a file on this host, a pipe or huge.
+fun gameFile(path: Path): Path? =
+    path.takeIf { Files.isRegularFile(it, LinkOption.NOFOLLOW_LINKS) && Files.size(it) <= MAX_GAME_FILE_SIZE }
+
+// Replaces scbw.play's --read_overwrite, which follows links and so lets a bot copy any file of this host.
+fun copyWriteDir(writeDir: Path, readDir: Path) {
+    if (!Files.isDirectory(writeDir, LinkOption.NOFOLLOW_LINKS)) return
+    Files.walk(writeDir).use { paths ->
+        paths.forEach { source ->
+            val target = readDir.resolve(writeDir.relativize(source).toString())
+            if (Files.isDirectory(source, LinkOption.NOFOLLOW_LINKS)) {
+                Files.createDirectories(target)
+            } else if (Files.isRegularFile(source, LinkOption.NOFOLLOW_LINKS)) {
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
+            }
         }
     }
 }

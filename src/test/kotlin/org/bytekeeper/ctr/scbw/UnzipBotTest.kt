@@ -52,6 +52,16 @@ class UnzipBotTest {
         assertThat(outside).doesNotExist()
     }
 
+    @Test
+    fun `should stop when the unpacked size exceeds the limit`() {
+        // GIVEN
+        val aiDir = tempDir.resolve("bot/AI")
+
+        // WHEN, THEN
+        assertThatThrownBy { unzipBot(zipOf("a.txt", "b.txt"), aiDir, maxBytes = 8) }
+            .isInstanceOf(InvalidBotfileException::class.java)
+    }
+
     private fun zipOf(vararg names: String): ZipInputStream {
         val bytes = ByteArrayOutputStream()
         ZipOutputStream(bytes).use { zip ->
