@@ -20,9 +20,7 @@ function rollGames() {
                 .slice(0, 10)
                 .map(g => {
                     g.botA.winner = false;
-                    g.botA.loser = false;
                     g.botB.winner = false;
-                    g.botB.loser = false;
                     if (Math.random() < 0.5) {
                         const tmp = g.botA;
                         g.botA = g.botB;

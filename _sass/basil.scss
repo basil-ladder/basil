@@ -485,10 +485,58 @@ pre, code {
   }
 }
 
+// Rank badge, race block and dice, the same on every beta page. Scoped to .beta because the
+// classic ranking uses a "rank" class for something else.
+.beta {
+  .rank {
+    flex: none;
+    display: inline-block;
+    text-align: center;
+    width: 1.7em;
+    height: 1.7em;
+    line-height: calc(1.7em - 2px);
+    font-size: 0.85em;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+  }
+
+  // A small block instead of a full cell fill keeps rows calm; same size as the dice icon.
+  .race {
+    flex: none;
+    display: inline-block;
+    width: 1.25em;
+    height: 1em;
+    border-radius: 3px;
+    background-color: var(--race-random-fg);
+    &.race_protoss { background: var(--race-protoss-fg); }
+    &.race_terran { background: var(--race-terran-fg); }
+    &.race_zerg { background: var(--race-zerg-fg); }
+    &.race_unknown { background: transparent; border: 1px dashed var(--race-random-fg); }
+  }
+
+  // Fixed width so names line up whether the bot shows a block or a dice.
+  .race-slot {
+    flex: none;
+    width: 1.25em;
+    display: flex;
+    justify-content: center;
+  }
+  .race-dice {
+    color: var(--race-random-fg);
+    &.race_protoss { color: var(--race-protoss-fg); }
+    &.race_terran { color: var(--race-terran-fg); }
+    &.race_zerg { color: var(--race-zerg-fg); }
+  }
+}
+
 // Game listing (Last 24h page and bot pages)
 
 // Below this width the tables turn into two-line cards; narrower, names and maps got cut off.
+// bot.js has the same width in its matchMedia() for the chart layout.
 $cards-below: 950px;
+// Same blue as the "Won" bars in the bot page charts (bot.js).
+$won-color: #88AAEB;
 .games-toolbar {
   display: flex;
   align-items: center;
@@ -538,7 +586,8 @@ button.lucky {
   width: 1px;
   height: 1px;
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
 table.games,
@@ -611,44 +660,6 @@ table.ranking {
     }
   }
 
-  .rank {
-    flex: none;
-    text-align: center;
-    width: 1.7em;
-    height: 1.7em;
-    line-height: calc(1.7em - 2px);
-    font-size: 0.85em;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 3px;
-  }
-
-  // A small block instead of a full cell fill keeps rows calm; same size as the dice icon.
-  .race {
-    flex: none;
-    width: 1.25em;
-    height: 1em;
-    border-radius: 3px;
-    background-color: var(--race-random-fg);
-    &.race_protoss { background: var(--race-protoss-fg); }
-    &.race_terran { background: var(--race-terran-fg); }
-    &.race_zerg { background: var(--race-zerg-fg); }
-    &.race_unknown { background: transparent; border: 1px dashed var(--race-random-fg); }
-  }
-
-  // Fixed width so names line up whether the bot shows a bar or a dice.
-  .race-slot {
-    flex: none;
-    width: 1.25em;
-    display: flex;
-    justify-content: center;
-  }
-  .race-dice {
-    color: var(--race-random-fg);
-    &.race_protoss { color: var(--race-protoss-fg); }
-    &.race_terran { color: var(--race-terran-fg); }
-    &.race_zerg { color: var(--race-zerg-fg); }
-  }
 }
 
 .no-games {
@@ -763,10 +774,6 @@ svg.icon {
   vertical-align: -0.125em;
   fill: currentColor;
 }
-// The broad ".row :not(:first-child)" padding would squeeze icons to a dot.
-.row svg.icon {
-  padding: 0;
-}
 .theme-toggle .icon-sun,
 :root[data-theme="dark"] .theme-toggle .icon-moon {
   display: none;
@@ -847,11 +854,13 @@ table.ranking {
     cursor: pointer;
     font-weight: 600;
     &:hover { color: $my-orange-color; }
+    // "all: unset" also removes the browser's focus outline.
+    &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 2px; }
   }
   th.sorted button { color: $my-orange-color; }
   .sort-arrow { width: 0.9em; font-size: 0.8em; margin-left: 0.2em; }
 
-  tr.linked td { background-color: rgba(239, 159, 16, 0.18); }
+  tr.linked td { background-color: rgba($my-orange-color, 0.18); }
 }
 
 .ranking-help .rank-change { margin: 0 0.1em; }
@@ -934,41 +943,10 @@ details.disabled-bots {
   }
 }
 
-// Same badge, race block and dice as the tables.
-.bot-title .rank,
-.close-opposition .rank {
-  flex: none;
-  width: 1.7em;
-  height: 1.7em;
-  line-height: calc(1.7em - 2px);
-  text-align: center;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 3px;
+// The title badge stays larger than the ones in lists.
+.beta .bot-title .rank {
+  font-size: 1.3em;
 }
-.close-opposition .rank {
-  font-size: 0.85em;
-}
-.bot-title .race-slot,
-.close-opposition .race-slot {
-  flex: none;
-  width: 1.25em;
-  display: flex;
-  justify-content: center;
-}
-.bot-title .race,
-.close-opposition .race,
-.race-split-legend .race {
-  width: 1.25em;
-  height: 1em;
-  border-radius: 3px;
-  &.race_protoss { background: var(--race-protoss-fg); }
-  &.race_terran { background: var(--race-terran-fg); }
-  &.race_zerg { background: var(--race-zerg-fg); }
-  &.race_unknown { border: 1px dashed var(--race-random-fg); }
-}
-.bot-title .race-dice,
-.close-opposition .race-dice { color: var(--race-random-fg); }
 
 // Lists with a win-rate bar per row (close opposition, race matchups).
 .winrate-list.close-opposition {
@@ -1026,7 +1004,7 @@ details.disabled-bots {
     span {
       display: block;
       height: 100%;
-      background: #88AAEB;
+      background: $won-color;
     }
     // The 50% mark.
     &::after {
@@ -1091,6 +1069,7 @@ details.disabled-bots {
     gap: 0.3em;
     button {
       cursor: pointer;
+      &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 1px; }
       &.active {
         background: $my-orange-color;
         border-color: $my-orange-color;
@@ -1187,9 +1166,5 @@ button.compare {
     display: inline-flex;
     align-items: center;
     gap: 0.35em;
-  }
-  .race {
-    display: inline-block;
-    background-color: var(--race-random-fg);
   }
 }

@@ -1,13 +1,13 @@
-import basil from './basil.js'
 import Chart from 'chart.js'
-import { icon, racecol, racename, rankcol, sortByRank } from './common.js'
+import { applyThemeToChart, chartThemeColors, registerChartUpdater } from './charts.js'
+import { dataBaseUrl, icon, racecol, racename, rankcol, sortByRank } from './common.js'
 import { html, render } from 'lit-html'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import renderGameListing from './gamelisting';
 
-const statsBaseUrl = basil.dataBaseUrl + "stats/";
+const statsBaseUrl = dataBaseUrl + "stats/";
 const botName = new URLSearchParams(location.search).get("bot") || "";
-// Narrow screens get horizontal bars and no in-bar labels; they did not fit.
+// Narrow screens get horizontal bars and no in-bar labels; they did not fit. Same width as $cards-below in basil.scss.
 const narrow = matchMedia("(max-width: 950px)").matches;
 const percent = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const dayFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
@@ -128,7 +128,7 @@ function winLossBarChart(canvasId, boxId, rotateLabels) {
         const value = { stacked: true };
         chart.options.scales = narrow ? { yAxes: [category], xAxes: [value] } : { xAxes: [category], yAxes: [value] };
         if (narrow) document.getElementById(boxId).style.height = (80 + 22 * labels.length) + "px";
-        basil.applyThemeToChart(chart);
+        applyThemeToChart(chart);
         chart.update();
         chart.resize();
     };
@@ -154,7 +154,7 @@ function setupPerMapWinsChart(data) {
     }
     updateChart();
     updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    registerChartUpdater(updateChart);
 }
 
 const csvField = value => /[",\n]/.test(value) ? '"' + String(value).replace(/"/g, '""') + '"' : String(value);
@@ -173,7 +173,7 @@ function setupVsChart(data) {
     }
     updateChart();
     updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    registerChartUpdater(updateChart);
 }
 
 const raceNames = { T: "Terran", P: "Protoss", Z: "Zerg", R: "Unknown" };
@@ -292,18 +292,18 @@ function setupPerPlayLengthChart(data) {
             xAxes: [{ stacked: true, type: "category", labels: minutes.map((_, i) => i), ticks: { autoSkip: narrow } }],
             yAxes: [{ stacked: true }]
         };
-        basil.applyThemeToChart(chart);
+        applyThemeToChart(chart);
         chart.update();
     }
     updateChart();
     updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    registerChartUpdater(updateChart);
 }
 
 // --- ELO chart ---
 
 function eloChartColors() {
-    return basil.chartThemeColors().isDark ? [
+    return chartThemeColors().isDark ? [
         "rgba(255, 80, 80, 0.9)", "rgba(80, 220, 80, 0.7)", "rgba(220, 220, 80, 0.7)",
         "rgba(100, 100, 255, 0.8)", "rgba(220, 80, 220, 0.7)", "rgba(200, 200, 200, 0.7)",
     ] : [
@@ -360,12 +360,12 @@ function setupEloChart(own, topBotNames) {
     function updateChart() {
         const colors = eloChartColors();
         chart.data.datasets = eloBots.map((bot, index) => eloDataset(bot, index, colors));
-        basil.applyThemeToChart(chart);
+        applyThemeToChart(chart);
         chart.update();
     }
     updateChart();
     updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    registerChartUpdater(updateChart);
 
     // The comparison histories are ~2 MB together, so they load only on request.
     const compareNode = document.getElementById("eloCompare");
@@ -419,7 +419,11 @@ rankingRequest.then(bots => {
 });
 
 fetch(statsBaseUrl + encodeURIComponent(botName) + "/allGameResults.json")
-    .then(r => r.text())
+    .then(r => {
+        // Never evaluate an error page.
+        if (!r.ok) throw new Error("allGameResults.json: HTTP " + r.status);
+        return r.text();
+    })
     .then(text => {
         // Not valid JSON (keys are unquoted), so it has to be evaluated; it comes from our own data server.
         const data = eval('(' + text + ')');
