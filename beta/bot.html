@@ -21,13 +21,18 @@ classic_url: /bot.html
 <small>The 70 opponents this bot does worst against, lowest win rate first. <a id="vsChartData"></a></small>
 <div class="chart" id="vsBox"><canvas id="vsChart"></canvas></div>
 
+<div class="side-by-side">
+<section>
 <h2>Wins per race</h2>
-<small>Win rate over the selected time range, counted from its first day. "Unknown" means the opponent played random and its race was not recorded.</small>
-<div class="chart"><canvas id="perRaceWinsChart"></canvas></div>
-
+<small>Wins and losses per race in the selected range. "Unknown" means the opponent played random and its race was not recorded. The line in each bar marks 50%.</small>
+<div id="raceMatchups"></div>
+</section>
+<section>
 <h2>Close opposition</h2>
-<small>The 10 opponents closest to a 50% win rate.</small>
-<div class="chart"><canvas id="vs2Chart"></canvas></div>
+<small>The 10 opponents closest to a 50% win rate, among those with at least 10 games in the selected range. The line in each bar marks 50%.</small>
+<div id="closeOpposition"></div>
+</section>
+</div>
 
 <h2>Win rate by game length</h2>
 <small>Wins and losses per minute of game length.</small>

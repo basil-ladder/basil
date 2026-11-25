@@ -87,14 +87,6 @@ renderRangeBar();
 
 // --- Charts ---
 
-const CSS_COLOR_NAMES = ["Black", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "DarkOrange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGrey", "DodgerBlue", "FireBrick", "ForestGreen", "Fuchsia", "Gainsboro", "Gold", "GoldenRod", "Grey", "Green", "GreenYellow", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MistyRose", "Moccasin", "Navy", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "RebeccaPurple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "Yellow", "YellowGreen"];
-const DARK_INVISIBLE = { "black": 1, "navy": 1, "darkblue": 1, "midnightblue": 1 };
-function getLineColor(i) {
-    const color = CSS_COLOR_NAMES[i % CSS_COLOR_NAMES.length];
-    if (basil.chartThemeColors().isDark && DARK_INVISIBLE[color.toLowerCase()]) return "White";
-    return color;
-}
-
 const baseOptions = { responsive: true, maintainAspectRatio: false };
 const winRate = (wins, losses) => percent.format(wins / Math.max(1, wins + losses));
 
@@ -184,111 +176,77 @@ function setupVsChart(data) {
     basil.registerChartUpdater(updateChart);
 }
 
-function aggWinLossFilter(data) {
-    const steplen = Math.ceil(data.length / 30);
-    const result = [];
-    let step = 0;
-    let y = 0;
-    for (let i = 0; i < data.length; i++) {
-        const d = data[i];
-        y += d.y;
-        step++;
-        if (step === steplen || i === data.length - 1) {
-            result.push({ x: d.x, y: Math.round(100 * y / step) / 100, w: d.w, l: d.l });
-            y = 0;
-            step = 0;
-        }
-    }
-    return result;
-}
+const raceNames = { T: "Terran", P: "Protoss", Z: "Zerg", R: "Unknown" };
 
-function winRateLineChart(canvasId) {
-    return new Chart(document.getElementById(canvasId), {
-        type: "line",
-        options: Object.assign({}, baseOptions, {
-            legend: { labels: { boxWidth: narrow ? 12 : 40 } },
-            tooltips: {
-                callbacks: {
-                    footer: (items, chartData) => {
-                        const e = chartData.datasets[items[0].datasetIndex].data[items[0].index];
-                        return "W-L: " + e.w + " - " + e.l;
-                    }
-                }
-            },
-            scales: {
-                xAxes: [{ type: "time", time: { unit: "day" } }],
-                yAxes: [{ ticks: { callback: value => value + "%" } }]
-            }
-        })
-    });
-}
+const winRateBar = (won, lost) => html`
+    <span class="wl">${won}–${lost}</span>
+    <span class="wr-bar" title="${won} won, ${lost} lost"><span style="width: ${100 * won / (won + lost)}%"></span></span>
+    <span class="wr">${percent.format(won / (won + lost))}</span>`;
 
-function setupRaceMatchupChart(data) {
-    const chart = winRateLineChart("perRaceWinsChart");
-    function updateChart() {
-        const rvr = {};
-        const races = ["T", "P", "Z", "R", "A"];
-        const raceLabel = { "T": "Terran", "P": "Protoss", "R": "Unknown", "Z": "Zerg", "A": "Overall" };
-        races.forEach(a => races.forEach(b => {
-            rvr[a + b] = { label: raceLabel[a] + " vs " + raceLabel[b], won: 0, lost: 0, data: [] };
-        }));
-        const count = (key, x) => {
-            const s = rvr[key];
-            if (x.w === 1) s.won++; else s.lost++;
-            s.data.push({ x: new Date(x.t * 1000), y: 100 * s.won / (s.won + s.lost), w: s.won, l: s.lost });
-        };
+function setupRaceMatchups(data) {
+    const node = document.getElementById("raceMatchups");
+    function update() {
+        const pairs = {};
+        const all = { won: 0, lost: 0 };
         data.results.filter(inRange).forEach(x => {
-            count(x.r + x.eR, x);
-            count("A" + x.eR, x);
-            count(x.r + "A", x);
+            const s = pairs[x.r + x.eR] = pairs[x.r + x.eR] || { won: 0, lost: 0 };
+            if (x.w === 1) { s.won++; all.won++; } else { s.lost++; all.lost++; }
         });
-        // An "Overall" line equal to a single race's line adds nothing.
-        const rvrList = [];
-        races.forEach(a => races.forEach(b => {
-            const s = rvr[a + b];
-            const same = other => rvr[other + b].won === s.won && rvr[other + b].lost === s.lost;
-            if (a !== "A" || !["T", "P", "Z", "R"].some(same)) rvrList.push(s);
-        }));
-        chart.data.datasets = rvrList.filter(r => r.data.length > 0).map((r, i) => ({
-            label: r.label,
-            data: aggWinLossFilter(r.data),
-            fill: false,
-            borderColor: getLineColor(i),
-            cubicInterpolationMode: "monotone",
-        }));
-        basil.applyThemeToChart(chart);
-        chart.update();
+        const ownRaces = ["P", "T", "Z", "R"].filter(own => Object.keys(pairs).some(k => k[0] === own));
+        // A bot that always plays one race needs no "Protoss vs" in every row.
+        const label = (own, enemy) => ownRaces.length > 1 ? raceNames[own] + " vs " + raceNames[enemy] : "vs " + raceNames[enemy];
+        const rows = [];
+        for (const own of ownRaces) {
+            const total = { won: 0, lost: 0 };
+            for (const enemy of ["T", "P", "Z", "R"]) {
+                const s = pairs[own + enemy];
+                if (!s) continue;
+                rows.push({ label: label(own, enemy), won: s.won, lost: s.lost });
+                total.won += s.won;
+                total.lost += s.lost;
+            }
+            if (ownRaces.length > 1) rows.push({ label: "as " + raceNames[own] + ", all games", won: total.won, lost: total.lost, total: true });
+        }
+        if (rows.length) rows.push({ label: "All games", won: all.won, lost: all.lost, total: true });
+        render(rows.length
+            ? html`<div class="winrate-list matchups">${rows.map(r => html`
+                <div class="opp ${r.total ? "total" : ""}"><span class="name">${r.label}</span>${winRateBar(r.won, r.lost)}</div>`)}</div>`
+            : html`<p><small>No games in this range.</small></p>`, node);
     }
-    updateChart();
-    updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    update();
+    updaters.push(update);
 }
 
-function setupBotMatchupChart(data) {
-    const chart = winRateLineChart("vs2Chart");
-    function updateChart() {
+// With fewer games, a 50% win rate is mostly luck (2-2, 3-3), not an even match.
+const CLOSE_OPPONENT_MIN_GAMES = 10;
+
+const closeOpponentRow = (s, info) => html`
+<div class="opp">
+    ${info ? html`<span class="rank ${rankcol(info.rank === "UNRANKED" ? "U" : info.rank)}">${info.rank === "UNRANKED" ? "U" : info.rank}</span>
+    <span class="race-slot" title=${racename(info.race)}>${racecol(info.race) === "race_random"
+        ? icon("dice", "race-dice") : html`<span class="race ${racecol(info.race)}"></span>`}</span>` : html`<span></span><span></span>`}
+    <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(s.name)}" title=${s.name}>${s.name}</a>
+    ${winRateBar(s.won, s.lost)}
+</div>`;
+
+function setupCloseOpposition(data, botsByName) {
+    const node = document.getElementById("closeOpposition");
+    function update() {
         const vs = {};
         data.results.filter(inRange).forEach(x => {
-            const s = vs[x.e] = (vs[x.e] || { won: 0, lost: 0, data: [], label: data.bots[x.e] });
+            const s = vs[x.e] = (vs[x.e] || { won: 0, lost: 0, name: data.bots[x.e] });
             if (x.w === 1) s.won++; else s.lost++;
-            s.data.push({ x: new Date(x.t * 1000), y: 100 * s.won / (s.won + s.lost), w: s.won, l: s.lost });
         });
         const closest = Object.values(vs)
+            .filter(s => s.won + s.lost >= CLOSE_OPPONENT_MIN_GAMES)
             .sort((a, b) => Math.abs(a.won / (a.won + a.lost) - 0.5) - Math.abs(b.won / (b.won + b.lost) - 0.5))
             .slice(0, 10);
-        chart.data.datasets = closest.map((r, i) => ({
-            label: r.label,
-            data: aggWinLossFilter(r.data),
-            fill: false,
-            borderColor: getLineColor(i),
-            cubicInterpolationMode: "monotone",
-        }));
-        basil.applyThemeToChart(chart);
-        chart.update();
+        render(closest.length
+            ? html`<div class="winrate-list close-opposition">${closest.map(s => closeOpponentRow(s, botsByName.get(s.name)))}</div>`
+            : html`<p><small>No opponent has ${CLOSE_OPPONENT_MIN_GAMES} or more games in this range, too few to tell an even match from luck. Try 30 days or more.</small></p>`, node);
     }
-    updateChart();
-    updaters.push(updateChart);
-    basil.registerChartUpdater(updateChart);
+    update();
+    updaters.push(update);
 }
 
 // BWAPI runs at about 23.8 frames per second, so 1429 frames are one game minute.
@@ -473,7 +431,9 @@ fetch(statsBaseUrl + encodeURIComponent(botName) + "/allGameResults.json")
         if (data.results.length) firstGameSecond = data.results[0].t;
         setupPerMapWinsChart(data);
         setupVsChart(data);
-        setupRaceMatchupChart(data);
-        setupBotMatchupChart(data);
+        setupRaceMatchups(data);
+        rankingRequest
+            .then(bots => setupCloseOpposition(data, new Map(bots.map(b => [b.botName, b]))))
+            .catch(() => setupCloseOpposition(data, new Map()));
         setupPerPlayLengthChart(data);
     }).catch(e => console.error(e));

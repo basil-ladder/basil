@@ -928,30 +928,36 @@ details.disabled-bots {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .rank {
-    flex: none;
-    width: 1.7em;
-    height: 1.7em;
-    line-height: calc(1.7em - 2px);
-    text-align: center;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 3px;
-  }
   .race-name {
     margin-left: auto;
     color: var(--text-secondary);
   }
 }
 
-// Same race block and dice as the tables.
-.bot-title .race-slot {
+// Same badge, race block and dice as the tables.
+.bot-title .rank,
+.close-opposition .rank {
+  flex: none;
+  width: 1.7em;
+  height: 1.7em;
+  line-height: calc(1.7em - 2px);
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 3px;
+}
+.close-opposition .rank {
+  font-size: 0.85em;
+}
+.bot-title .race-slot,
+.close-opposition .race-slot {
   flex: none;
   width: 1.25em;
   display: flex;
   justify-content: center;
 }
-.bot-title .race {
+.bot-title .race,
+.close-opposition .race {
   width: 1.25em;
   height: 1em;
   border-radius: 3px;
@@ -960,7 +966,77 @@ details.disabled-bots {
   &.race_zerg { background: var(--race-zerg-fg); }
   &.race_unknown { border: 1px dashed var(--race-random-fg); }
 }
-.bot-title .race-dice { color: var(--race-random-fg); }
+.bot-title .race-dice,
+.close-opposition .race-dice { color: var(--race-random-fg); }
+
+// Lists with a win-rate bar per row (close opposition, race matchups).
+.winrate-list.close-opposition {
+  // Names get room before the bar; spare width stays on the right instead of spreading the columns.
+  grid-template-columns: auto auto minmax(6em, max-content) auto minmax(3em, 12em) auto;
+}
+.winrate-list.matchups {
+  grid-template-columns: minmax(6em, max-content) auto minmax(3em, 12em) auto;
+  // Matchup labels are short phrases, not bot names: wrapping reads better than "...".
+  .name {
+    max-width: none;
+    white-space: normal;
+  }
+  .total .name {
+    font-weight: 600;
+  }
+  // Separates the per-race groups of random bots.
+  .total > :not(.wr-bar) {
+    padding-bottom: 0.6em;
+  }
+  // Margin, not padding: padding would squash the bar's fill.
+  .total > .wr-bar {
+    margin-bottom: 0.6em;
+  }
+}
+.winrate-list {
+  display: grid;
+  justify-content: start;
+  align-items: center;
+  gap: 0.35em 0.6em;
+  margin: 0.5em 0 1.5em;
+  font-variant-numeric: tabular-nums;
+  // Rows are only for markup; the grid lines up their cells across rows.
+  .opp {
+    display: contents;
+  }
+  .name {
+    max-width: 14em;
+    color: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .wl,
+  .wr {
+    text-align: right;
+  }
+  .wr-bar {
+    position: relative;
+    height: 0.8em;
+    border-radius: 2px;
+    background: var(--table-stripe-bg);
+    border: 1px solid var(--table-border);
+    span {
+      display: block;
+      height: 100%;
+      background: #88AAEB;
+    }
+    // The 50% mark.
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -0.25em;
+      bottom: -0.25em;
+      border-left: 2px solid var(--text-primary);
+    }
+  }
+}
 
 .bot-stats {
   display: flex;
@@ -1051,5 +1127,14 @@ button.compare {
   // The header already names the bot; on phones every line of the sticky bar costs chart space.
   .range-bar .range-bot {
     display: none;
+  }
+}
+
+// The two win-rate lists are narrow, so wide screens show them next to each other.
+@media screen and (min-width: $cards-below + 1) {
+  .side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 3em;
   }
 }
