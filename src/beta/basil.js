@@ -1,9 +1,7 @@
 import Chart from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
-import 'flatpickr'
 import moment from 'moment'
 import { dataBaseUrl, racecol, racename, rankcol } from './common.js'
-import 'flatpickr/dist/flatpickr.css'
 
 Chart.plugins.unregister(ChartDataLabels);
 

@@ -913,3 +913,143 @@ details.disabled-bots {
     }
   }
 }
+
+// Bot page (beta)
+.bot-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.5em;
+  h1 {
+    margin: 0;
+    font-size: 1.8em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rank {
+    flex: none;
+    width: 1.7em;
+    height: 1.7em;
+    line-height: calc(1.7em - 2px);
+    text-align: center;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+  }
+  .race-name {
+    margin-left: auto;
+    color: var(--text-secondary);
+  }
+}
+
+// Same race block and dice as the tables.
+.bot-title .race-slot {
+  flex: none;
+  width: 1.25em;
+  display: flex;
+  justify-content: center;
+}
+.bot-title .race {
+  width: 1.25em;
+  height: 1em;
+  border-radius: 3px;
+  &.race_protoss { background: var(--race-protoss-fg); }
+  &.race_terran { background: var(--race-terran-fg); }
+  &.race_zerg { background: var(--race-zerg-fg); }
+  &.race_unknown { border: 1px dashed var(--race-random-fg); }
+}
+.bot-title .race-dice { color: var(--race-random-fg); }
+
+.bot-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 2em;
+  font-variant-numeric: tabular-nums;
+  .stat span {
+    display: block;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+  }
+}
+
+.bot-disabled {
+  margin-top: 0.5em;
+  color: var(--crash-fg);
+}
+
+.range-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin: 1.5em 0 0.5em;
+  padding: 0.5em 0;
+  border-bottom: 1px solid var(--table-border);
+  background-color: var(--sticky-bg);
+  .range-bot {
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .presets button,
+  input {
+    font: inherit;
+    font-size: 0.9em;
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--input-text);
+  }
+  .presets {
+    display: flex;
+    gap: 0.3em;
+    button {
+      cursor: pointer;
+      &.active {
+        background: $my-orange-color;
+        border-color: $my-orange-color;
+        color: #111;
+      }
+    }
+  }
+}
+
+button.compare {
+  font: inherit;
+  font-size: 0.9em;
+  padding: 0.25em 0.8em;
+  margin-bottom: 0.5em;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  cursor: pointer;
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.chart {
+  position: relative;
+  height: 400px;
+  margin-bottom: 1em;
+}
+
+@media screen and (max-width: $cards-below) {
+  .chart {
+    height: 300px;
+  }
+  // The header already names the bot; on phones every line of the sticky bar costs chart space.
+  .range-bar .range-bot {
+    display: none;
+  }
+}
