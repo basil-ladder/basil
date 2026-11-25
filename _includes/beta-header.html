@@ -20,10 +20,11 @@
         <div class="trigger">
           {%- for path in page_paths -%}
             {%- assign my_page = site.pages | where: "path", path | first -%}
-            {%- if my_page.title -%}
+            {%- if my_page.title and my_page.url != "/build_orders.html" -%}
             {%- assign link = my_page.url -%}
             {%- if my_page.url == "/lastgames.html" -%}{%- assign link = "/beta/lastgames.html" -%}{%- endif -%}
             {%- if my_page.url == "/ranking.html" -%}{%- assign link = "/beta/ranking.html" -%}{%- endif -%}
+            {%- if my_page.url == "/stats.html" -%}{%- assign link = "/beta/stats.html" -%}{%- endif -%}
             <a class="{% if page.url == link %}active {% endif %}page-link" href="{{ link | relative_url }}">{{ my_page.title | escape }}</a>
             {%- endif -%}
           {%- endfor -%}

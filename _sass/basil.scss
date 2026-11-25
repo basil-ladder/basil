@@ -957,7 +957,8 @@ details.disabled-bots {
   justify-content: center;
 }
 .bot-title .race,
-.close-opposition .race {
+.close-opposition .race,
+.race-split-legend .race {
   width: 1.25em;
   height: 1em;
   border-radius: 3px;
@@ -1014,6 +1015,7 @@ details.disabled-bots {
   .wl,
   .wr {
     text-align: right;
+    white-space: nowrap;
   }
   .wr-bar {
     position: relative;
@@ -1136,5 +1138,58 @@ button.compare {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 3em;
+  }
+}
+
+// Stats page (beta)
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11em, 1fr));
+  gap: 0.8em;
+  margin: 0.5em 0 1.5em;
+  .tile {
+    display: flex;
+    flex-direction: column;
+    padding: 0.7em 0.9em;
+    border: 1px solid var(--table-border);
+    border-radius: 6px;
+    background: var(--table-stripe-bg);
+  }
+  .label,
+  .note {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+  }
+  .value {
+    font-size: 1.6em;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.race-split {
+  display: flex;
+  height: 1.2em;
+  border-radius: 4px;
+  overflow: hidden;
+  span { min-width: 2px; }
+  .race_terran { background: var(--race-terran-fg); }
+  .race_protoss { background: var(--race-protoss-fg); }
+  .race_zerg { background: var(--race-zerg-fg); }
+  .race_random { background: var(--race-random-fg); }
+}
+
+.race-split-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 1.5em;
+  margin: 0.5em 0 1em;
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+  }
+  .race {
+    display: inline-block;
+    background-color: var(--race-random-fg);
   }
 }
