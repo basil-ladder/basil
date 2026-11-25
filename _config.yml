@@ -28,6 +28,16 @@ theme: minima
 plugins:
   - jekyll-feed
 show_excerpts: true
+# Listed explicitly so pages under beta/ stay out of the menu.
+header_pages:
+  - about.md
+  - build_orders.html
+  - crosstable.html
+  - lastgames.html
+  - ranking.html
+  - rawdata.md
+  - rules.md
+  - stats.html
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list

@@ -8,8 +8,9 @@
     "last 3 ios_saf versions"
   ],
   "scripts": {
-    "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js --dist-dir assets/js --public-url /assets/js/",
-    "build": "parcel build src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js --dist-dir assets/js --public-url /assets/js/"
+    "dev": "parcel watch src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js src/beta/lastgames.js src/beta/bot.js --dist-dir assets/js --public-url /assets/js/",
+    "build": "parcel build src/basil.js src/bot.js src/ranking.js src/lastgames.js src/buildorders.js src/crosstable.js src/stats.js src/index.js src/beta/lastgames.js src/beta/bot.js --dist-dir assets/js --public-url /assets/js/",
+    "icons": "node scripts/build-icons.mjs"
   },
   "repository": {
     "type": "git",

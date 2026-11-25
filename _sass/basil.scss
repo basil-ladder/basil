@@ -12,6 +12,7 @@ $rank-c-color: #3399ff;
 $rank-d-color: #19ffff;
 $rank-e-color: #33ffbb;
 $rank-f-color: #eeffe5;
+$rank-u-color: #a0a0a0;
 
 $nav-background-color: #090909;
 $my-orange-color: #ef9f10;
@@ -30,7 +31,8 @@ $grey-color-very-dark: darken($grey-color, 40%) !default;
       c: $rank-c-color,
       d: $rank-d-color,
       e: $rank-e-color,
-      f: $rank-f-color
+      f: $rank-f-color,
+      u: $rank-u-color
     )
 {
   .rank_#{$rank} {
@@ -480,5 +482,313 @@ pre, code {
 
   :root[data-theme="dark"] .site-nav .trigger .page-link {
     color: var(--text-primary);
+  }
+}
+
+// Game listing (Last 24h page and bot pages)
+.games-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 0.75em;
+}
+
+button.lucky {
+  font: inherit;
+  padding: 0.4em 1em;
+  border: 0;
+  border-radius: 4px;
+  background-color: $my-orange-color;
+  color: #111;
+  cursor: pointer;
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.game-filters {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 0.75em;
+  input,
+  select {
+    font: inherit;
+    padding: 0.3em 0.5em;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+  }
+  input {
+    flex: 0 1 16em;
+    min-width: 0;
+  }
+  select {
+    min-width: 0;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+table.games {
+  table-layout: fixed;
+  border: 0;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    border: 0;
+    border-bottom: 1px solid var(--table-border);
+    padding: 0.35em 0.5em;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  th {
+    font-weight: 600;
+  }
+  th:nth-child(1) {
+    width: 50%;
+  }
+  .ended {
+    width: 6.5em;
+    text-align: right;
+  }
+  .time {
+    width: 8.5em;
+    text-align: right;
+  }
+  .actions {
+    width: 5em;
+    text-align: right;
+    text-overflow: clip;
+    a {
+      color: var(--text-secondary);
+      padding: 0 0.2em;
+      &:hover {
+        color: var(--link-color);
+      }
+    }
+  }
+  .map {
+    color: var(--text-secondary);
+  }
+  // Only needed on phones, where the column headers are hidden.
+  .duration {
+    display: none;
+  }
+  .badges .icon {
+    color: var(--text-secondary);
+    margin-right: 0.3em;
+  }
+
+  td.bot > div {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    min-width: 0;
+    .name {
+      color: inherit;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .winner {
+      font-weight: 600;
+    }
+    .crashed {
+      color: $rank-a-color;
+    }
+  }
+
+  .rank {
+    flex: none;
+    text-align: center;
+    width: 1.7em;
+    height: 1.7em;
+    line-height: calc(1.7em - 2px);
+    font-size: 0.85em;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+  }
+
+  // Race is a thin bar so the row stays calm; the full cell fill was too loud.
+  // Same footprint as the dice icon (1.25em x 1em), so random and fixed-race bots look alike.
+  .race {
+    flex: none;
+    width: 1.25em;
+    height: 1em;
+    border-radius: 3px;
+    background-color: var(--race-random-fg);
+    &.race_protoss { background: var(--race-protoss-fg); }
+    &.race_terran { background: var(--race-terran-fg); }
+    &.race_zerg { background: var(--race-zerg-fg); }
+    &.race_unknown { background: transparent; border: 1px dashed var(--race-random-fg); }
+  }
+
+  // Fixed width so names line up whether the bot shows a bar or a dice.
+  .race-slot {
+    flex: none;
+    width: 1.25em;
+    display: flex;
+    justify-content: center;
+  }
+  .race-dice {
+    color: var(--race-random-fg);
+    &.race_protoss { color: var(--race-protoss-fg); }
+    &.race_terran { color: var(--race-terran-fg); }
+    &.race_zerg { color: var(--race-zerg-fg); }
+  }
+}
+
+.no-games {
+  color: var(--text-secondary);
+}
+
+dl.legend {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3em 1em;
+  // Undo the site-wide floating, fixed-width dt.
+  dt {
+    float: none;
+    width: auto;
+    font-weight: normal;
+    color: var(--text-secondary);
+  }
+  dd {
+    margin: 0;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  // Each game becomes a two-line card: the bots, then map, end time, length and replay links.
+  table.games {
+    thead {
+      display: none;
+    }
+    tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 0.4em 0;
+      border-bottom: 1px solid var(--table-border);
+    }
+    td {
+      border: 0;
+      padding: 0.1em 0.3em;
+    }
+    td.bot {
+      flex: 0 0 50%;
+    }
+    td.map {
+      flex: 1 1 0;
+      min-width: 0;
+      font-size: 0.85em;
+    }
+    .duration {
+      display: inline;
+      color: var(--text-secondary);
+      margin-right: 0.25em;
+    }
+    .ended,
+    .time,
+    .actions {
+      width: auto;
+      flex: none;
+      font-size: 0.85em;
+    }
+  }
+}
+
+// The few rules from the removed w3.css that shaped the site's look; kept so nothing changes visually.
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+html,
+body {
+  font-family: Verdana, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+h1 { font-size: 36px; }
+h2 { font-size: 30px; }
+h3 { font-size: 24px; }
+h4 { font-size: 20px; }
+h5 { font-size: 18px; }
+h6 { font-size: 16px; }
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: 400;
+  margin: 10px 0;
+}
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 20px 0;
+}
+img {
+  vertical-align: middle;
+}
+a {
+  color: inherit;
+}
+button, input, select, textarea, optgroup {
+  font: inherit;
+  margin: 0;
+}
+small {
+  font-size: 80%;
+}
+
+// Icons from assets/icons.svg; same footprint as Font Awesome's fixed-width icons.
+svg.icon {
+  width: 1.25em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
+// The broad ".row :not(:first-child)" padding would squeeze icons to a dot.
+.row svg.icon {
+  padding: 0;
+}
+.theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: inline;
+}
+
+button.show-all {
+  display: block;
+  margin: 1em auto;
+  padding: 0.4em 1.2em;
+  border: 1px solid var(--table-border);
+  border-radius: 4px;
+  background: var(--table-header-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  &:hover {
+    border-color: $my-orange-color;
+  }
+}
+
+.beta-note {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  a {
+    color: var(--link-color);
   }
 }

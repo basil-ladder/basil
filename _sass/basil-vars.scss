@@ -32,6 +32,12 @@
   --race-zerg-bg: #c27ba0;
   --race-random-bg: #cccccc;
   --race-unknown-bg: #ff4444;
+
+  // Darker shades so thin marks and icons stay visible on a white background.
+  --race-protoss-fg: #c49000;
+  --race-terran-fg: #3d85c6;
+  --race-zerg-fg: #a64d79;
+  --race-random-fg: #999999;
 }
 
 :root[data-theme="dark"] {
@@ -66,4 +72,9 @@
   --race-zerg-bg: rgba(194, 123, 160, 0.3);
   --race-random-bg: rgba(204, 204, 204, 0.2);
   --race-unknown-bg: rgba(255, 68, 68, 0.3);
+
+  --race-protoss-fg: #f1c232;
+  --race-terran-fg: #6fa8dc;
+  --race-zerg-fg: #c27ba0;
+  --race-random-fg: #cccccc;
 }

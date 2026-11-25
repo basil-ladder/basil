@@ -1,0 +1,49 @@
+---
+layout: beta
+permalink: /beta/bot.html
+classic_url: /bot.html
+---
+{% raw %}
+<link rel="stylesheet" href="/assets/js/beta/bot.css">
+<div id="botName" style="position: sticky; top: 0px; margin-bottom: 10px; z-index: 4;">
+</div>
+<div id="botData"></div>
+<h2>Games in the last 24h</h2>
+<div id="gamesTable"></div>
+<form style="padding-top: 0.5em; position: sticky; top: 2em; background-color: var(--sticky-bg);">
+	<div class="row">
+		<div class="col-2">
+			<label for="startDate">Start</label>
+			<input style="text-align: right;" id="startDate" type="text" readonly="readonly">
+		</div>
+		<div class="col-2">
+			<label for="endDate">End</label>
+			<input style="text-align: right;" id="endDate" type="text" readonly="readonly">
+		</div>
+	</div>
+	<hr style="margin-top: 10px;">
+</form>
+<h2>ELO</h2>
+<canvas id="eloChart" width="1200" height="600">
+</canvas>
+<h2>Wins Per Map</h2>
+<canvas id="perMapWinsChart" width="1200" height="300">
+</canvas>
+<h2>Vs</h2>
+<small>Top 70 contenders, sorted by WR, ties broken by #losses:</small>
+<canvas id="vsChart" width="1200" height="300">
+</canvas>
+<a id="vsChartData"></a>
+<h2>Wins Per Race</h2>
+<small>Please note that unknown means it was random but the actual preselected race was not recorded.</small><br>
+<small>Graph W/L is displayed, as if the bot started playing at the beginning of the selected time range.</small>
+<canvas id="perRaceWinsChart" width="1200" height="600">
+</canvas>
+<h2>Close Opposition</h2>
+<small>Top 10 bots with similar strength.</small><br>
+<canvas id="vs2Chart" width="1200" height="600"></canvas>
+<h2>Per Game Length Winrate</h2>
+<small>Wins and losses per minutes played.</small><br>
+<canvas id="gameLenChart" width="1200" height="600"></canvas>
+<script src="/assets/js/beta/bot.js"></script>
+{% endraw %}

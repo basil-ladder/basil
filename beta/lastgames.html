@@ -1,0 +1,27 @@
+---
+layout: beta
+title: Last 24h
+permalink: /beta/lastgames.html
+classic_url: /lastgames.html
+---
+{% raw %}
+<div class="games-toolbar">
+	<div id="luckyButton"></div>
+	<small><a href="#legend">What do the symbols mean?</a></small>
+</div>
+<div id="gamesTable"></div>
+<h3 id="legend">Legend</h3>
+<dl class="legend">
+	<dt><b>Name</b></dt><dd>Won the game. The winner is listed first. If no name is bold, the game has no winner.</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#hourglass-half"></use></svg></dt><dd>Game length (shown on phones).</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#dice"></use></svg></dt><dd>Bot picks a random race. The colour shows the race it played.</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#car-crash"></use></svg></dt><dd>Crashed.</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#stopwatch"></use></svg></dt><dd>Timed out (in-game time).</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#fish"></use></svg></dt><dd>Timed out (real time).</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#poo-storm"></use></svg></dt><dd>Did not start, because a bot crashed early.</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#eye"></use></svg> <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#download"></use></svg></dt><dd>Watch the replay in the browser, or download it.</dd>
+	<dt><svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#radiation"></use></svg> <svg class="icon" aria-hidden="true"><use href="/assets/icons.svg#spider"></use></svg> &hellip;</dt><dd>Many special units in the game. Hover for details.</dd>
+</dl>
+<small id="srcRef"></small>
+<script src="/assets/js/beta/lastgames.js"></script>
+{% endraw %}
