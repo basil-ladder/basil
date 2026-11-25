@@ -136,8 +136,8 @@
         <span class="race-slot" title=${(0,o.racename)(e.race)}>${"race_random"===(0,o.racecol)(e.race)?(0,o.icon)("dice","race-dice"):(0,i.html)`<span class="race ${(0,o.racecol)(e.race)}"></span>`}</span>
         <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(e.botName)}" title=${e.botName}>${e.botName}</a>
     </div>
-</td>`,v=e=>e.rating?(0,i.html)`<span title="About ${Math.max(100,e.rating-1300)} human MMR">${e.rating}</span>`:(0,i.html)`<span class="pending" title="Needs 30 games">pending</span>`,_=e=>{var t;return(0,i.html)`
-<tr id=${e.botName}>
+</td>`,v=e=>e.rating?(0,i.html)`<span title="About ${Math.max(100,e.rating-1300)} human MMR">${e.rating}</span>`:(0,i.html)`<span class="pending" title="Needs 30 games">pending</span>`,_=(e,t)=>{var n;return(0,i.html)`
+<tr id=${e.botName} class=${e.botName===t?"linked":""}>
     <td class="pos">${e.position}</td>
     <td class="rank-cell"><div><span class="rank ${(0,o.rankcol)(e.rank)}">${e.rank}</span>${g(e)}</div></td>
     ${f(e)}
@@ -147,32 +147,32 @@
     <td class="num wl" data-label="W/L">${e.won} / ${e.lost}</td>
     <td class="num crashes">${e.crashesSinceUpdate>0?(0,i.html)`<span title="Crashes since the last update">${(0,o.icon)("car-crash")} ${e.crashesSinceUpdate}</span>`:""}</td>
     <td class="num updated" title=${e.lastUpdated?h.format(e.lastUpdated):""}>
-        ${e.lastUpdated?((t=e.lastUpdated).getFullYear()===new Date().getFullYear()?p:m).format(t):"–"}</td>
-</tr>`},x=e=>(0,i.html)`
-<tr id=${e.botName}>
+        ${e.lastUpdated?((n=e.lastUpdated).getFullYear()===new Date().getFullYear()?p:m).format(n):"–"}</td>
+</tr>`},x=(e,t)=>(0,i.html)`
+<tr id=${e.botName} class=${e.botName===t?"linked":""}>
     ${f(e)}
     <td class="num elo">${v(e)}</td>
     <td class="num wl">${e.won} / ${e.lost}</td>
     <td class="num win">${u.format(e.won/(e.won+e.lost))}</td>
     <td class="num crashes">${e.crashed||""}</td>
     <td class="reason">${e.disabledReason||"Disabled on SSCAIT/locally"}</td>
-</tr>`,b=(e,t,n)=>null===e?1:null===t?-1:n*(e<t?-1:e>t?1:0),y=[{key:"pos",label:"#",value:e=>e.position,firstDir:1,title:"Ladder position"},{key:"rank"},{key:"bot",label:"Bot",value:e=>e.botName.toLowerCase(),firstDir:1},{key:"elo",label:"ELO",value:e=>e.rating,firstDir:-1,title:"Hover a value for a rough human MMR estimate"},{key:"break"},{key:"win",label:"Win 7d",value:e=>e.win7,firstDir:-1,title:"Win rate in the last 7 days"},{key:"wl",label:"Won / Lost",value:e=>e.won+e.lost,firstDir:-1,title:"Sorts by number of games"},{key:"crashes",label:"Crashes",value:e=>e.crashesSinceUpdate,firstDir:-1,title:"Crashes since the last update"},{key:"updated",label:"Updated",value:e=>e.lastUpdated&&e.lastUpdated.getTime(),firstDir:-1}],k=(e,t)=>(0,i.html)`
+</tr>`,b=(e,t,n)=>e===t?0:null===e?1:null===t?-1:n*(e<t?-1:1),y=[{key:"pos",label:"#",value:e=>e.position,firstDir:1,title:"Ladder position"},{key:"rank"},{key:"bot",label:"Bot",value:e=>e.botName.toLowerCase(),firstDir:1},{key:"elo",label:"ELO",value:e=>e.rating,firstDir:-1,title:"Hover a value for a rough human MMR estimate"},{key:"break"},{key:"win",label:"Win 7d",value:e=>e.win7,firstDir:-1,title:"Win rate in the last 7 days"},{key:"wl",label:"Won / Lost",value:e=>e.won+e.lost,firstDir:-1,title:"Sorts by number of games"},{key:"crashes",label:"Crashes",value:e=>e.crashesSinceUpdate,firstDir:-1,title:"Crashes since the last update"},{key:"updated",label:"Updated",value:e=>e.lastUpdated&&e.lastUpdated.getTime(),firstDir:-1}],k=(e,t)=>(0,i.html)`
 <tr>${y.map(n=>"break"===n.key?(0,i.html)`<th class="break"></th>`:"rank"===n.key?(0,i.html)`<th class="rank-head"><span class="sr-only">Rank</span></th>`:(0,i.html)`
-    <th class="${"pos"===n.key||"rank"===n.key||"bot"===n.key?"":"num"} ${e.sort===n.key?"sorted":""}"
+    <th class="${"pos"===n.key||"bot"===n.key?"":"num"} ${e.sort===n.key?"sorted":""}"
         title=${n.title||""} aria-sort=${e.sort===n.key?e.dir>0?"ascending":"descending":"none"}>
         <button @click=${()=>t(e.sort===n.key?{dir:-e.dir}:{sort:n.key,dir:n.firstDir})}>${n.label}${e.sort===n.key?(0,o.icon)(e.dir>0?"arrow-up":"arrow-down","sort-arrow"):""}</button>
     </th>`)}
 </tr>`,w=(e,t,n,s)=>{let a=y.find(e=>e.key===n.sort),r=e.slice().sort((e,t)=>b(a.value(e),a.value(t),n.dir));return(0,i.html)`
 <table class="ranking">
     <thead>${k(n,s)}</thead>
-    <tbody>${r.map(_)}</tbody>
+    <tbody>${r.map(e=>_(e,n.linked))}</tbody>
 </table>
-<details class="disabled-bots">
+<details class="disabled-bots" ?open=${t.some(e=>e.botName===n.linked)}>
     <summary>Disabled bots (${t.length})</summary>
     <table class="ranking disabled">
         <thead><tr><th>Bot</th><th class="num">ELO</th><th class="num">Won / Lost</th><th class="num">Win</th>
             <th class="num">Crashes</th><th>Reason</th></tr></thead>
-        <tbody>${t.map(x)}</tbody>
+        <tbody>${t.map(e=>x(e,n.linked))}</tbody>
     </table>
-</details>`};(0,l.render)((0,i.html)`Source: <a href=${d}>${d}</a>`,document.querySelector("#srcRef")),fetch(d).then(e=>e.json()).then(e=>{for(let t of e){"UNRANKED"===t.rank&&(t.rank="U"),"UNRANKED"===t.previousRank&&(t.previousRank="U");let e=t.wonInWindow+t.lostInWindow;t.win7=e>0?t.wonInWindow/e:null,t.won+t.lost<30&&(t.rating=null),t.lastUpdated=t.lastUpdated>0?new Date(1e3*t.lastUpdated):null;let n=(0,o.rankValue)(t.rank)-(0,o.rankValue)(t.previousRank);t.downRanked=t.previousRank&&n>0,t.upRanked=t.previousRank&&n<0}(0,o.sortByRank)(e);let t=e.filter(e=>e.enabled);t.forEach((e,t)=>e.position=t+1);let n=e.filter(e=>!e.enabled&&e.won+e.lost>0),s={sort:"pos",dir:1},a=e=>{Object.assign(s,e),(0,l.render)(w(t,n,s,a),c)};a({}),function(e){if(!location.hash)return;let t=decodeURIComponent(location.hash.substring(1)),n=document.getElementById(t);n&&(e.some(e=>e.botName===t)||(n.closest("details").open=!0),n.classList.add("linked"),n.scrollIntoView({block:"center"}))}(t)}).catch(e=>{console.error(e),(0,l.render)((0,i.html)`<p class="no-games">Could not load the ranking. Please try again later.</p>`,c)})})();
+</details>`};(0,l.render)((0,i.html)`Source: <a href=${d}>${d}</a>`,document.querySelector("#srcRef")),fetch(d).then(e=>e.json()).then(e=>{for(let t of e){"UNRANKED"===t.rank&&(t.rank="U"),"UNRANKED"===t.previousRank&&(t.previousRank="U");let e=t.wonInWindow+t.lostInWindow;t.win7=e>0?t.wonInWindow/e:null,t.won+t.lost<30&&(t.rating=null),t.lastUpdated=t.lastUpdated>0?new Date(1e3*t.lastUpdated):null;let n=(0,o.rankValue)(t.rank)-(0,o.rankValue)(t.previousRank);t.downRanked=t.previousRank&&n>0,t.upRanked=t.previousRank&&n<0}(0,o.sortByRank)(e);let t=e.filter(e=>e.enabled);t.forEach((e,t)=>e.position=t+1);let n=e.filter(e=>!e.enabled&&e.won+e.lost>0),s={sort:"pos",dir:1,linked:function(){try{return decodeURIComponent(location.hash.substring(1))}catch(e){return""}}()},a=e=>{Object.assign(s,e),(0,l.render)(w(t,n,s,a),c)};a({});let r=s.linked&&document.getElementById(s.linked);r&&r.scrollIntoView({block:"center"})}).catch(e=>{console.error(e),(0,l.render)((0,i.html)`<p class="no-games">Could not load the ranking. Please try again later.</p>`,c)})})();
 //# sourceMappingURL=ranking.js.map

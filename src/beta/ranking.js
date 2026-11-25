@@ -31,8 +31,8 @@ const elo = bot => bot.rating
     ? html`<span title="About ${Math.max(100, bot.rating - 1300)} human MMR">${bot.rating}</span>`
     : html`<span class="pending" title="Needs 30 games">pending</span>`;
 
-const activeRow = bot => html`
-<tr id=${bot.botName}>
+const activeRow = (bot, linked) => html`
+<tr id=${bot.botName} class=${bot.botName === linked ? "linked" : ""}>
     <td class="pos">${bot.position}</td>
     <td class="rank-cell"><div><span class="rank ${rankcol(bot.rank)}">${bot.rank}</span>${rankChange(bot)}</div></td>
     ${botCell(bot)}
@@ -46,8 +46,8 @@ const activeRow = bot => html`
         ${bot.lastUpdated ? formatDay(bot.lastUpdated) : "–"}</td>
 </tr>`;
 
-const disabledRow = bot => html`
-<tr id=${bot.botName}>
+const disabledRow = (bot, linked) => html`
+<tr id=${bot.botName} class=${bot.botName === linked ? "linked" : ""}>
     ${botCell(bot)}
     <td class="num elo">${elo(bot)}</td>
     <td class="num wl">${bot.won} / ${bot.lost}</td>
@@ -56,7 +56,7 @@ const disabledRow = bot => html`
     <td class="reason">${bot.disabledReason || "Disabled on SSCAIT/locally"}</td>
 </tr>`;
 
-const nullsLast = (a, b, dir) => a === null ? 1 : b === null ? -1 : dir * (a < b ? -1 : a > b ? 1 : 0);
+const nullsLast = (a, b, dir) => a === b ? 0 : a === null ? 1 : b === null ? -1 : dir * (a < b ? -1 : 1);
 
 // First click sorts the way people usually want to read that column.
 const columns = [
@@ -75,7 +75,7 @@ const columns = [
 const header = (state, update) => html`
 <tr>${columns.map(c => c.key === "break" ? html`<th class="break"></th>`
     : c.key === "rank" ? html`<th class="rank-head"><span class="sr-only">Rank</span></th>` : html`
-    <th class="${c.key === "pos" || c.key === "rank" || c.key === "bot" ? "" : "num"} ${state.sort === c.key ? "sorted" : ""}"
+    <th class="${c.key === "pos" || c.key === "bot" ? "" : "num"} ${state.sort === c.key ? "sorted" : ""}"
         title=${c.title || ""} aria-sort=${state.sort === c.key ? (state.dir > 0 ? "ascending" : "descending") : "none"}>
         <button @click=${() => update(state.sort === c.key
             ? { dir: -state.dir } : { sort: c.key, dir: c.firstDir })}>${c.label}${state.sort === c.key
@@ -89,27 +89,25 @@ const view = (active, disabled, state, update) => {
     return html`
 <table class="ranking">
     <thead>${header(state, update)}</thead>
-    <tbody>${rows.map(activeRow)}</tbody>
+    <tbody>${rows.map(bot => activeRow(bot, state.linked))}</tbody>
 </table>
-<details class="disabled-bots">
+<details class="disabled-bots" ?open=${disabled.some(b => b.botName === state.linked)}>
     <summary>Disabled bots (${disabled.length})</summary>
     <table class="ranking disabled">
         <thead><tr><th>Bot</th><th class="num">ELO</th><th class="num">Won / Lost</th><th class="num">Win</th>
             <th class="num">Crashes</th><th>Reason</th></tr></thead>
-        <tbody>${disabled.map(disabledRow)}</tbody>
+        <tbody>${disabled.map(bot => disabledRow(bot, state.linked))}</tbody>
     </table>
 </details>`;
 };
 
-function showLinkedBot(active) {
-    if (!location.hash) return;
-    const name = decodeURIComponent(location.hash.substring(1));
-    const row = document.getElementById(name);
-    if (!row) return;
-    // Disabled bots sit in the collapsed section.
-    if (!active.some(b => b.botName === name)) row.closest("details").open = true;
-    row.classList.add("linked");
-    row.scrollIntoView({ block: "center" });
+// Links like ranking.html#BotName point at one bot; a malformed link is ignored.
+function linkedBotName() {
+    try {
+        return decodeURIComponent(location.hash.substring(1));
+    } catch (e) {
+        return "";
+    }
 }
 
 render(html`Source: <a href=${srcUrl}>${srcUrl}</a>`, document.querySelector("#srcRef"));
@@ -132,13 +130,14 @@ fetch(srcUrl).then(r => r.json()).then(bots => {
     active.forEach((b, i) => b.position = i + 1);
     const disabled = bots.filter(b => !b.enabled && b.won + b.lost > 0);
 
-    const state = { sort: "pos", dir: 1 };
+    const state = { sort: "pos", dir: 1, linked: linkedBotName() };
     const update = change => {
         Object.assign(state, change);
         render(view(active, disabled, state, update), container);
     };
     update({});
-    showLinkedBot(active);
+    const linkedRow = state.linked && document.getElementById(state.linked);
+    if (linkedRow) linkedRow.scrollIntoView({ block: "center" });
 }).catch(e => {
     console.error(e);
     render(html`<p class="no-games">Could not load the ranking. Please try again later.</p>`, container);
