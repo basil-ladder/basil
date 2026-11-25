@@ -486,11 +486,18 @@ pre, code {
 }
 
 // Game listing (Last 24h page and bot pages)
+
+// Below this width the tables turn into two-line cards; narrower, names and maps got cut off.
+$cards-below: 950px;
 .games-toolbar {
   display: flex;
   align-items: center;
   gap: 1em;
   margin-bottom: 0.75em;
+}
+
+table.games th:nth-child(1) {
+  width: 50%;
 }
 
 button.lucky {
@@ -534,7 +541,8 @@ button.lucky {
   clip: rect(0 0 0 0);
 }
 
-table.games {
+table.games,
+table.ranking {
   table-layout: fixed;
   border: 0;
   font-variant-numeric: tabular-nums;
@@ -551,9 +559,6 @@ table.games {
   }
   th {
     font-weight: 600;
-  }
-  th:nth-child(1) {
-    width: 50%;
   }
   .ended {
     width: 6.5em;
@@ -618,8 +623,7 @@ table.games {
     border-radius: 3px;
   }
 
-  // Race is a thin bar so the row stays calm; the full cell fill was too loud.
-  // Same footprint as the dice icon (1.25em x 1em), so random and fixed-race bots look alike.
+  // A small block instead of a full cell fill keeps rows calm; same size as the dice icon.
   .race {
     flex: none;
     width: 1.25em;
@@ -667,7 +671,7 @@ dl.legend {
   }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: $cards-below) {
   // Each game becomes a two-line card: the bots, then map, end time, length and replay links.
   table.games {
     thead {
@@ -790,5 +794,122 @@ button.show-all {
   color: var(--text-secondary);
   a {
     color: var(--link-color);
+  }
+}
+
+// Ranking (beta)
+.rank-change {
+  color: var(--text-secondary);
+  font-size: 0.8em;
+  &.down { color: $rank-a-color; }
+  &.up { color: #2e9e4f; }
+}
+
+table.ranking {
+  table-layout: auto;
+
+  .num { text-align: right; }
+  .pos { width: 2.5em; color: var(--text-secondary); }
+  .break { display: none; }
+  .pending { color: var(--text-secondary); font-size: 0.85em; }
+  .crashes { color: var(--crash-fg); }
+  .reason { color: var(--text-secondary); white-space: normal; }
+  // Lets the bot column take the spare width while long names still end in "...".
+  td.bot { width: 100%; max-width: 0; }
+  &.disabled td.bot { width: auto; max-width: 16em; }
+
+  // The marker sits on the badge's corner so the column is only as wide as the badge.
+  td.rank-cell {
+    width: 1px;
+    overflow: visible;
+    > div {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .rank {
+      display: block;
+    }
+    .rank-change {
+      position: absolute;
+      top: -0.45em;
+      right: -0.6em;
+      font-size: 0.65em;
+      line-height: 1;
+      padding: 1px;
+      border-radius: 50%;
+      background-color: var(--bg-primary);
+    }
+  }
+
+  th button {
+    all: unset;
+    cursor: pointer;
+    font-weight: 600;
+    &:hover { color: $my-orange-color; }
+  }
+  th.sorted button { color: $my-orange-color; }
+  .sort-arrow { width: 0.9em; font-size: 0.8em; margin-left: 0.2em; }
+
+  tr.linked td { background-color: rgba(239, 159, 16, 0.18); }
+}
+
+.ranking-help .rank-change { margin: 0 0.1em; }
+
+details.disabled-bots {
+  margin-top: 1.5em;
+  overflow-x: auto;
+  summary {
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+  }
+}
+
+@media screen and (max-width: $cards-below) {
+  // Each bot becomes a two-line card; the headings become a row of sort buttons.
+  table.ranking:not(.disabled) {
+    thead tr {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.2em 0.8em;
+      padding: 0.3em 0;
+      &::before {
+        content: "Sort:";
+        color: var(--text-secondary);
+      }
+    }
+    thead th {
+      position: static;
+      border: 0;
+      padding: 0;
+      background: none;
+      font-size: 0.85em;
+    }
+    th.break,
+    th.rank-head { display: none; }
+    tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid var(--table-border);
+      padding: 0.3em 0;
+    }
+    td {
+      border: 0;
+      padding: 0.1em 0.3em;
+    }
+    td.pos { flex: 0 0 2em; }
+    td.rank-cell { flex: none; width: auto; }
+    td.bot { flex: 1 1 0; min-width: 0; max-width: none; width: auto; }
+    td.elo { flex: none; }
+    td.break { display: block; flex-basis: 100%; height: 0; padding: 0; }
+    td.win, td.wl, td.crashes, td.updated { flex: none; font-size: 0.85em; }
+    td.win { margin-left: 2em; }
+    td.updated { margin-left: auto; }
+    td[data-label]::before {
+      content: attr(data-label) " ";
+      color: var(--text-secondary);
+    }
   }
 }

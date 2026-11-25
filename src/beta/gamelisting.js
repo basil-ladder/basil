@@ -166,7 +166,8 @@ function renderGameListing(options) {
             render(view(games, maps, state, update, hideFilters), container);
         };
         update({});
-    }).catch(() => {
+    }).catch(e => {
+        console.error(e);
         render(html`<p class="no-games">Could not load the games. Please try again later.</p>`, container);
     });
 }
