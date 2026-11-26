@@ -31,6 +31,8 @@ const row = (game, hidden) => {
     // Winner first, so the eye finds the result without looking for an icon. Crashes can leave no winner.
     const [first, second] = game.botB.winner ? [game.botB, game.botA] : [game.botA, game.botB];
     const ended = new Date(game.timestamp * 1000);
+    // Both replays show the same game, the winner's runs a bit longer. A crashed bot's replay may be missing.
+    const replayUrl = (first.crashed && !second.crashed ? second : first).replayUrl;
     return html`
 <tr ?hidden=${hidden}>
     ${botCell(first)}
@@ -55,8 +57,8 @@ const row = (game, hidden) => {
     </td>
     <td class="actions">
         ${game.validGame ? html`
-        <a href=${viewerUrl + encodeURIComponent(first.replayUrl)} target="_blank" title="Watch replay">${icon("eye")}</a>
-        <a href=${first.replayUrl} title="Download replay">${icon("download")}</a>` : ""}
+        <a href=${viewerUrl + encodeURIComponent(replayUrl)} target="_blank" title="Watch replay">${icon("eye")}</a>
+        <a href=${replayUrl} title="Download replay">${icon("download")}</a>` : ""}
     </td>
 </tr>`;
 };

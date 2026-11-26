@@ -140,7 +140,7 @@
         <a class="name${e.winner?" winner":""}" href="/beta/bot.html?bot=${encodeURIComponent(e.name)}" title=${e.name}>${e.name}</a>
         ${e.crashed?(0,a.html)`<span class="crashed" title="Crashed">${(0,o.icon)("car-crash")}</span>`:""}
     </div>
-</td>`,h=(e,t,n)=>e?(0,a.html)`<span title=${n}>${(0,o.icon)(t)}</span>`:"",p=(e,t)=>{let[n,r]=e.botB.winner?[e.botB,e.botA]:[e.botA,e.botB],s=new Date(1e3*e.timestamp);return(0,a.html)`
+</td>`,h=(e,t,n)=>e?(0,a.html)`<span title=${n}>${(0,o.icon)(t)}</span>`:"",p=(e,t)=>{let[n,r]=e.botB.winner?[e.botB,e.botA]:[e.botA,e.botB],s=new Date(1e3*e.timestamp),i=(n.crashed&&!r.crashed?r:n).replayUrl;return(0,a.html)`
 <tr ?hidden=${t}>
     ${d(n)}
     ${d(r)}
@@ -164,8 +164,8 @@
     </td>
     <td class="actions">
         ${e.validGame?(0,a.html)`
-        <a href=${"https://dgant.github.io/openbw-replay-viewer/?rep="+encodeURIComponent(n.replayUrl)} target="_blank" title="Watch replay">${(0,o.icon)("eye")}</a>
-        <a href=${n.replayUrl} title="Download replay">${(0,o.icon)("download")}</a>`:""}
+        <a href=${"https://dgant.github.io/openbw-replay-viewer/?rep="+encodeURIComponent(i)} target="_blank" title="Watch replay">${(0,o.icon)("eye")}</a>
+        <a href=${i} title="Download replay">${(0,o.icon)("download")}</a>`:""}
     </td>
 </tr>`},m=(e,t,n)=>(0,a.html)`
 <div class="game-filters">

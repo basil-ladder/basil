@@ -186,7 +186,7 @@ ${t.enabled?"":(0,$aPsVO.html)`<p class="bot-disabled">Disabled: ${t.disabledRea
         <a class="name${t.winner?" winner":""}" href="/beta/bot.html?bot=${encodeURIComponent(t.name)}" title=${t.name}>${t.name}</a>
         ${t.crashed?(0,a.html)`<span class="crashed" title="Crashed">${(0,i.icon)("car-crash")}</span>`:""}
     </div>
-</td>`,h=(t,e,n)=>t?(0,a.html)`<span title=${n}>${(0,i.icon)(e)}</span>`:"",f=(t,e)=>{let[n,r]=t.botB.winner?[t.botB,t.botA]:[t.botA,t.botB],o=new Date(1e3*t.timestamp);return(0,a.html)`
+</td>`,h=(t,e,n)=>t?(0,a.html)`<span title=${n}>${(0,i.icon)(e)}</span>`:"",f=(t,e)=>{let[n,r]=t.botB.winner?[t.botB,t.botA]:[t.botA,t.botB],o=new Date(1e3*t.timestamp),d=(n.crashed&&!r.crashed?r:n).replayUrl;return(0,a.html)`
 <tr ?hidden=${e}>
     ${c(n)}
     ${c(r)}
@@ -210,8 +210,8 @@ ${t.enabled?"":(0,$aPsVO.html)`<p class="bot-disabled">Disabled: ${t.disabledRea
     </td>
     <td class="actions">
         ${t.validGame?(0,a.html)`
-        <a href=${s+encodeURIComponent(n.replayUrl)} target="_blank" title="Watch replay">${(0,i.icon)("eye")}</a>
-        <a href=${n.replayUrl} title="Download replay">${(0,i.icon)("download")}</a>`:""}
+        <a href=${s+encodeURIComponent(d)} target="_blank" title="Watch replay">${(0,i.icon)("eye")}</a>
+        <a href=${d} title="Download replay">${(0,i.icon)("download")}</a>`:""}
     </td>
 </tr>`},g=(t,e,n)=>(0,a.html)`
 <div class="game-filters">

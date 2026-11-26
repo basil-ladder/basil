@@ -5,11 +5,14 @@ const srcUrl = dataBaseUrl + "stats/ranking.json";
 const container = document.querySelector("#rankingTable");
 const percent = new Intl.NumberFormat(undefined, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fullFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
-const thisYearFormat = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
-const otherYearFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const dayFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
+const recentFormat = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
-function formatDay(date) {
-    return (date.getFullYear() === new Date().getFullYear() ? thisYearFormat : otherYearFormat).format(date);
+// Same rule as the "Recent Bot Updates" list on the home page: authors check whether their upload landed.
+function formatUpdated(bot) {
+    const date = bot.lastUpdated;
+    if (bot.enabled && Date.now() - date < 5 * 86400 * 1000) return recentFormat.format(date);
+    return dayFormat.format(date);
 }
 
 const rankChange = bot =>
@@ -43,7 +46,7 @@ const activeRow = (bot, linked) => html`
     <td class="num crashes">${bot.crashesSinceUpdate > 0
         ? html`<span title="Crashes since the last update">${icon("car-crash")} ${bot.crashesSinceUpdate}</span>` : ""}</td>
     <td class="num updated" title=${bot.lastUpdated ? fullFormat.format(bot.lastUpdated) : ""}>
-        ${bot.lastUpdated ? formatDay(bot.lastUpdated) : "–"}</td>
+        ${bot.lastUpdated ? formatUpdated(bot) : "–"}</td>
 </tr>`;
 
 const disabledRow = (bot, linked) => html`

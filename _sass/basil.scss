@@ -544,8 +544,15 @@ $won-color: #88AAEB;
   margin-bottom: 0.75em;
 }
 
-table.games th:nth-child(1) {
-  width: 50%;
+// Columns fit their longest content (bot name, map name) instead of stretching across the page;
+// the two bot columns share what the fixed columns leave, 17em each at full width.
+table.games {
+  width: min(100%, 67em);
+  // Once the table is narrower than 67em (screens below ~1045px) the map gives way first,
+  // down to ~152px at the 951px card breakpoint, so the bot names keep their room.
+  th:nth-child(2) {
+    width: min(13.5em, calc(54vw - 361px));
+  }
 }
 
 button.lucky {
@@ -610,7 +617,7 @@ table.ranking {
     font-weight: 600;
   }
   .ended {
-    width: 6.5em;
+    width: 6em;
     text-align: right;
   }
   .time {
