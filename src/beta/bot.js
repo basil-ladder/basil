@@ -27,9 +27,9 @@ const botHeader = (bot, maxElo) => html`
     <span class="race-slot" title=${racename(bot.race)}>${racecol(bot.race) === "race_random"
         ? icon("dice", "race-dice") : html`<span class="race ${racecol(bot.race)}"></span>`}</span>
     <h1>${bot.botName}</h1>
-    <span class="race-name">${racename(bot.race)}</span>
 </div>
 <div class="bot-stats">
+    ${stat("Race", racename(bot.race))}
     ${stat("ELO", bot.won + bot.lost >= 30 ? bot.rating : "pending")}
     ${stat("Max ELO", maxElo || "–")}
     ${stat("Win rate", bot.won + bot.lost > 0 ? percent.format(bot.won / (bot.won + bot.lost)) : "–")}

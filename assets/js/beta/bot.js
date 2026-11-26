@@ -3,9 +3,9 @@
     <span class="rank ${(0,$45wDp.rankcol)(t.rank)}">${t.rank}</span>
     <span class="race-slot" title=${(0,$45wDp.racename)(t.race)}>${"race_random"===(0,$45wDp.racecol)(t.race)?(0,$45wDp.icon)("dice","race-dice"):(0,$aPsVO.html)`<span class="race ${(0,$45wDp.racecol)(t.race)}"></span>`}</span>
     <h1>${t.botName}</h1>
-    <span class="race-name">${(0,$45wDp.racename)(t.race)}</span>
 </div>
 <div class="bot-stats">
+    ${stat("Race",(0,$45wDp.racename)(t.race))}
     ${stat("ELO",t.won+t.lost>=30?t.rating:"pending")}
     ${stat("Max ELO",e||"–")}
     ${stat("Win rate",t.won+t.lost>0?percent.format(t.won/(t.won+t.lost)):"–")}
