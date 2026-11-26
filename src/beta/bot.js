@@ -237,10 +237,15 @@ function setupCloseOpposition(data, botsByName) {
             const s = vs[x.e] = (vs[x.e] || { won: 0, lost: 0, name: data.bots[x.e] });
             if (x.w === 1) s.won++; else s.lost++;
         });
+        const rate = s => s.won / (s.won + s.lost);
+        const games = s => s.won + s.lost;
+        // Pick the 10 closest to 50%, then show them by win rate so the bars read in order across the 50% line.
+        // On ties, more games first: that win rate is more reliable.
         const closest = Object.values(vs)
-            .filter(s => s.won + s.lost >= CLOSE_OPPONENT_MIN_GAMES)
-            .sort((a, b) => Math.abs(a.won / (a.won + a.lost) - 0.5) - Math.abs(b.won / (b.won + b.lost) - 0.5))
-            .slice(0, 10);
+            .filter(s => games(s) >= CLOSE_OPPONENT_MIN_GAMES)
+            .sort((a, b) => Math.abs(rate(a) - 0.5) - Math.abs(rate(b) - 0.5) || games(b) - games(a))
+            .slice(0, 10)
+            .sort((a, b) => rate(b) - rate(a) || games(b) - games(a));
         render(closest.length
             ? html`<div class="winrate-list close-opposition">${closest.map(s => closeOpponentRow(s, botsByName.get(s.name)))}</div>`
             : html`<p><small>No opponent has ${CLOSE_OPPONENT_MIN_GAMES} or more games in this range, too few to tell an even match from luck. Try 30 days or more.</small></p>`, node);

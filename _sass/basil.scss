@@ -548,6 +548,10 @@ $won-color: #88AAEB;
 // the two bot columns share what the fixed columns leave, 17em each at full width.
 table.games {
   width: min(100%, 67em);
+  // Stronger than the shared stripe so the eye stays on one row across the gap after short names.
+  // The script marks every second visible row; :nth-child would also count the hidden ones.
+  tbody tr:nth-child(even) { background-color: transparent; }
+  tbody tr.alt { background-color: var(--row-stripe-bg); }
   // Once the table is narrower than 67em (screens below ~1045px) the map gives way first,
   // down to ~152px at the 951px card breakpoint, so the bot names keep their room.
   th:nth-child(2) {
@@ -821,6 +825,7 @@ button.show-all {
 
 table.ranking {
   table-layout: auto;
+  tbody tr:nth-child(even) { background-color: var(--row-stripe-bg); }
 
   .num { text-align: right; }
   .pos { width: 2.5em; color: var(--text-secondary); }
@@ -828,8 +833,9 @@ table.ranking {
   .pending { color: var(--text-secondary); font-size: 0.85em; }
   .crashes { color: var(--crash-fg); }
   .reason { color: var(--text-secondary); white-space: normal; }
-  // Lets the bot column take the spare width while long names still end in "...".
-  td.bot { width: 100%; max-width: 0; }
+  // The bot column gets the game list's 17em instead of the spare width, so the table fits its content.
+  width: auto;
+  td.bot { width: 17em; max-width: 17em; }
   &.disabled td.bot { width: auto; max-width: 16em; }
 
   // The marker sits on the badge's corner so the column is only as wide as the badge.

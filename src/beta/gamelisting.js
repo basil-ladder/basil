@@ -27,14 +27,14 @@ const botCell = bot => html`
 
 const unitBadge = (show, name, text) => show ? html`<span title=${text}>${icon(name)}</span>` : "";
 
-const row = (game, hidden) => {
+const row = (game, hidden, alt) => {
     // Winner first, so the eye finds the result without looking for an icon. Crashes can leave no winner.
     const [first, second] = game.botB.winner ? [game.botB, game.botA] : [game.botA, game.botB];
     const ended = new Date(game.timestamp * 1000);
     // Both replays show the same game, the winner's runs a bit longer. A crashed bot's replay may be missing.
     const replayUrl = (first.crashed && !second.crashed ? second : first).replayUrl;
     return html`
-<tr ?hidden=${hidden}>
+<tr ?hidden=${hidden} class=${alt ? "alt" : ""}>
     ${botCell(first)}
     ${botCell(second)}
     <td class="map" title=${game.map}>${game.map}</td>
@@ -83,6 +83,8 @@ const view = (games, maps, state, update, hideFilters) => {
     // Rows are hidden rather than removed: rebuilding 1000+ rows per keystroke took ~0.5 s.
     let matchCount = 0;
     const shown = games.map(g => matches(g) && (++matchCount <= initialRows || state.showAll));
+    let visibleCount = 0;
+    const alt = shown.map(s => s && ++visibleCount % 2 === 0);
     return html`
 ${hideFilters ? "" : filterControls(maps, state, update)}
 <table class="games">
@@ -95,7 +97,7 @@ ${hideFilters ? "" : filterControls(maps, state, update)}
             <th class="actions"><span class="sr-only">Replay</span></th>
         </tr>
     </thead>
-    <tbody>${games.map((g, i) => row(g, !shown[i]))}</tbody>
+    <tbody>${games.map((g, i) => row(g, !shown[i], alt[i]))}</tbody>
 </table>
 ${matchCount === 0 ? html`<p class="no-games">No games match.</p>` : ""}
 ${matchCount > initialRows && !state.showAll ? html`
