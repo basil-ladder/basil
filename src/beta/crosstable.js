@@ -5,7 +5,14 @@ const controlsNode = document.getElementById("crosstableControls");
 const tableNode = document.getElementById("crosstable");
 
 const presets = [[7, "7 days"], [30, "30 days"], [90, "90 days"], [180, "180 days"], [null, "All"]];
-const state = { range: null, enabledOnly: true, minElo: "", maxElo: "" };
+// Links like ?bot=A&bot=B&range=30 show only those bots; the bot page's close opposition links here.
+const params = new URLSearchParams(location.search);
+const pickedBots = new Set(params.getAll("bot"));
+const rangeParam = Number(params.get("range"));
+const state = {
+    range: presets.some(([days]) => days && days === rangeParam) ? rangeParam : null,
+    enabledOnly: true, minElo: "", maxElo: ""
+};
 const requests = new Map();
 
 function load(range) {
@@ -63,9 +70,12 @@ function tableHtml(data, bots) {
 function selectedBots(data) {
     const min = Number(state.minElo) || 0;
     const max = Number(state.maxElo) || Infinity;
+    const wanted = pickedBots.size
+        ? b => pickedBots.has(b.name)
+        : b => (!state.enabledOnly || b.enabled) && (!b.rating || (b.rating >= min && b.rating <= max));
     return data.botinfos
         .map((b, i) => ({ name: b.name, race: b.race, rating: b.rating, enabled: b.enabled, i }))
-        .filter(b => (!state.enabledOnly || b.enabled) && (!b.rating || (b.rating >= min && b.rating <= max)))
+        .filter(wanted)
         .sort((a, b) => (b.enabled - a.enabled) || (b.rating - a.rating));
 }
 
@@ -97,11 +107,12 @@ function renderControls() {
     <span class="presets">${presets.map(([days, label]) => html`
         <button class=${state.range === days ? "active" : ""} @click=${() => update({ range: days })}>${label}</button>`)}
     </span>
+    ${pickedBots.size ? html`<span>Selected bots only. <a href="/beta/crosstable.html">Show all bots</a></span>` : html`
     <label><input type="checkbox" .checked=${state.enabledOnly} @change=${e => update({ enabledOnly: e.target.checked })}> Enabled only</label>
     <label>ELO <input type="number" inputmode="numeric" placeholder="min" .value=${state.minElo}
         @change=${e => update({ minElo: e.target.value })}></label>
     <label>– <input type="number" inputmode="numeric" placeholder="max" .value=${state.maxElo}
-        @change=${e => update({ maxElo: e.target.value })}></label>
+        @change=${e => update({ maxElo: e.target.value })}></label>`}
 </div>`, controlsNode);
 }
 
@@ -126,7 +137,7 @@ tableNode.addEventListener("mouseleave", () => {
     marked = [];
 });
 
-// The grid uses the whole window width, not just the page column: more opponents fit on screen.
+// A grid wider than the page column uses the whole window width: more opponents fit on screen.
 // With a mouse it also ends at the bottom of the window, so its horizontal scroll bar is visible without scrolling
 // the page. Touch screens swipe instead and keep the full screen height for the grid.
 const mouse = window.matchMedia("(pointer: fine)");
@@ -135,8 +146,10 @@ function fitToWindow() {
     tableNode.style.marginLeft = "";
     tableNode.style.width = "";
     const box = tableNode.getBoundingClientRect();
-    tableNode.style.marginLeft = -box.left + "px";
-    tableNode.style.width = document.documentElement.clientWidth + "px";
+    if (tableNode.scrollWidth > tableNode.clientWidth) {
+        tableNode.style.marginLeft = -box.left + "px";
+        tableNode.style.width = document.documentElement.clientWidth + "px";
+    }
     tableNode.style.maxHeight = mouse.matches ? Math.max(320, window.innerHeight - (box.top + window.scrollY)) + "px" : "";
 }
 window.addEventListener("resize", fitToWindow);

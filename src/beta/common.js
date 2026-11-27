@@ -48,6 +48,24 @@ export function rankcol(rank) {
 // Icons come from one cached sprite file; see scripts/build-icons.mjs.
 export const icon = (name, cls) => html`<svg class="icon ${cls || ""}" aria-hidden="true"><use href="/assets/icons.svg#${name}"></use></svg>`;
 
+// Marks a random bot next to its name; the race tint behind the name shows the race.
+export const raceDice = title => html`<span class="race-dice" title=${title}>${icon("dice")}</span>`;
+
+export function formatMinutes(seconds) {
+    const s = Math.round(seconds);
+    return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+}
+
+// ranking.json marks unranked bots "UNRANKED" and unknown dates with Java's Instant.MIN (a huge negative number).
+export function prepareRankingBot(bot) {
+    if (bot.rank === "UNRANKED") bot.rank = "U";
+    if (bot.previousRank === "UNRANKED") bot.previousRank = "U";
+    const inWindow = bot.wonInWindow + bot.lostInWindow;
+    bot.win7 = inWindow > 0 ? bot.wonInWindow / inWindow : null;
+    bot.lastUpdated = bot.lastUpdated > 0 ? new Date(bot.lastUpdated * 1000) : null;
+    return bot;
+}
+
 const rankOrder = { S: 0, A: 1, B: 2, C: 3, D: 4, E: 5, F: 6 };
 
 export function rankValue(rank) {

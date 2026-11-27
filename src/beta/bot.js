@@ -1,9 +1,10 @@
 import Chart from 'chart.js'
 import { applyThemeToChart, chartThemeColors, registerChartUpdater } from './charts.js'
-import { dataBaseUrl, icon, racecol, racename, rankcol, sortByRank } from './common.js'
+import { dataBaseUrl, prepareRankingBot, racecol, racename, raceDice, rankcol, sortByRank } from './common.js'
 import { html, render } from 'lit-html'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
-import renderGameListing from './gamelisting';
+import renderGameListing from './gamelisting.js';
+import { CLOSE_OPPONENT_MIN_GAMES, closestOpponents, crosstableUrl } from './opponents.js';
 
 const statsBaseUrl = dataBaseUrl + "stats/";
 const botName = new URLSearchParams(location.search).get("bot") || "";
@@ -25,7 +26,7 @@ const botHeader = (bot, maxElo) => html`
 <div class="bot-title ${racecol(bot.race)}">
     <span class="rank ${rankcol(bot.rank)}">${bot.rank}</span>
     <h1>${bot.botName}</h1>
-    ${racecol(bot.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
+    ${racecol(bot.race) === "race_random" ? raceDice("Random race") : ""}
 </div>
 <div class="bot-stats">
     ${stat("Race", racename(bot.race))}
@@ -216,15 +217,12 @@ function setupRaceMatchups(data) {
     updaters.push(update);
 }
 
-// With fewer games, a 50% win rate is mostly luck (2-2, 3-3), not an even match.
-const CLOSE_OPPONENT_MIN_GAMES = 10;
-
 const closeOpponentRow = (s, info) => html`
 <div class="opp">
-    ${info ? html`<span class="rank ${rankcol(info.rank === "UNRANKED" ? "U" : info.rank)}">${info.rank === "UNRANKED" ? "U" : info.rank}</span>` : html`<span></span>`}
+    ${info ? html`<span class="rank ${rankcol(info.rank)}">${info.rank}</span>` : html`<span></span>`}
     <span class="name-cell ${info ? racecol(info.race) : ""}">
         <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(s.name)}" title=${s.name + (info ? " (" + racename(info.race) + ")" : "")}>${s.name}</a>
-        ${info && racecol(info.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
+        ${info && racecol(info.race) === "race_random" ? raceDice("Random race") : ""}
     </span>
     ${winRateBar(s.won, s.lost)}
 </div>`;
@@ -232,22 +230,10 @@ const closeOpponentRow = (s, info) => html`
 function setupCloseOpposition(data, botsByName) {
     const node = document.getElementById("closeOpposition");
     function update() {
-        const vs = {};
-        data.results.filter(inRange).forEach(x => {
-            const s = vs[x.e] = (vs[x.e] || { won: 0, lost: 0, name: data.bots[x.e] });
-            if (x.w === 1) s.won++; else s.lost++;
-        });
-        const rate = s => s.won / (s.won + s.lost);
-        const games = s => s.won + s.lost;
-        // Pick the 10 closest to 50%, then show them by win rate so the bars read in order across the 50% line.
-        // On ties, more games first: that win rate is more reliable.
-        const closest = Object.values(vs)
-            .filter(s => games(s) >= CLOSE_OPPONENT_MIN_GAMES)
-            .sort((a, b) => Math.abs(rate(a) - 0.5) - Math.abs(rate(b) - 0.5) || games(b) - games(a))
-            .slice(0, 10)
-            .sort((a, b) => rate(b) - rate(a) || games(b) - games(a));
+        const closest = closestOpponents(data.results.filter(inRange), data.bots);
         render(closest.length
-            ? html`<div class="winrate-list close-opposition">${closest.map(s => closeOpponentRow(s, botsByName.get(s.name)))}</div>`
+            ? html`<div class="winrate-list close-opposition">${closest.map(s => closeOpponentRow(s, botsByName.get(s.name)))}</div>
+                <p class="crosstable-link"><a href=${crosstableUrl(botName, closest.map(s => s.name), selectedRange.preset)}>Compare these bots with each other in the crosstable</a></p>`
             : html`<p><small>No opponent has ${CLOSE_OPPONENT_MIN_GAMES} or more games in this range, too few to tell an even match from luck. Try 30 days or more.</small></p>`, node);
     }
     update();
@@ -398,13 +384,7 @@ const ownEloRequest = fetchEloHistory(botName);
 ownEloRequest.catch(() => {});
 
 rankingRequest.then(bots => {
-    for (const bot of bots) {
-        if (bot.rank === "UNRANKED") bot.rank = "U";
-        const inWindow = bot.wonInWindow + bot.lostInWindow;
-        bot.win7 = inWindow > 0 ? bot.wonInWindow / inWindow : null;
-        // The data uses Java's Instant.MIN (a huge negative number) for "unknown".
-        bot.lastUpdated = bot.lastUpdated > 0 ? new Date(bot.lastUpdated * 1000) : null;
-    }
+    bots.forEach(prepareRankingBot);
     const me = bots.find(b => b.botName === botName);
     if (!me) {
         render(html`<h1>${botName || "No bot selected"}</h1><p>This bot is not in the ranking.</p>`, headerNode);

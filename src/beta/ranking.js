@@ -1,5 +1,5 @@
 import { html, render } from 'lit-html';
-import { dataBaseUrl, icon, racecol, racename, rankcol, rankValue, sortByRank } from './common.js';
+import { dataBaseUrl, icon, prepareRankingBot, racecol, racename, raceDice, rankcol, rankValue, sortByRank } from './common.js';
 
 const srcUrl = dataBaseUrl + "stats/ranking.json";
 const container = document.querySelector("#rankingTable");
@@ -25,7 +25,7 @@ const botCell = bot => html`
 <td class="bot ${racecol(bot.race)}">
     <div>
         <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(bot.botName)}" title=${bot.botName + " (" + racename(bot.race) + ")"}>${bot.botName}</a>
-        ${racecol(bot.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
+        ${racecol(bot.race) === "race_random" ? raceDice("Random race") : ""}
     </div>
 </td>`;
 
@@ -116,13 +116,8 @@ render(html`Source: <a href=${srcUrl}>${srcUrl}</a>`, document.querySelector("#s
 
 fetch(srcUrl).then(r => r.json()).then(bots => {
     for (const bot of bots) {
-        if (bot.rank === "UNRANKED") bot.rank = "U";
-        if (bot.previousRank === "UNRANKED") bot.previousRank = "U";
-        const inWindow = bot.wonInWindow + bot.lostInWindow;
-        bot.win7 = inWindow > 0 ? bot.wonInWindow / inWindow : null;
+        prepareRankingBot(bot);
         if (bot.won + bot.lost < 30) bot.rating = null;
-        // The data uses Java's Instant.MIN (a huge negative number) for "unknown".
-        bot.lastUpdated = bot.lastUpdated > 0 ? new Date(bot.lastUpdated * 1000) : null;
         const change = rankValue(bot.rank) - rankValue(bot.previousRank);
         bot.downRanked = bot.previousRank && change > 0;
         bot.upRanked = bot.previousRank && change < 0;

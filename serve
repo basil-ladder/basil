@@ -1,0 +1,9 @@
+#!/bin/sh
+# Serves the site at http://localhost:4000 with the same Jekyll as GitHub Pages, rebuilding on file changes.
+# Script changes in src/ need `npm run build` (or `npm run dev`) as well.
+exec docker run --rm -it \
+  --user "$(id -u):$(id -g)" \
+  --volume="$(cd "$(dirname "$0")" && pwd)":/work \
+  -p 127.0.0.1:4000:4000 \
+  ghcr.io/github/pages-gem:latest \
+  sh -c 'cd /work && jekyll serve --host 0.0.0.0 --watch --force_polling'

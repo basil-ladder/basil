@@ -1,22 +1,17 @@
 import { html, render } from 'lit-html';
-import { dataBaseUrl, icon, racecol, racename, rankcol } from './common.js';
+import { dataBaseUrl, formatMinutes, icon, racecol, racename, raceDice, rankcol } from './common.js';
 
 const srcUrl = dataBaseUrl + "stats/games_24h.json";
 const viewerUrl = "https://dgant.github.io/openbw-replay-viewer/?rep=";
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
 const fullFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
 
-function formatGameTime(frameCount) {
-    const secs = Math.round(frameCount / 24);
-    return Math.floor(secs / 60) + ":" + String(secs % 60).padStart(2, "0");
-}
-
 const botCell = bot => html`
 <td class="bot ${racecol(bot.race)}">
     <div>
         <span class="rank ${rankcol(bot.rank)}">${bot.rank}</span>
         <a class="name${bot.winner ? " winner" : ""}" href="/beta/bot.html?bot=${encodeURIComponent(bot.name)}" title=${bot.name + " (" + racename(bot.race) + ")"}>${bot.name}</a>
-        ${bot.randomBot ? html`<span class="race-dice" title=${"Random race, played " + racename(bot.race)}>${icon("dice")}</span>` : ""}
+        ${bot.randomBot ? raceDice("Random race, played " + racename(bot.race)) : ""}
         ${bot.crashed ? html`<span class="crashed" title="Crashed">${icon("car-crash")}</span>` : ""}
     </div>
 </td>`;
@@ -126,7 +121,7 @@ function parseGames(data) {
             botA: botA,
             botB: botB,
             timestamp: g.endedAt,
-            gameTime: g.frameCount ? formatGameTime(g.frameCount) : undefined,
+            gameTime: g.frameCount ? formatMinutes(g.frameCount / 24) : undefined,
             notPlayed: !g.frameCount,
             validGame: !g.invalidGame && !g.realTimeout,
             realTimeout: g.realTimeout,

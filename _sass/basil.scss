@@ -772,6 +772,13 @@ img {
 a {
   color: inherit;
 }
+// Beta pages: plain links in the content look like links again. :where() keeps the priority as low as the
+// rule above, so styled links (bot names, replay icons) keep their own colours.
+:where(.beta .page-content) a {
+  color: var(--link-color);
+  &:where(:visited) { color: var(--link-visited); }
+  &:where(:hover) { color: var(--text-primary); }
+}
 button, input, select, textarea, optgroup {
   font: inherit;
   margin: 0;
@@ -968,6 +975,10 @@ details.disabled-bots {
 }
 
 // Lists with a win-rate bar per row (close opposition, race matchups).
+.crosstable-link {
+  margin-top: -0.75em;
+  font-size: 0.9em;
+}
 .winrate-list.close-opposition {
   // Names get room before the bar; spare width stays on the right instead of spreading the columns.
   grid-template-columns: auto minmax(6em, max-content) auto minmax(3em, 12em) auto;
@@ -1085,7 +1096,6 @@ details.disabled-bots {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .presets button,
   input {
     font: inherit;
     font-size: 0.9em;
@@ -1095,17 +1105,27 @@ details.disabled-bots {
     background: var(--input-bg);
     color: var(--input-text);
   }
-  .presets {
-    display: flex;
-    gap: 0.3em;
-    button {
-      cursor: pointer;
-      &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 1px; }
-      &.active {
-        background: $my-orange-color;
-        border-color: $my-orange-color;
-        color: #111;
-      }
+}
+
+// Time-range buttons on the bot page and the crosstable.
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  button {
+    font: inherit;
+    font-size: 0.9em;
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--input-text);
+    cursor: pointer;
+    &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 1px; }
+    &.active {
+      background: $my-orange-color;
+      border-color: $my-orange-color;
+      color: #111;
     }
   }
 }
@@ -1207,13 +1227,8 @@ button.compare {
   align-items: center;
   gap: 0.5em 1em;
   margin-bottom: 0.5em;
-  .presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3em;
-  }
-  .presets button,
   input[type="number"] {
+    width: 5.5em;
     font: inherit;
     font-size: 0.9em;
     padding: 0.25em 0.6em;
@@ -1222,16 +1237,6 @@ button.compare {
     background: var(--input-bg);
     color: var(--input-text);
   }
-  .presets button {
-    cursor: pointer;
-    &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 1px; }
-    &.active {
-      background: $my-orange-color;
-      border-color: $my-orange-color;
-      color: #111;
-    }
-  }
-  input[type="number"] { width: 5.5em; }
 }
 
 // The grid scrolls inside this box so the header row and the name column can stay in place.

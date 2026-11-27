@@ -1,5 +1,5 @@
 import { html, render } from 'lit-html';
-import { dataBaseUrl, racecol } from './common.js';
+import { dataBaseUrl, formatMinutes, racecol } from './common.js';
 
 const srcUrl = dataBaseUrl + "stats/stats.json";
 const container = document.getElementById("stats");
@@ -22,11 +22,6 @@ const winRateRow = (label, won, lost) => html`
     <span class="wr">${percent.format(won / (won + lost))}</span>
 </div>`;
 
-function formatDuration(seconds) {
-    const s = Math.round(seconds);
-    return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-}
-
 const view = d => {
     // Each cell counts the wins of the row race against the column race.
     const wins = d.raceCrossTable;
@@ -45,7 +40,7 @@ const view = d => {
     ${tile("Games played", count.format(d.gamesPlayed))}
     ${tile("Bots", count.format(totalBots))}
     ${tile("Crashes", count.format(d.crashes), percent.format(d.crashes / d.gamesPlayed) + " of games")}
-    ${tile("Average game", formatDuration(d.averageGameRealtime), "minutes, real time")}
+    ${tile("Average game", formatMinutes(d.averageGameRealtime), "minutes, real time")}
     ${tile("Bot update window", hourFormat.formatRange(update, new Date(update.getTime() + 3600 * 1000)), "your time")}
 </div>
 

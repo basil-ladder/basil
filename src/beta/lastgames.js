@@ -1,5 +1,5 @@
 import { html, render } from 'lit-html';
-import renderGameListing from './gamelisting';
+import renderGameListing from './gamelisting.js';
 
 renderGameListing();
 
