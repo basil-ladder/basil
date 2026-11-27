@@ -501,7 +501,7 @@ pre, code {
     border-radius: 3px;
   }
 
-  // A small block instead of a full cell fill keeps rows calm; same size as the dice icon.
+  // Race block for the stats page's race counts.
   .race {
     flex: none;
     display: inline-block;
@@ -515,18 +515,20 @@ pre, code {
     &.race_unknown { background: transparent; border: 1px dashed var(--race-random-fg); }
   }
 
-  // Fixed width so names line up whether the bot shows a block or a dice.
-  .race-slot {
-    flex: none;
-    width: 1.25em;
-    display: flex;
-    justify-content: center;
+  // Race as cell background, like the classic pages; the dice after the name marks random bots.
+  // Dark tints are see-through, so they sit on the page colour instead of the row stripe.
+  td.bot {
+    &.race_protoss { background: linear-gradient(var(--race-protoss-tint), var(--race-protoss-tint)), var(--bg-primary); }
+    &.race_terran { background: linear-gradient(var(--race-terran-tint), var(--race-terran-tint)), var(--bg-primary); }
+    &.race_zerg { background: linear-gradient(var(--race-zerg-tint), var(--race-zerg-tint)), var(--bg-primary); }
+    &.race_random { background: linear-gradient(var(--race-random-tint), var(--race-random-tint)), var(--bg-primary); }
+    &.race_unknown { background: linear-gradient(var(--race-unknown-tint), var(--race-unknown-tint)), var(--bg-primary); }
   }
+  // Marks random bots; it sits on the race tint, so it takes the text colour.
   .race-dice {
-    color: var(--race-random-fg);
-    &.race_protoss { color: var(--race-protoss-fg); }
-    &.race_terran { color: var(--race-terran-fg); }
-    &.race_zerg { color: var(--race-zerg-fg); }
+    flex: none;
+    color: inherit;
+    opacity: 0.7;
   }
 }
 
@@ -942,6 +944,14 @@ details.disabled-bots {
   align-items: center;
   gap: 0.5em;
   margin-bottom: 0.5em;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  // Same race tints as the bot cells in the tables.
+  &.race_protoss { background-color: var(--race-protoss-tint); }
+  &.race_terran { background-color: var(--race-terran-tint); }
+  &.race_zerg { background-color: var(--race-zerg-tint); }
+  &.race_random { background-color: var(--race-random-tint); }
+  &.race_unknown { background-color: var(--race-unknown-tint); }
   h1 {
     margin: 0;
     font-size: 1.8em;
@@ -960,7 +970,19 @@ details.disabled-bots {
 // Lists with a win-rate bar per row (close opposition, race matchups).
 .winrate-list.close-opposition {
   // Names get room before the bar; spare width stays on the right instead of spreading the columns.
-  grid-template-columns: auto auto minmax(6em, max-content) auto minmax(3em, 12em) auto;
+  grid-template-columns: auto minmax(6em, max-content) auto minmax(3em, 12em) auto;
+  // Race tint behind the name, like the bot cells in the tables.
+  .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-width: 0;
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    @each $race in protoss, terran, zerg, random, unknown {
+      &.race_#{$race} { background-color: var(--race-#{$race}-tint); }
+    }
+  }
 }
 .winrate-list.matchups {
   grid-template-columns: minmax(6em, max-content) auto minmax(3em, 12em) auto;
@@ -1177,3 +1199,146 @@ button.compare {
     gap: 0.35em;
   }
 }
+
+// Crosstable (beta)
+.crosstable-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-bottom: 0.5em;
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+  }
+  .presets button,
+  input[type="number"] {
+    font: inherit;
+    font-size: 0.9em;
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--input-text);
+  }
+  .presets button {
+    cursor: pointer;
+    &:focus-visible { outline: 2px solid $my-orange-color; outline-offset: 1px; }
+    &.active {
+      background: $my-orange-color;
+      border-color: $my-orange-color;
+      color: #111;
+    }
+  }
+  input[type="number"] { width: 5.5em; }
+}
+
+// The grid scrolls inside this box so the header row and the name column can stay in place.
+.crosstable-scroll {
+  overflow: auto;
+  max-height: 100vh;
+  // Overlay scroll bars (GTK, macOS) hide until hovered; this grid needs a visible one.
+  scrollbar-width: auto;
+}
+
+table.crosstable-grid {
+  --name-w: 11em;
+  // Fixed widths: the browser no longer measures 14,000 cells to size the columns.
+  // That only works with an exact table width; "max-content" falls back to measuring.
+  table-layout: fixed;
+  width: calc(var(--name-w) + 3.5em + var(--cols) * 6.2em);
+  border: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.7em;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: 0 0.2em;
+    border: 0;
+    border-right: 1px solid var(--crosstable-border);
+    border-bottom: 1px solid var(--crosstable-border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.8;
+  }
+  tbody tr:nth-child(even) { background: none; }
+  td {
+    width: 6.2em;
+    text-align: center;
+    color: #111;
+    &.self { background: var(--table-header-bg); }
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    vertical-align: bottom;
+    background: var(--bg-primary);
+  }
+  th.colhead {
+    width: 6.2em;
+    height: 9em;
+    padding: 0.3em 0;
+    // Vertical names, read bottom to top like axis labels.
+    div {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      max-height: 8.4em;
+      margin: 0 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  th.rowhead,
+  th.corner {
+    position: sticky;
+    left: 0;
+    width: var(--name-w);
+    text-align: left;
+    font-weight: normal;
+    background: var(--bg-primary);
+  }
+  th.corner {
+    z-index: 3;
+    font-weight: 600;
+  }
+  th.elo {
+    width: 3.5em;
+    text-align: right;
+    font-weight: normal;
+    color: var(--text-secondary);
+  }
+  thead th.elo { font-weight: 600; color: inherit; }
+  th.rowhead {
+    z-index: 1;
+    > div {
+      display: flex;
+      gap: 0.4em;
+    }
+    a {
+      color: inherit;
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pos { flex: none; width: 2em; text-align: right; color: var(--text-secondary); }
+  }
+  // Same tints as the bot cells in the other tables, over a solid colour because these cells sit on top of the grid.
+  @each $race in protoss, terran, zerg, random, unknown {
+    th.race_#{$race} { background: linear-gradient(var(--race-#{$race}-tint), var(--race-#{$race}-tint)), var(--bg-primary); }
+  }
+  th.hl { box-shadow: inset 0 0 0 2px $my-orange-color; }
+  td:hover { box-shadow: inset 0 0 0 2px $my-orange-color; }
+
+  @media screen and (max-width: $cards-below) {
+    --name-w: 8.5em;
+  }
+}
+
+:root[data-theme="dark"] table.crosstable-grid td { color: #fff; }

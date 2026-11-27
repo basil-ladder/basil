@@ -12,15 +12,11 @@ function formatGameTime(frameCount) {
 }
 
 const botCell = bot => html`
-<td class="bot">
+<td class="bot ${racecol(bot.race)}">
     <div>
         <span class="rank ${rankcol(bot.rank)}">${bot.rank}</span>
-        <span class="race-slot" title=${racename(bot.race) + (bot.randomBot ? " (random bot)" : "")}>
-            ${bot.randomBot
-                ? icon("dice", "race-dice " + racecol(bot.race))
-                : html`<span class="race ${racecol(bot.race)}"></span>`}
-        </span>
-        <a class="name${bot.winner ? " winner" : ""}" href="/beta/bot.html?bot=${encodeURIComponent(bot.name)}" title=${bot.name}>${bot.name}</a>
+        <a class="name${bot.winner ? " winner" : ""}" href="/beta/bot.html?bot=${encodeURIComponent(bot.name)}" title=${bot.name + " (" + racename(bot.race) + ")"}>${bot.name}</a>
+        ${bot.randomBot ? html`<span class="race-dice" title=${"Random race, played " + racename(bot.race)}>${icon("dice")}</span>` : ""}
         ${bot.crashed ? html`<span class="crashed" title="Crashed">${icon("car-crash")}</span>` : ""}
     </div>
 </td>`;

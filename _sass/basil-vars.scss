@@ -33,6 +33,12 @@
   --race-zerg-bg: #c27ba0;
   --race-random-bg: #cccccc;
   --race-unknown-bg: #ff4444;
+  // Beta pages: half the race colour on white, so whole cells stay calm.
+  --race-protoss-tint: #f8e099;
+  --race-terran-tint: #b7d4ee;
+  --race-zerg-tint: #e0bdcf;
+  --race-random-tint: #dadada;
+  --race-unknown-tint: #ffa2a2;
 
   // Darker shades so thin marks and icons stay visible on a white background.
   --race-protoss-fg: #c49000;
@@ -76,6 +82,11 @@
   --race-zerg-bg: rgba(194, 123, 160, 0.3);
   --race-random-bg: rgba(204, 204, 204, 0.2);
   --race-unknown-bg: rgba(255, 68, 68, 0.3);
+  --race-protoss-tint: rgba(241, 194, 50, 0.42);
+  --race-terran-tint: rgba(111, 168, 220, 0.42);
+  --race-zerg-tint: rgba(194, 123, 160, 0.42);
+  --race-random-tint: rgba(204, 204, 204, 0.3);
+  --race-unknown-tint: rgba(255, 68, 68, 0.42);
 
   --race-protoss-fg: #f1c232;
   --race-terran-fg: #6fa8dc;

@@ -22,11 +22,10 @@ const rankChange = bot =>
                 : "";
 
 const botCell = bot => html`
-<td class="bot">
+<td class="bot ${racecol(bot.race)}">
     <div>
-        <span class="race-slot" title=${racename(bot.race)}>${racecol(bot.race) === "race_random"
-            ? icon("dice", "race-dice") : html`<span class="race ${racecol(bot.race)}"></span>`}</span>
-        <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(bot.botName)}" title=${bot.botName}>${bot.botName}</a>
+        <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(bot.botName)}" title=${bot.botName + " (" + racename(bot.race) + ")"}>${bot.botName}</a>
+        ${racecol(bot.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
     </div>
 </td>`;
 

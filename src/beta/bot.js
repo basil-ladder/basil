@@ -22,11 +22,10 @@ renderGameListing({
 const stat = (label, value, title) => html`<div class="stat" title=${title || ""}><span>${label}</span>${value}</div>`;
 
 const botHeader = (bot, maxElo) => html`
-<div class="bot-title">
+<div class="bot-title ${racecol(bot.race)}">
     <span class="rank ${rankcol(bot.rank)}">${bot.rank}</span>
-    <span class="race-slot" title=${racename(bot.race)}>${racecol(bot.race) === "race_random"
-        ? icon("dice", "race-dice") : html`<span class="race ${racecol(bot.race)}"></span>`}</span>
     <h1>${bot.botName}</h1>
+    ${racecol(bot.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
 </div>
 <div class="bot-stats">
     ${stat("Race", racename(bot.race))}
@@ -222,10 +221,11 @@ const CLOSE_OPPONENT_MIN_GAMES = 10;
 
 const closeOpponentRow = (s, info) => html`
 <div class="opp">
-    ${info ? html`<span class="rank ${rankcol(info.rank === "UNRANKED" ? "U" : info.rank)}">${info.rank === "UNRANKED" ? "U" : info.rank}</span>
-    <span class="race-slot" title=${racename(info.race)}>${racecol(info.race) === "race_random"
-        ? icon("dice", "race-dice") : html`<span class="race ${racecol(info.race)}"></span>`}</span>` : html`<span></span><span></span>`}
-    <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(s.name)}" title=${s.name}>${s.name}</a>
+    ${info ? html`<span class="rank ${rankcol(info.rank === "UNRANKED" ? "U" : info.rank)}">${info.rank === "UNRANKED" ? "U" : info.rank}</span>` : html`<span></span>`}
+    <span class="name-cell ${info ? racecol(info.race) : ""}">
+        <a class="name" href="/beta/bot.html?bot=${encodeURIComponent(s.name)}" title=${s.name + (info ? " (" + racename(info.race) + ")" : "")}>${s.name}</a>
+        ${info && racecol(info.race) === "race_random" ? html`<span class="race-dice" title="Random race">${icon("dice")}</span>` : ""}
+    </span>
     ${winRateBar(s.won, s.lost)}
 </div>`;
 
