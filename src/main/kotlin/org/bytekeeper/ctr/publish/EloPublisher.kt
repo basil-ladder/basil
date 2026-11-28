@@ -8,7 +8,7 @@ import org.bytekeeper.ctr.PreparePublish
 import org.bytekeeper.ctr.Publisher
 import org.bytekeeper.ctr.repository.*
 import org.springframework.stereotype.Component
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectWriter
 
 @Component
@@ -21,7 +21,7 @@ class EloPublisher(
 
     @CommandHandler
     @Timed
-    @Transactional
+    @Transactional(readOnly = true)
     fun handle(preparePublish: PreparePublish) {
         val writer = jacksonObjectMapper().writer()
 
